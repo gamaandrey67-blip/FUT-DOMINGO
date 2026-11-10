@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -6,903 +5,315 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#071b14">
 <title>FUTDOMINGO</title>
-
 <style>
-:root {
-  --bg:#071b14;
-  --panel:#10271e;
-  --panel2:#163529;
-  --green:#35d07f;
-  --green2:#1eaa61;
-  --text:#f3fff8;
-  --muted:#9bb6a6;
-  --red:#ff6565;
-  --pink:#ff78b7;
-  --orange:#ff9b45;
-  --border:rgba(255,255,255,.09);
-}
-*{box-sizing:border-box}
-body{
-  margin:0;background:var(--bg);color:var(--text);
-  font-family:Arial,Helvetica,sans-serif;
-}
-header{
-  padding:22px 18px 18px;
-  background:linear-gradient(135deg,#0d3826,#071b14);
-  border-bottom:1px solid var(--border);
-}
-.header-content{max-width:1100px;margin:auto}
-.logo{font-size:27px;font-weight:900;letter-spacing:1px}
-.logo span{color:var(--green)}
-.subtitle{color:var(--muted);font-size:12px;margin-top:5px}
-.status{
-  display:inline-flex;align-items:center;gap:7px;
-  font-size:11px;color:var(--green);margin-top:14px;
-  background:#173d2c;padding:7px 10px;border-radius:30px;
-}
-.dot{width:7px;height:7px;border-radius:50%;background:var(--green)}
-main{max-width:1100px;margin:auto;padding:18px}
-nav{
-  display:flex;gap:7px;overflow-x:auto;padding-bottom:12px;
-  scrollbar-width:none;
-}
-nav button{
-  border:1px solid var(--border);background:var(--panel);
-  color:var(--muted);padding:11px 14px;border-radius:10px;
-  white-space:nowrap;font-weight:700;cursor:pointer;
-}
-nav button.active{background:var(--green);color:#062013;border-color:var(--green)}
-.section{display:none}
-.section.active{display:block}
-h2{font-size:21px;margin:12px 0 5px}
-.description{color:var(--muted);font-size:13px;margin:0 0 18px}
-.grid{
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
-  gap:12px;margin-bottom:18px;
-}
-.card{
-  background:var(--panel);border:1px solid var(--border);
-  padding:17px;border-radius:15px;
-}
-.metric{font-size:29px;font-weight:900;color:var(--green);margin-top:8px}
-.metric-label{font-size:12px;color:var(--muted)}
-.panel{
-  background:var(--panel);border:1px solid var(--border);
-  padding:17px;border-radius:15px;margin-bottom:14px;
-}
-.panel h3{margin:0 0 14px;font-size:16px}
-input,select{
-  width:100%;padding:12px;border-radius:9px;
-  border:1px solid var(--border);background:#091e16;
-  color:var(--text);outline:none;font-size:14px;
-}
-label{display:block;color:var(--muted);font-size:12px;margin:12px 0 6px}
-button{font-family:inherit}
-.btn{
-  border:0;border-radius:9px;padding:12px 15px;
-  font-weight:800;cursor:pointer;background:var(--green);
-  color:#062013;
-}
-.btn:hover{filter:brightness(1.08)}
-.btn.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--border)}
-.btn.danger{background:#512323;color:#ffdede}
-.btn.small{padding:8px 10px;font-size:12px}
-.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
-.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
-.player{
-  display:flex;justify-content:space-between;align-items:center;
-  gap:10px;padding:13px 0;border-bottom:1px solid var(--border);
-}
-.player:last-child{border:0}
-.player-name{font-weight:800}
-.player-info{font-size:12px;color:var(--muted);margin-top:4px}
-.stars{color:#ffd166;letter-spacing:2px}
-.badge{
-  background:#1b4933;color:var(--green);padding:5px 8px;
-  border-radius:20px;font-size:11px;font-weight:800;
-}
-.checkbox-row{display:flex;align-items:center;gap:9px;margin:12px 0}
-.checkbox-row input{width:auto;accent-color:var(--green)}
-.checkbox-row label{margin:0;color:var(--text);font-size:13px}
-.team-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.team{
-  background:var(--panel);border:1px solid var(--border);
-  border-radius:14px;padding:15px;
-}
-.team h3{margin:0 0 12px}
-.team-a{border-color:rgba(255,120,183,.35)}
-.team-b{border-color:rgba(255,155,69,.35)}
-.team-a h3{color:var(--pink)}
-.team-b h3{color:var(--orange)}
-.team-player{
-  padding:9px 0;border-bottom:1px solid var(--border);
-  display:flex;justify-content:space-between;gap:8px;font-size:13px;
-}
-.team-player:last-child{border:0}
-.team-total{font-size:12px;color:var(--muted);margin-top:12px}
-.goal-item{
-  padding:12px;background:#0a2117;border-radius:10px;
-  margin-top:9px;display:flex;justify-content:space-between;gap:10px;
-  font-size:13px;
-}
-.goal-item small{color:var(--muted)}
-.empty{color:var(--muted);font-size:13px;padding:14px 0}
-.history-item{border-bottom:1px solid var(--border);padding:14px 0}
-.history-item:last-child{border:0}
-.score{font-size:23px;font-weight:900;color:var(--green);margin:8px 0}
-.score-rosa{color:var(--pink)}
-.score-laranja{color:var(--orange)}
-.stat-row{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
-.stat-row:last-child{border:0}
-.muted{color:var(--muted)}
-.notice{font-size:12px;color:var(--muted);line-height:1.5;margin-top:10px}
-@media(max-width:600px){
-  main{padding:13px}
-  .team-grid{grid-template-columns:1fr}
-  .logo{font-size:24px}
-  .player{align-items:flex-start}
-}
+:root{--bg:#071b14;--panel:#10271e;--panel2:#163529;--green:#35d07f;--text:#f3fff8;--muted:#9bb6a6;--red:#ff6565;--pink:#ff78b7;--orange:#ff9b45;--border:rgba(255,255,255,.09)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+header{padding:22px 18px 18px;background:linear-gradient(135deg,#0d3826,#071b14);border-bottom:1px solid var(--border)}
+.header-content{max-width:1100px;margin:auto}.logo{font-size:27px;font-weight:900;letter-spacing:1px}.logo span{color:var(--green)}
+.subtitle{color:var(--muted);font-size:12px;margin-top:5px}.status{display:inline-flex;align-items:center;gap:7px;font-size:11px;color:var(--green);margin-top:14px;background:#173d2c;padding:7px 10px;border-radius:30px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green)}main{max-width:1100px;margin:auto;padding:18px}
+nav{display:flex;gap:7px;overflow-x:auto;padding-bottom:12px;scrollbar-width:none}nav button{border:1px solid var(--border);background:var(--panel);color:var(--muted);padding:11px 14px;border-radius:10px;white-space:nowrap;font-weight:700;cursor:pointer}nav button.active{background:var(--green);color:#062013;border-color:var(--green)}
+.section{display:none}.section.active{display:block}h2{font-size:21px;margin:12px 0 5px}.description{color:var(--muted);font-size:13px;margin:0 0 18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:18px}.card{background:var(--panel);border:1px solid var(--border);padding:17px;border-radius:15px}.metric{font-size:29px;font-weight:900;color:var(--green);margin-top:8px}.metric-label{font-size:12px;color:var(--muted)}
+.panel{background:var(--panel);border:1px solid var(--border);padding:17px;border-radius:15px;margin-bottom:14px}.panel h3{margin:0 0 14px;font-size:16px}
+input,select{width:100%;padding:12px;border-radius:9px;border:1px solid var(--border);background:#091e16;color:var(--text);outline:none;font-size:14px}label{display:block;color:var(--muted);font-size:12px;margin:12px 0 6px}button{font-family:inherit}
+.btn{border:0;border-radius:9px;padding:12px 15px;font-weight:800;cursor:pointer;background:var(--green);color:#062013}.btn:hover{filter:brightness(1.08)}.btn.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--border)}.btn.danger{background:#512323;color:#ffdede}.btn.small{padding:8px 10px;font-size:12px}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
+.player{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:13px 0;border-bottom:1px solid var(--border)}.player:last-child{border:0}.player-name{font-weight:800}.player-info{font-size:12px;color:var(--muted);margin-top:4px}.stars{color:#ffd166;letter-spacing:2px}
+.badge{background:#1b4933;color:var(--green);padding:5px 8px;border-radius:20px;font-size:11px;font-weight:800}.checkbox-row{display:flex;align-items:center;gap:9px;margin:12px 0}.checkbox-row input{width:auto;accent-color:var(--green)}.checkbox-row label{margin:0;color:var(--text);font-size:13px}
+.team-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.team{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:15px}.team h3{margin:0 0 12px}.team-a{border-color:rgba(255,120,183,.35)}.team-b{border-color:rgba(255,155,69,.35)}.team-a h3{color:var(--pink)}.team-b h3{color:var(--orange)}
+.team-player{padding:9px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:8px;font-size:13px}.team-player:last-child{border:0}.team-total{font-size:12px;color:var(--muted);margin-top:12px}
+.goal-item{padding:12px;background:#0a2117;border-radius:10px;margin-top:9px;display:flex;justify-content:space-between;gap:10px;font-size:13px}.goal-item small{color:var(--muted)}.empty{color:var(--muted);font-size:13px;padding:14px 0}
+.history-item{border-bottom:1px solid var(--border);padding:14px 0}.history-item:last-child{border:0}.score{font-size:23px;font-weight:900;color:var(--green);margin:8px 0}.score-rosa{color:var(--pink)}.score-laranja{color:var(--orange)}.stat-row{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}.stat-row:last-child{border:0}
+.muted{color:var(--muted)}.notice{font-size:12px;color:var(--muted);line-height:1.5;margin-top:10px}.auth-panel{max-width:520px;margin:18px auto}.auth-panel h2{margin-top:0}.hidden{display:none!important}.topline{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.error{color:#ff9a9a;font-size:12px;margin-top:10px}.success{color:var(--green);font-size:12px;margin-top:10px}
+@media(max-width:600px){main{padding:13px}.team-grid{grid-template-columns:1fr}.logo{font-size:24px}.player{align-items:flex-start}}
 </style>
 </head>
-
 <body>
-<header>
-  <div class="header-content">
-    <div class="logo">FUT<span>DOMINGO</span> ⚽</div>
-    <div class="subtitle">Futebol, equilíbrio e resenha de domingo.</div>
-    <div class="status"><span class="dot"></span> DADOS SALVOS NESTE DISPOSITIVO</div>
-  </div>
-</header>
-
+<header><div class="header-content">
+  <div class="logo">FUT<span>DOMINGO</span> ⚽</div>
+  <div class="subtitle">Futebol, equilíbrio e resenha de domingo.</div>
+  <div class="status"><span class="dot" id="connectionDot"></span><span id="connectionStatus">Verificando conexão...</span></div>
+</div></header>
 <main>
+<section class="panel auth-panel" id="authPanel">
+  <h2>Acessar FUTDOMINGO</h2>
+  <p class="description">Entre com sua conta para carregar o elenco e compartilhar as partidas.</p>
+  <label>E-mail</label><input type="email" id="authEmail" autocomplete="username" placeholder="seu@email.com">
+  <label>Senha</label><input type="password" id="authPassword" autocomplete="current-password" placeholder="Sua senha">
+  <div class="actions">
+    <button class="btn" id="loginButton" onclick="login()">Entrar</button>
+    <button class="btn secondary" id="signupButton" onclick="signup()">Criar conta participante</button>
+  </div>
+  <div id="authMessage" aria-live="polite"></div>
+  <p class="notice">A conta criada pelo aplicativo recebe perfil de participante. A administração do elenco continua restrita aos administradores cadastrados no Supabase.</p>
+</section>
+<div id="appContent" class="hidden">
+<div class="topline panel">
+  <div><strong id="signedUser">Conectado</strong><div class="notice" id="userRole"></div></div>
+  <div class="actions" style="margin:0"><button class="btn secondary small" onclick="syncNow()">Sincronizar</button><button class="btn danger small" onclick="logout()">Sair</button></div>
+</div>
 <nav>
-  <button class="active" data-tab="inicio">Início</button>
-  <button data-tab="jogadores">Jogadores</button>
-  <button data-tab="sorteio">Sorteio</button>
-  <button data-tab="resultado">Resultado</button>
-  <button data-tab="historico">Histórico</button>
-  <button data-tab="estatisticas">Estatísticas</button>
+  <button class="active" data-tab="inicio">Início</button><button data-tab="jogadores">Jogadores</button><button data-tab="sorteio">Sorteio</button><button data-tab="resultado">Resultado</button><button data-tab="historico">Histórico</button><button data-tab="estatisticas">Estatísticas</button>
 </nav>
-
 <section class="section active" id="inicio">
-  <h2>Visão geral</h2>
-  <p class="description">O resumo do nosso futebol.</p>
-  <div class="grid">
-    <div class="card">
-      <div class="metric" id="totalPlayers">0</div>
-      <div class="metric-label">Jogadores cadastrados</div>
-    </div>
-    <div class="card">
-      <div class="metric" id="totalMatches">0</div>
-      <div class="metric-label">Partidas registradas</div>
-    </div>
-    <div class="card">
-      <div class="metric" id="totalGoals">0</div>
-      <div class="metric-label">Gols registrados</div>
-    </div>
-    <div class="card">
-      <div class="metric" id="totalAssists">0</div>
-      <div class="metric-label">Assistências registradas</div>
-    </div>
-  </div>
-  <div class="panel">
-    <h3>Como funciona</h3>
-    <p class="notice">
-      1. Cadastre os jogadores e defina suas estrelas.<br>
-      2. Selecione quem vai jogar.<br>
-      3. Sorteie os times buscando equilíbrio.<br>
-      4. Registre cada gol, seu autor e a assistência.<br>
-      5. Consulte o histórico e as estatísticas.
-    </p>
-  </div>
-  <div class="panel">
-    <h3>Última partida</h3>
-    <div id="lastMatch" class="empty">Nenhuma partida registrada ainda.</div>
-  </div>
+<h2>Visão geral</h2><p class="description">O resumo do nosso futebol.</p>
+<div class="grid">
+<div class="card"><div class="metric" id="totalPlayers">0</div><div class="metric-label">Jogadores cadastrados</div></div>
+<div class="card"><div class="metric" id="totalMatches">0</div><div class="metric-label">Partidas registradas</div></div>
+<div class="card"><div class="metric" id="totalGoals">0</div><div class="metric-label">Gols registrados</div></div>
+<div class="card"><div class="metric" id="totalAssists">0</div><div class="metric-label">Assistências registradas</div></div>
+</div>
+<div class="panel"><h3>Como funciona</h3><p class="notice">1. Cadastre os jogadores e defina suas estrelas.<br>2. Selecione quem vai jogar.<br>3. Sorteie os times buscando equilíbrio.<br>4. Registre cada gol, seu autor e a assistência.<br>5. Consulte o histórico e as estatísticas.</p></div>
+<div class="panel"><h3>Última partida</h3><div id="lastMatch" class="empty">Nenhuma partida registrada ainda.</div></div>
 </section>
-
 <section class="section" id="jogadores">
-  <h2>Jogadores</h2>
-  <p class="description">Gerencie o elenco e a avaliação de cada jogador.</p>
-
-  <div class="panel">
-    <h3 id="playerFormTitle">Cadastrar jogador</h3>
-    <input type="hidden" id="editPlayerId">
-    <div class="form-grid">
-      <div>
-        <label>Nome do jogador</label>
-        <input id="playerName" placeholder="Digite o nome">
-      </div>
-      <div>
-        <label>Nível do jogador</label>
-        <select id="playerStars">
-          <option value="1">1 estrela</option>
-          <option value="2">2 estrelas</option>
-          <option value="3" selected>3 estrelas</option>
-          <option value="4">4 estrelas</option>
-          <option value="5">5 estrelas</option>
-        </select>
-      </div>
-    </div>
-    <div class="actions">
-      <button class="btn" onclick="savePlayer()">Salvar jogador</button>
-      <button class="btn secondary" onclick="cancelEdit()">Limpar</button>
-    </div>
-    <p class="notice">As estrelas representam o nível definido pelo administrador e serão usadas no equilíbrio dos times.</p>
-  </div>
-
-  <div class="panel">
-    <h3>Elenco cadastrado</h3>
-    <div id="playersList"></div>
-  </div>
+<h2>Jogadores</h2><p class="description">Gerencie o elenco e a avaliação de cada jogador.</p>
+<div class="panel" id="playerEditor"><h3 id="playerFormTitle">Cadastrar jogador</h3><input type="hidden" id="editPlayerId">
+<div class="form-grid"><div><label>Nome do jogador</label><input id="playerName" placeholder="Digite o nome"></div><div><label>Nível do jogador</label><select id="playerStars"><option value="1">1 estrela</option><option value="2">2 estrelas</option><option value="3" selected>3 estrelas</option><option value="4">4 estrelas</option><option value="5">5 estrelas</option></select></div></div>
+<div class="actions"><button class="btn" onclick="savePlayer()">Salvar jogador</button><button class="btn secondary" onclick="cancelEdit()">Limpar</button></div><p class="notice">As estrelas representam o nível definido pelo administrador e serão usadas no equilíbrio dos times.</p><div id="playerPermissionNote" class="notice"></div></div>
+<div class="panel"><h3>Elenco cadastrado</h3><div id="playersList"></div></div>
 </section>
-
 <section class="section" id="sorteio">
-  <h2>Montar os times</h2>
-  <p class="description">Selecione os jogadores presentes e faça o sorteio.</p>
-  <div class="panel">
-    <h3>Quem vai jogar?</h3>
-    <div id="attendanceList"></div>
-    <div class="actions">
-      <button class="btn secondary" onclick="selectAll()">Selecionar todos</button>
-      <button class="btn secondary" onclick="clearSelection()">Limpar seleção</button>
-      <button class="btn" onclick="drawTeams()">⚽ Sortear times</button>
-    </div>
-    <p class="notice">O sorteio procura dividir os jogadores de forma equilibrada pelas estrelas. Com quantidade ímpar, um time ficará com um jogador a mais.</p>
-  </div>
-  <div id="teamsResult"></div>
+<h2>Montar os times</h2><p class="description">Selecione os jogadores presentes e faça o sorteio.</p>
+<div class="panel"><h3>Quem vai jogar?</h3><div id="attendanceList"></div><div class="actions"><button class="btn secondary" onclick="selectAll()">Selecionar todos</button><button class="btn secondary" onclick="clearSelection()">Limpar seleção</button><button class="btn" onclick="drawTeams()">⚽ Sortear times</button></div><p class="notice">O sorteio procura dividir os jogadores de forma equilibrada pelas estrelas. Com quantidade ímpar, um time ficará com um jogador a mais.</p></div><div id="teamsResult"></div>
 </section>
-
 <section class="section" id="resultado">
-  <h2>Registrar resultado</h2>
-  <p class="description">Cada gol precisa ter um autor. A assistência é opcional.</p>
-
-  <div class="panel">
-    <h3>Placar atual</h3>
-    <div class="grid">
-      <div class="card">
-        <div class="metric score-rosa" id="scoreA">0</div>
-        <div class="metric-label">Time Rosa</div>
-      </div>
-      <div class="card">
-        <div class="metric score-laranja" id="scoreB">0</div>
-        <div class="metric-label">Time Laranja</div>
-      </div>
-    </div>
-
-    <h3>Adicionar gol</h3>
-    <div class="form-grid">
-      <div>
-        <label>Qual time marcou?</label>
-        <select id="goalTeam" onchange="updateScorerOptions()">
-          <option value="A">Time Rosa</option>
-          <option value="B">Time Laranja</option>
-        </select>
-      </div>
-      <div>
-        <label>Quem fez o gol?</label>
-        <select id="goalScorer"></select>
-      </div>
-    </div>
-
-    <div class="checkbox-row">
-      <input type="checkbox" id="soloGoal" onchange="toggleAssist()">
-      <label for="soloGoal">Gol solo (sem assistência)</label>
-    </div>
-
-    <div>
-      <label>Quem deu a assistência?</label>
-      <select id="goalAssist"></select>
-    </div>
-
-    <div class="actions">
-      <button class="btn" onclick="addGoal()">+ Registrar gol</button>
-    </div>
-    <div id="goalEvents"></div>
-  </div>
-
-  <div class="panel">
-    <h3>Finalizar partida</h3>
-    <label>Observação (opcional)</label>
-    <input id="matchNote" placeholder="Ex.: jogo de domingo, campo principal...">
-    <div class="actions">
-      <button class="btn" onclick="saveMatch()">Salvar resultado e histórico</button>
-      <button class="btn secondary" onclick="clearGoals()">Limpar gols</button>
-    </div>
-    <p class="notice">O placar é calculado automaticamente a partir dos gols registrados. Ao salvar, a partida entra no histórico.</p>
-  </div>
+<h2>Registrar resultado</h2><p class="description">Cada gol precisa ter um autor. A assistência é opcional.</p>
+<div class="panel"><h3>Placar atual</h3><div class="grid">
+<div class="card"><div class="metric score-rosa" id="scoreA">0</div><div class="metric-label">Time Rosa</div></div><div class="card"><div class="metric score-laranja" id="scoreB">0</div><div class="metric-label">Time Laranja</div></div></div>
+<h3>Adicionar gol</h3><div class="form-grid"><div><label>Qual time marcou?</label><select id="goalTeam" onchange="updateScorerOptions()"><option value="A">Time Rosa</option><option value="B">Time Laranja</option></select></div><div><label>Quem fez o gol?</label><select id="goalScorer"></select></div></div>
+<div class="checkbox-row"><input type="checkbox" id="soloGoal" onchange="toggleAssist()"><label for="soloGoal">Gol solo (sem assistência)</label></div>
+<div><label>Quem deu a assistência?</label><select id="goalAssist"></select></div><div class="actions"><button class="btn" onclick="addGoal()">+ Registrar gol</button></div><div id="goalEvents"></div></div>
+<div class="panel"><h3>Finalizar partida</h3><label>Observação (opcional)</label><input id="matchNote" placeholder="Ex.: jogo de domingo, campo principal..."><div class="actions"><button class="btn" onclick="saveMatch()">Salvar resultado e histórico</button><button class="btn secondary" onclick="clearGoals()">Limpar gols</button></div><p class="notice">O placar é calculado automaticamente a partir dos gols registrados. Ao salvar, a partida entra no histórico compartilhado.</p></div>
 </section>
-
-<section class="section" id="historico">
-  <h2>Histórico de partidas</h2>
-  <p class="description">Consulte os resultados já registrados.</p>
-  <div class="panel">
-    <div id="historyList"></div>
-  </div>
+<section class="section" id="historico"><h2>Histórico de partidas</h2><p class="description">Consulte os resultados já registrados.</p><div class="panel"><div id="historyList"></div></div></section>
+<section class="section" id="estatisticas"><h2>Estatísticas</h2><p class="description">Desempenho individual dos jogadores.</p>
+<div class="grid"><div class="card"><div class="metric" id="statGoals">0</div><div class="metric-label">Gols no total</div></div><div class="card"><div class="metric" id="statAssists">0</div><div class="metric-label">Assistências no total</div></div></div>
+<div class="panel"><h3>Artilharia</h3><div id="scorerRanking"></div></div><div class="panel"><h3>Ranking de assistências</h3><div id="assistRanking"></div></div>
 </section>
-
-<section class="section" id="estatisticas">
-  <h2>Estatísticas</h2>
-  <p class="description">Desempenho individual dos jogadores.</p>
-  <div class="grid">
-    <div class="card">
-      <div class="metric" id="statGoals">0</div>
-      <div class="metric-label">Gols no total</div>
-    </div>
-    <div class="card">
-      <div class="metric" id="statAssists">0</div>
-      <div class="metric-label">Assistências no total</div>
-    </div>
-  </div>
-  <div class="panel">
-    <h3>Artilharia</h3>
-    <div id="scorerRanking"></div>
-  </div>
-  <div class="panel">
-    <h3>Ranking de assistências</h3>
-    <div id="assistRanking"></div>
-  </div>
-</section>
+</div>
 </main>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+/* CONFIGURAÇÃO DO PROJETO FUTDOMINGO */
+const SUPABASE_URL = "https://qrxnlepvgqtevflyfoov.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_0UcrIzhBdIp6Fr8quAVSCQ_KKvBOSmw";
 const DB_KEY = "futdomingo_validacao_v2";
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-let db;
-try {
-  db = JSON.parse(localStorage.getItem(DB_KEY) || '{"players":[],"matches":[]}');
-} catch(e) {
-  db = {players:[],matches:[]};
-}
+let db = {players:[],matches:[]};
+try { db = JSON.parse(localStorage.getItem(DB_KEY) || '{"players":[],"matches":[]}'); } catch(e) {}
+if (!Array.isArray(db.players)) db.players=[];
+if (!Array.isArray(db.matches)) db.matches=[];
+let selected=new Set(), teams={A:[],B:[]}, currentGoals=[];
+let currentUser=null, currentProfile=null, isSyncing=false;
+const $ = id => document.getElementById(id);
 
-if (!Array.isArray(db.players)) db.players = [];
-if (!Array.isArray(db.matches)) db.matches = [];
+function persist(){ localStorage.setItem(DB_KEY,JSON.stringify(db)); }
+function escapeHTML(value){return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));}
+function starsText(n){return "★".repeat(Number(n))+"☆".repeat(5-Number(n));}
+function playerById(id){return db.players.find(p=>p.id===id);}
+function playerName(id){return playerById(id)?.name||"Jogador removido";}
+function activePlayers(){return db.players.filter(p=>p.active!==false);}
+function teamName(t){return t==="A"?"Time Rosa":"Time Laranja";}
+function teamUpperName(t){return t==="A"?"TIME ROSA":"TIME LARANJA";}
+function teamToDb(t){return t==="A"?"pink":"orange";}
+function teamFromDb(t){return t==="pink"?"A":"B";}
+function setStatus(message,online=navigator.onLine){$("connectionStatus").textContent=message;$("connectionDot").style.background=online?"var(--green)":"var(--red)";}
+function showAuthMessage(msg,error=false){$("authMessage").className=error?"error":"success";$("authMessage").textContent=msg;}
+function setBusy(b){$("loginButton").disabled=b;$("signupButton").disabled=b;$("loginButton").textContent=b?"Aguarde...":"Entrar";}
 
-// Jogador inicial para validação
-if (!db.players.some(p => String(p.name).toLowerCase() === "andrey")) {
-  db.players.push({
-    id: crypto.randomUUID(),
-    name: "Andrey",
-    stars: 5,
-    active: true
-  });
-  persist();
-}
-
-let selected = new Set();
-let teams = {A:[],B:[]};
-let currentGoals = [];
-
-function persist() {
-  localStorage.setItem(DB_KEY, JSON.stringify(db));
-}
-
-function escapeHTML(value) {
-  return String(value ?? "").replace(/[&<>"']/g, char => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-  }[char]));
-}
-
-function starsText(n) {
-  return "★".repeat(Number(n)) + "☆".repeat(5-Number(n));
-}
-
-function playerById(id) {
-  return db.players.find(p => p.id === id);
-}
-
-function playerName(id) {
-  return playerById(id)?.name || "Jogador removido";
-}
-
-function activePlayers() {
-  return db.players.filter(p => p.active !== false);
-}
-
-// Nome visual dos times. Os códigos A e B são mantidos internamente.
-function teamName(team) {
-  return team === "A" ? "Time Rosa" : "Time Laranja";
-}
-
-function teamUpperName(team) {
-  return team === "A" ? "TIME ROSA" : "TIME LARANJA";
-}
-
-// Navegação
-document.querySelectorAll("nav button").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
-    document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
-    btn.classList.add("active");
-    document.getElementById(btn.dataset.tab).classList.add("active");
-    renderAll();
-  });
-});
-
-// Cadastro e edição
-function savePlayer() {
-  const name = document.getElementById("playerName").value.trim();
-  const stars = Number(document.getElementById("playerStars").value);
-  const editId = document.getElementById("editPlayerId").value;
-
-  if (!name) return alert("Digite o nome do jogador.");
-
-  const duplicate = db.players.some(p =>
-    p.name.toLowerCase() === name.toLowerCase() && p.id !== editId
-  );
-  if (duplicate) return alert("Já existe um jogador com esse nome.");
-
-  if (editId) {
-    const player = playerById(editId);
-    if (!player) return alert("Jogador não encontrado.");
-    player.name = name;
-    player.stars = stars;
-  } else {
-    db.players.push({
-      id: crypto.randomUUID(),
-      name,
-      stars,
-      active:true
-    });
-  }
-
-  persist();
-  cancelEdit();
+function showApp(){
+  $("authPanel").classList.add("hidden");$("appContent").classList.remove("hidden");
+  $("signedUser").textContent=currentProfile?.name||currentUser?.email||"Usuário";
+  $("userRole").textContent=currentProfile?.role==="admin"?"Administrador":"Participante";
+  const admin=currentProfile?.role==="admin";
+  $("playerEditor").classList.toggle("hidden",!admin);
+  $("playerPermissionNote").textContent=admin?"Você pode cadastrar, editar e pausar jogadores.":"Somente administradores podem alterar o elenco.";
   renderAll();
 }
+function showLogin(){ $("authPanel").classList.remove("hidden");$("appContent").classList.add("hidden"); }
 
-function editPlayer(id) {
-  const p = playerById(id);
-  if (!p) return;
-  document.getElementById("playerName").value = p.name;
-  document.getElementById("playerStars").value = p.stars;
-  document.getElementById("editPlayerId").value = p.id;
-  document.getElementById("playerFormTitle").textContent = "Editar jogador";
-  document.getElementById("playerName").focus();
+async function login(){
+  const email=$("authEmail").value.trim(),password=$("authPassword").value;
+  if(!email||!password)return showAuthMessage("Informe e-mail e senha.",true);
+  setBusy(true);
+  const {data,error}=await sb.auth.signInWithPassword({email,password});
+  setBusy(false);
+  if(error)return showAuthMessage(error.message,true);
+  await startSession(data.user);
 }
-
-function cancelEdit() {
-  document.getElementById("playerName").value = "";
-  document.getElementById("playerStars").value = "3";
-  document.getElementById("editPlayerId").value = "";
-  document.getElementById("playerFormTitle").textContent = "Cadastrar jogador";
+async function signup(){
+  const email=$("authEmail").value.trim(),password=$("authPassword").value;
+  if(!email||!password)return showAuthMessage("Informe e-mail e senha.",true);
+  if(password.length<6)return showAuthMessage("Use uma senha com pelo menos 6 caracteres.",true);
+  setBusy(true);
+  const {data,error}=await sb.auth.signUp({email,password});
+  setBusy(false);
+  if(error)return showAuthMessage(error.message,true);
+  if(!data.session){showAuthMessage("Conta criada. Confirme o e-mail e depois entre no aplicativo.");return;}
+  const displayName=email.split("@")[0];
+  const profile=await sb.from("profiles").upsert({id:data.user.id,name:displayName,role:"participant"},{onConflict:"id"});
+  if(profile.error){showAuthMessage("Conta criada, mas não foi possível criar o perfil: "+profile.error.message,true);return;}
+  await startSession(data.user);
 }
-
-function togglePlayer(id) {
-  const p = playerById(id);
-  if (!p) return;
-  p.active = p.active === false;
-  persist();
-  renderAll();
+async function logout(){await sb.auth.signOut();currentUser=null;currentProfile=null;showLogin();setStatus("Desconectado",navigator.onLine);}
+async function startSession(user){
+  currentUser=user;
+  const {data:profile,error}=await sb.from("profiles").select("id,name,role").eq("id",user.id).maybeSingle();
+  if(error){showAuthMessage("Falha ao consultar perfil: "+error.message,true);return;}
+  if(!profile){showAuthMessage("Seu usuário ainda não tem perfil. Peça ao administrador para cadastrá-lo no Supabase.",true);await sb.auth.signOut();currentUser=null;return;}
+  currentProfile=profile;showApp();
+  await syncNow();
 }
+window.addEventListener("online",()=>{setStatus("Conectado · sincronizando",true);if(currentUser)syncNow();});
+window.addEventListener("offline",()=>setStatus("Offline · dados locais",false));
 
-function deletePlayer(id) {
-  const p = playerById(id);
-  if (!p) return;
-  if (!confirm("Excluir " + p.name + "? Essa ação também pode afetar a identificação em registros futuros.")) return;
-  db.players = db.players.filter(x => x.id !== id);
-  selected.delete(id);
-  persist();
-  renderAll();
-}
-
-function renderPlayers() {
-  const list = document.getElementById("playersList");
-  if (!db.players.length) {
-    list.innerHTML = '<div class="empty">Nenhum jogador cadastrado.</div>';
-    return;
-  }
-
-  list.innerHTML = db.players
-    .slice().sort((a,b) => a.name.localeCompare(b.name))
-    .map(p => `
-      <div class="player">
-        <div>
-          <div class="player-name">${escapeHTML(p.name)}</div>
-          <div class="player-info">
-            <span class="stars">${starsText(p.stars)}</span>
-            · ${p.active === false ? "Inativo" : "Ativo"}
-          </div>
-        </div>
-        <div class="actions" style="margin:0">
-          <button class="btn secondary small" onclick="editPlayer('${p.id}')">Editar</button>
-          <button class="btn secondary small" onclick="togglePlayer('${p.id}')">${p.active === false ? "Ativar" : "Pausar"}</button>
-          <button class="btn danger small" onclick="deletePlayer('${p.id}')">Excluir</button>
-        </div>
-      </div>
-    `).join("");
-}
-
-// Presenças e sorteio
-function renderAttendance() {
-  const list = document.getElementById("attendanceList");
-  const players = activePlayers();
-
-  if (!players.length) {
-    list.innerHTML = '<div class="empty">Cadastre jogadores ativos primeiro.</div>';
-    return;
-  }
-
-  list.innerHTML = players
-    .slice().sort((a,b) => a.name.localeCompare(b.name))
-    .map(p => `
-      <div class="checkbox-row">
-        <input type="checkbox" id="att_${p.id}" ${selected.has(p.id) ? "checked" : ""}
-          onchange="setAttendance('${p.id}',this.checked)">
-        <label for="att_${p.id}">${escapeHTML(p.name)} <span class="stars">${starsText(p.stars)}</span></label>
-      </div>
-    `).join("");
-}
-
-function setAttendance(id, checked) {
-  if (checked) selected.add(id);
-  else selected.delete(id);
-}
-
-function selectAll() {
-  activePlayers().forEach(p => selected.add(p.id));
-  renderAttendance();
-}
-
-function clearSelection() {
-  selected.clear();
-  renderAttendance();
-}
-
-function drawTeams() {
-  const players = activePlayers().filter(p => selected.has(p.id));
-
-  if (players.length < 2) return alert("Selecione pelo menos dois jogadores.");
-
-  // Embaralha antes de ordenar para variar empates.
-  const shuffled = players.slice().sort(() => Math.random() - 0.5);
-  shuffled.sort((a,b) => b.stars - a.stars);
-
-  let best = null;
-  let bestDiff = Infinity;
-
-  // Procura a divisão com menor diferença de estrelas.
-  function search(index, a, b, sumA, sumB) {
-    if (index === shuffled.length) {
-      if (Math.abs(a.length-b.length) > 1) return;
-      const diff = Math.abs(sumA-sumB);
-      if (diff < bestDiff) {
-        bestDiff = diff;
-        best = {A:a.slice(),B:b.slice()};
+/* CARREGAMENTO E SINCRONIZAÇÃO */
+async function syncNow(){
+  if(!currentUser){setStatus("Entre para sincronizar",navigator.onLine);return;}
+  if(!navigator.onLine){setStatus("Offline · dados locais",false);return;}
+  if(isSyncing)return;
+  isSyncing=true;setStatus("Sincronizando...",true);
+  try{
+    // Mantém uma cópia dos dados locais para não apagar registros que ainda não estejam na nuvem.
+    const localPlayers = db.players.slice();
+    const localMatches = db.matches.slice();
+    // O perfil admin pode importar o elenco que já estava salvo neste aparelho.
+    if(currentProfile?.role==="admin" && db.players.length){
+      const {data:cloudPlayers,error:readErr}=await sb.from("players").select("id,name,stars,active");
+      if(readErr)throw readErr;
+      const names=new Set((cloudPlayers||[]).map(p=>p.name.trim().toLowerCase()));
+      const missing=db.players.filter(p=>!names.has(p.name.trim().toLowerCase()));
+      for(const p of missing){
+        const {error}=await sb.from("players").insert({id:p.id,name:p.name,stars:Number(p.stars),active:p.active!==false,created_by:currentUser.id});
+        if(error && error.code!=="23505")throw error;
       }
-      return;
     }
-
-    const p = shuffled[index];
-
-    if (a.length < Math.ceil(shuffled.length/2)) {
-      a.push(p); search(index+1,a,b,sumA+p.stars,sumB); a.pop();
+    const {data:players,error:playersErr}=await sb.from("players").select("id,name,stars,active").order("name");
+    if(playersErr)throw playersErr;
+    const cloudPlayers=(players||[]).map(p=>({id:p.id,name:p.name,stars:p.stars,active:p.active}));
+    const cloudPlayerIds=new Set(cloudPlayers.map(p=>p.id));
+    db.players=[...cloudPlayers,...localPlayers.filter(p=>!cloudPlayerIds.has(p.id))];
+    const {data:matches,error:matchesErr}=await sb.from("matches").select("id,played_at,note,score_pink,score_orange,created_at").order("played_at",{ascending:false});
+    if(matchesErr)throw matchesErr;
+    const matchIds=(matches||[]).map(m=>m.id);
+    let roster=[],goals=[];
+    if(matchIds.length){
+      const r=await sb.from("match_players").select("match_id,player_id,team,stars").in("match_id",matchIds);if(r.error)throw r.error;roster=r.data||[];
+      const g=await sb.from("goals").select("id,match_id,team,scorer_id,assist_id,solo,created_at").in("match_id",matchIds);if(g.error)throw g.error;goals=g.data||[];
     }
-    if (b.length < Math.ceil(shuffled.length/2)) {
-      b.push(p); search(index+1,a,b,sumA,sumB+p.stars); b.pop();
-    }
-  }
-
-  // Para elencos muito grandes, usa distribuição gulosa para evitar busca excessiva.
-  if (shuffled.length <= 16) {
-    search(0,[],[],0,0);
-  } else {
-    const result = {A:[],B:[]};
-    let sa=0,sb=0;
-    shuffled.forEach(p => {
-      if (result.A.length < Math.ceil(shuffled.length/2) &&
-          (sa <= sb || result.B.length >= Math.ceil(shuffled.length/2))) {
-        result.A.push(p); sa += p.stars;
-      } else {
-        result.B.push(p); sb += p.stars;
-      }
+    const cloudMatches=matches.map(m=>{
+      const matchRoster=roster.filter(r=>r.match_id===m.id);
+      const matchGoals=goals.filter(g=>g.match_id===m.id).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+      return {id:m.id,date:m.played_at||m.created_at,note:m.note||"",teams:{
+        A:matchRoster.filter(r=>r.team==="pink").map(r=>r.player_id),
+        B:matchRoster.filter(r=>r.team==="orange").map(r=>r.player_id)
+      },teamStars:matchRoster.reduce((o,r)=>(o[r.player_id]=r.stars,o),{}),
+      goals:matchGoals.map(g=>({id:g.id,team:teamFromDb(g.team),scorerId:g.scorer_id,assistId:g.assist_id,solo:g.solo})),
+      scoreA:m.score_pink,scoreB:m.score_orange};
     });
-    best = result;
-  }
-
-  teams = best || {A:[],B:[]};
-  currentGoals = [];
-  renderTeams();
-  updateScorerOptions();
-  renderGoals();
+    const cloudMatchIds=new Set(cloudMatches.map(m=>m.id));
+    db.matches=[...cloudMatches,...localMatches.filter(m=>!cloudMatchIds.has(m.id))];
+    db.matches.sort((a,b)=>new Date(b.date)-new Date(a.date));
+    persist();renderAll();setStatus("Sincronizado com a nuvem",true);
+  }catch(e){
+    console.error(e);setStatus("Falha na sincronização · dados locais preservados",navigator.onLine);
+    alert("Não foi possível sincronizar: "+(e.message||"Erro desconhecido")+"\nSe persistir, envie esta mensagem para conferirmos as permissões do Supabase.");
+  }finally{isSyncing=false;}
 }
 
-function renderTeams() {
-  const el = document.getElementById("teamsResult");
-  if (!teams.A.length || !teams.B.length) {
-    el.innerHTML = "";
-    return;
-  }
+/* NAVEGAÇÃO */
+document.querySelectorAll("nav button").forEach(btn=>btn.addEventListener("click",()=>{
+ document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+ document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+ btn.classList.add("active");$(btn.dataset.tab).classList.add("active");renderAll();
+}));
 
-  const totalA = teams.A.reduce((s,p)=>s+p.stars,0);
-  const totalB = teams.B.reduce((s,p)=>s+p.stars,0);
-
-  function teamHTML(name,players,total,cls) {
-    return `
-      <div class="team ${cls}">
-        <h3>${name}</h3>
-        ${players.map(p => `
-          <div class="team-player">
-            <span>${escapeHTML(p.name)}</span>
-            <span class="stars">${starsText(p.stars)}</span>
-          </div>
-        `).join("")}
-        <div class="team-total">${players.length} jogadores · ${total} estrelas</div>
-      </div>`;
-  }
-
-  el.innerHTML = `
-    <div class="panel">
-      <h3>Times sorteados</h3>
-      <div class="team-grid">
-        ${teamHTML("TIME ROSA",teams.A,totalA,"team-a")}
-        ${teamHTML("TIME LARANJA",teams.B,totalB,"team-b")}
-      </div>
-      <div class="actions">
-        <button class="btn" onclick="drawTeams()">↻ Sortear novamente</button>
-        <button class="btn secondary" onclick="goToResult()">Registrar resultado</button>
-      </div>
-    </div>`;
+/* JOGADORES - SOMENTE ADMIN */
+async function savePlayer(){
+ if(currentProfile?.role!=="admin")return alert("Somente administradores podem alterar o elenco.");
+ const name=$("playerName").value.trim(),stars=Number($("playerStars").value),editId=$("editPlayerId").value;
+ if(!name)return alert("Digite o nome do jogador.");
+ if(db.players.some(p=>p.name.toLowerCase()===name.toLowerCase()&&p.id!==editId))return alert("Já existe um jogador com esse nome.");
+ const id=editId||crypto.randomUUID(),payload={id,name,stars,active:editId?(playerById(id)?.active!==false):true,created_by:currentUser.id};
+ if(!navigator.onLine)return alert("Para cadastrar ou editar jogadores, conecte-se à internet. O elenco compartilhado precisa ser atualizado no Supabase.");
+ const {error}=await sb.from("players").upsert(payload,{onConflict:"id"});
+ if(error)return alert("Não foi possível salvar o jogador: "+error.message);
+ const local=playerById(id);
+ if(local){local.name=name;local.stars=stars;local.active=payload.active;}else db.players.push({id,name,stars,active:true});
+ persist();cancelEdit();renderAll();
+}
+function editPlayer(id){if(currentProfile?.role!=="admin")return;const p=playerById(id);if(!p)return;$("playerName").value=p.name;$("playerStars").value=p.stars;$("editPlayerId").value=p.id;$("playerFormTitle").textContent="Editar jogador";$("playerName").focus();}
+function cancelEdit(){$("playerName").value="";$("playerStars").value="3";$("editPlayerId").value="";$("playerFormTitle").textContent="Cadastrar jogador";}
+async function togglePlayer(id){if(currentProfile?.role!=="admin")return alert("Somente administradores.");const p=playerById(id);if(!p)return;const active=p.active===false;if(!navigator.onLine)return alert("Conecte-se à internet para alterar o elenco.");const {error}=await sb.from("players").update({active}).eq("id",id);if(error)return alert(error.message);p.active=active;persist();renderAll();}
+async function deletePlayer(id){if(currentProfile?.role!=="admin")return alert("Somente administradores.");const p=playerById(id);if(!p)return;if(!confirm("Excluir "+p.name+"? Partidas antigas podem continuar referenciando este jogador."))return;if(!navigator.onLine)return alert("Conecte-se à internet para alterar o elenco.");const {error}=await sb.from("players").delete().eq("id",id);if(error)return alert("Não foi possível excluir: "+error.message);db.players=db.players.filter(x=>x.id!==id);selected.delete(id);persist();renderAll();}
+function renderPlayers(){
+ const list=$("playersList");if(!db.players.length){list.innerHTML='<div class="empty">Nenhum jogador cadastrado.</div>';return;}
+ list.innerHTML=db.players.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(p=>`
+ <div class="player"><div><div class="player-name">${escapeHTML(p.name)}</div><div class="player-info"><span class="stars">${starsText(p.stars)}</span> · ${p.active===false?"Inativo":"Ativo"}</div></div>
+ <div class="actions" style="margin:0">${currentProfile?.role==="admin"?`<button class="btn secondary small" onclick="editPlayer('${p.id}')">Editar</button><button class="btn secondary small" onclick="togglePlayer('${p.id}')">${p.active===false?"Ativar":"Pausar"}</button><button class="btn danger small" onclick="deletePlayer('${p.id}')">Excluir</button>`:""}</div></div>`).join("");
 }
 
-function goToResult() {
-  document.querySelector('[data-tab="resultado"]').click();
+/* PRESENÇA E SORTEIO */
+function renderAttendance(){const list=$("attendanceList"),players=activePlayers();if(!players.length){list.innerHTML='<div class="empty">Nenhum jogador ativo cadastrado.</div>';return;}list.innerHTML=players.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(p=>`<div class="checkbox-row"><input type="checkbox" id="att_${p.id}" ${selected.has(p.id)?"checked":""} onchange="setAttendance('${p.id}',this.checked)"><label for="att_${p.id}">${escapeHTML(p.name)} <span class="stars">${starsText(p.stars)}</span></label></div>`).join("");}
+function setAttendance(id,checked){if(checked)selected.add(id);else selected.delete(id);}
+function selectAll(){activePlayers().forEach(p=>selected.add(p.id));renderAttendance();}
+function clearSelection(){selected.clear();renderAttendance();}
+function drawTeams(){
+ const players=activePlayers().filter(p=>selected.has(p.id));if(players.length<2)return alert("Selecione pelo menos dois jogadores.");
+ const shuffled=players.slice().sort(()=>Math.random()-.5).sort((a,b)=>b.stars-a.stars);let best=null,bestDiff=Infinity;
+ function search(i,a,b,sa,sb){if(i===shuffled.length){if(Math.abs(a.length-b.length)>1)return;const d=Math.abs(sa-sb);if(d<bestDiff){bestDiff=d;best={A:a.slice(),B:b.slice()};}return;}const p=shuffled[i];if(a.length<Math.ceil(shuffled.length/2)){a.push(p);search(i+1,a,b,sa+p.stars,sb);a.pop();}if(b.length<Math.ceil(shuffled.length/2)){b.push(p);search(i+1,a,b,sa,sb+p.stars);b.pop();}}
+ if(shuffled.length<=16)search(0,[],[],0,0);else{const r={A:[],B:[]};let sa=0,sb=0;shuffled.forEach(p=>{if(r.A.length<Math.ceil(shuffled.length/2)&&(sa<=sb||r.B.length>=Math.ceil(shuffled.length/2))){r.A.push(p);sa+=p.stars;}else{r.B.push(p);sb+=p.stars;}});best=r;}
+ teams=best||{A:[],B:[]};currentGoals=[];renderTeams();updateScorerOptions();renderGoals();
+}
+function renderTeams(){const el=$("teamsResult");if(!teams.A.length||!teams.B.length){el.innerHTML="";return;}const totalA=teams.A.reduce((s,p)=>s+p.stars,0),totalB=teams.B.reduce((s,p)=>s+p.stars,0);function teamHTML(name,ps,total,cls){return `<div class="team ${cls}"><h3>${name}</h3>${ps.map(p=>`<div class="team-player"><span>${escapeHTML(p.name)}</span><span class="stars">${starsText(p.stars)}</span></div>`).join("")}<div class="team-total">${ps.length} jogadores · ${total} estrelas</div></div>`;}el.innerHTML=`<div class="panel"><h3>Times sorteados</h3><div class="team-grid">${teamHTML("TIME ROSA",teams.A,totalA,"team-a")}${teamHTML("TIME LARANJA",teams.B,totalB,"team-b")}</div><div class="actions"><button class="btn" onclick="drawTeams()">↻ Sortear novamente</button><button class="btn secondary" onclick="goToResult()">Registrar resultado</button></div></div>`;}
+function goToResult(){document.querySelector('[data-tab="resultado"]').click();}
+
+/* GOLS */
+function updateScorerOptions(){const team=$("goalTeam").value,players=teams[team]||[],scorer=$("goalScorer"),current=scorer.value;scorer.innerHTML=players.length?players.map(p=>`<option value="${p.id}">${escapeHTML(p.name)}</option>`).join(""):'<option value="">Sorteie os times primeiro</option>';if(players.some(p=>p.id===current))scorer.value=current;updateAssistOptions();}
+function updateAssistOptions(){const team=$("goalTeam").value,scorerId=$("goalScorer").value,assist=$("goalAssist"),solo=$("soloGoal").checked,players=(teams[team]||[]).filter(p=>p.id!==scorerId);assist.disabled=solo;assist.innerHTML=players.length?'<option value="">Sem assistência</option>'+players.map(p=>`<option value="${p.id}">${escapeHTML(p.name)}</option>`).join(""):'<option value="">Sem outro jogador disponível</option>';}
+$("goalScorer").addEventListener("change",updateAssistOptions);$("goalTeam").addEventListener("change",updateScorerOptions);
+function toggleAssist(){updateAssistOptions();}
+function addGoal(){if(!teams.A.length||!teams.B.length)return alert("Faça o sorteio dos times antes de registrar gols.");const team=$("goalTeam").value,scorerId=$("goalScorer").value,assistId=$("soloGoal").checked?null:($("goalAssist").value||null);if(!scorerId)return alert("Selecione quem fez o gol.");if(assistId===scorerId)return alert("O autor do gol não pode ser o próprio assistente.");currentGoals.push({id:crypto.randomUUID(),team,scorerId,assistId,solo:!assistId});$("soloGoal").checked=false;updateAssistOptions();renderGoals();}
+function removeGoal(id){currentGoals=currentGoals.filter(g=>g.id!==id);renderGoals();}
+function renderGoals(){const a=currentGoals.filter(g=>g.team==="A").length,b=currentGoals.filter(g=>g.team==="B").length;$("scoreA").textContent=a;$("scoreB").textContent=b;const el=$("goalEvents");if(!currentGoals.length){el.innerHTML='<div class="empty">Nenhum gol registrado nesta partida.</div>';return;}el.innerHTML=currentGoals.map((g,i)=>`<div class="goal-item"><div><strong>${i+1}. ${teamName(g.team)}</strong><br><span>${escapeHTML(playerName(g.scorerId))}</span><small>${g.assistId?" · Assistência: "+escapeHTML(playerName(g.assistId)):" · Gol solo"}</small></div><button class="btn danger small" onclick="removeGoal('${g.id}')">Remover</button></div>`).join("");}
+function clearGoals(){if(!currentGoals.length)return;if(!confirm("Limpar todos os gols desta partida?"))return;currentGoals=[];renderGoals();}
+
+async function saveMatch(){
+ if(!teams.A.length||!teams.B.length)return alert("Sorteie os times antes de salvar a partida.");
+ if(!currentGoals.length)return alert("Registre pelo menos um gol antes de salvar.");
+ if(!currentUser)return alert("Entre na sua conta para salvar partidas compartilhadas.");
+ if(!navigator.onLine)return alert("Você está offline. Nesta primeira etapa, o salvamento de partidas exige internet. O modo offline com fila de sincronização será a próxima etapa.");
+ const matchId=crypto.randomUUID(),date=new Date().toISOString();
+ const matchPayload={id:matchId,played_at:date,note:$("matchNote").value.trim()||null,score_pink:currentGoals.filter(g=>g.team==="A").length,score_orange:currentGoals.filter(g=>g.team==="B").length,created_by:currentUser.id};
+ const {error:matchError}=await sb.from("matches").insert(matchPayload);
+ if(matchError)return alert("Erro ao salvar partida: "+matchError.message);
+ const roster=[...teams.A.map(p=>({match_id:matchId,player_id:p.id,team:"pink",stars:p.stars})),...teams.B.map(p=>({match_id:matchId,player_id:p.id,team:"orange",stars:p.stars}))];
+ const {error:rosterError}=await sb.from("match_players").insert(roster);
+ if(rosterError){alert("A partida foi criada, mas houve erro ao salvar os jogadores: "+rosterError.message+". Avise o administrador.");return;}
+ const goalRows=currentGoals.map(g=>({id:g.id,match_id:matchId,team:teamToDb(g.team),scorer_id:g.scorerId,assist_id:g.assistId,solo:!g.assistId}));
+ const {error:goalError}=await sb.from("goals").insert(goalRows);
+ if(goalError){alert("A partida e os jogadores foram salvos, mas houve erro nos gols: "+goalError.message+". Não repita a partida; vamos corrigir esse registro.");return;}
+ const match={id:matchId,date,note:matchPayload.note||"",teams:{A:teams.A.map(p=>p.id),B:teams.B.map(p=>p.id)},goals:currentGoals.map(g=>({...g})),scoreA:matchPayload.score_pink,scoreB:matchPayload.score_orange};
+ db.matches.unshift(match);persist();currentGoals=[];teams={A:[],B:[]};selected.clear();$("matchNote").value="";renderAll();renderTeams();renderGoals();alert("Partida salva no Supabase e no histórico compartilhado!");document.querySelector('[data-tab="historico"]').click();
 }
 
-// Gols e assistências
-function updateScorerOptions() {
-  const team = document.getElementById("goalTeam").value;
-  const players = teams[team] || [];
-  const scorer = document.getElementById("goalScorer");
-  const current = scorer.value;
+/* HISTÓRICO E ESTATÍSTICAS */
+function formatDate(d){return new Date(d).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"});}
+function renderHistory(){const el=$("historyList");if(!db.matches.length){el.innerHTML='<div class="empty">Nenhuma partida registrada ainda.</div>';return;}el.innerHTML=db.matches.map(m=>`<div class="history-item"><div class="muted">${formatDate(m.date)}</div><div class="score"><span class="score-rosa">TIME ROSA ${m.scoreA}</span> × <span class="score-laranja">${m.scoreB} TIME LARANJA</span></div>${m.note?`<div class="muted">${escapeHTML(m.note)}</div>`:""}<div class="notice">${(m.goals||[]).map(g=>`${teamName(g.team)}: ${escapeHTML(playerName(g.scorerId))}`+(g.assistId?` (assistência: ${escapeHTML(playerName(g.assistId))})`:" (gol solo)")).join("<br>")}</div></div>`).join("");}
+function getStats(){const stats={};db.players.forEach(p=>stats[p.id]={name:p.name,goals:0,assists:0});db.matches.forEach(m=>(m.goals||[]).forEach(g=>{if(!stats[g.scorerId])stats[g.scorerId]={name:playerName(g.scorerId),goals:0,assists:0};stats[g.scorerId].goals++;if(g.assistId){if(!stats[g.assistId])stats[g.assistId]={name:playerName(g.assistId),goals:0,assists:0};stats[g.assistId].assists++;}}));return Object.values(stats);}
+function renderStats(){const stats=getStats(),goals=stats.reduce((s,p)=>s+p.goals,0),assists=stats.reduce((s,p)=>s+p.assists,0);$("statGoals").textContent=goals;$("statAssists").textContent=assists;const scorer=stats.slice().sort((a,b)=>b.goals-a.goals||a.name.localeCompare(b.name)),assistant=stats.slice().sort((a,b)=>b.assists-a.assists||a.name.localeCompare(b.name));$("scorerRanking").innerHTML=scorer.length?scorer.map((p,i)=>`<div class="stat-row"><span>${i+1}º ${escapeHTML(p.name)}</span><strong>${p.goals} gols</strong></div>`).join(""):'<div class="empty">Sem dados ainda.</div>';$("assistRanking").innerHTML=assistant.length?assistant.map((p,i)=>`<div class="stat-row"><span>${i+1}º ${escapeHTML(p.name)}</span><strong>${p.assists} assistências</strong></div>`).join(""):'<div class="empty">Sem dados ainda.</div>';}
+function renderHome(){const goals=db.matches.reduce((s,m)=>s+(m.goals||[]).length,0),assists=db.matches.reduce((s,m)=>s+(m.goals||[]).filter(g=>g.assistId).length,0);$("totalPlayers").textContent=db.players.length;$("totalMatches").textContent=db.matches.length;$("totalGoals").textContent=goals;$("totalAssists").textContent=assists;const last=db.matches[0];$("lastMatch").innerHTML=last?`<div class="muted">${formatDate(last.date)}</div><div class="score"><span class="score-rosa">TIME ROSA ${last.scoreA}</span> × <span class="score-laranja">${last.scoreB} TIME LARANJA</span></div>${last.note?escapeHTML(last.note):""}`:"Nenhuma partida registrada ainda.";}
+function renderAll(){renderHome();renderPlayers();renderAttendance();renderHistory();renderStats();updateScorerOptions();renderGoals();}
 
-  scorer.innerHTML = players.length
-    ? players.map(p => `<option value="${p.id}">${escapeHTML(p.name)}</option>`).join("")
-    : '<option value="">Sorteie os times primeiro</option>';
-
-  if (players.some(p=>p.id===current)) scorer.value = current;
-  updateAssistOptions();
+async function init(){
+ setStatus(navigator.onLine?"Aguardando login":"Offline · aguardando login",navigator.onLine);
+ const {data:{session}}=await sb.auth.getSession();
+ if(session?.user)await startSession(session.user);
 }
-
-function updateAssistOptions() {
-  const team = document.getElementById("goalTeam").value;
-  const scorerId = document.getElementById("goalScorer").value;
-  const assist = document.getElementById("goalAssist");
-  const solo = document.getElementById("soloGoal").checked;
-
-  const players = (teams[team] || []).filter(p => p.id !== scorerId);
-
-  assist.disabled = solo;
-  assist.innerHTML = players.length
-    ? '<option value="">Sem assistência</option>' +
-      players.map(p=>`<option value="${p.id}">${escapeHTML(p.name)}</option>`).join("")
-    : '<option value="">Sem outro jogador disponível</option>';
-}
-
-document.getElementById("goalScorer").addEventListener("change",updateAssistOptions);
-document.getElementById("goalTeam").addEventListener("change",updateScorerOptions);
-
-function toggleAssist() {
-  updateAssistOptions();
-}
-
-function addGoal() {
-  if (!teams.A.length || !teams.B.length) {
-    return alert("Faça o sorteio dos times antes de registrar gols.");
-  }
-
-  const team = document.getElementById("goalTeam").value;
-  const scorerId = document.getElementById("goalScorer").value;
-  const assistId = document.getElementById("soloGoal").checked
-    ? null : (document.getElementById("goalAssist").value || null);
-
-  if (!scorerId) return alert("Selecione quem fez o gol.");
-  if (assistId === scorerId) return alert("O autor do gol não pode ser o próprio assistente.");
-
-  currentGoals.push({
-    id:crypto.randomUUID(),
-    team,
-    scorerId,
-    assistId,
-    solo:!assistId
-  });
-
-  document.getElementById("soloGoal").checked = false;
-  updateAssistOptions();
-  renderGoals();
-}
-
-function removeGoal(id) {
-  currentGoals = currentGoals.filter(g=>g.id!==id);
-  renderGoals();
-}
-
-function renderGoals() {
-  const a = currentGoals.filter(g=>g.team==="A").length;
-  const b = currentGoals.filter(g=>g.team==="B").length;
-
-  document.getElementById("scoreA").textContent = a;
-  document.getElementById("scoreB").textContent = b;
-
-  const el = document.getElementById("goalEvents");
-  if (!currentGoals.length) {
-    el.innerHTML = '<div class="empty">Nenhum gol registrado nesta partida.</div>';
-    return;
-  }
-
-  el.innerHTML = currentGoals.map((g,i)=>`
-    <div class="goal-item">
-      <div>
-        <strong>${i+1}. ${teamName(g.team)}</strong><br>
-        <span>${escapeHTML(playerName(g.scorerId))}</span>
-        <small>${g.assistId ? " · Assistência: "+escapeHTML(playerName(g.assistId)) : " · Gol solo"}</small>
-      </div>
-      <button class="btn danger small" onclick="removeGoal('${g.id}')">Remover</button>
-    </div>
-  `).join("");
-}
-
-function clearGoals() {
-  if (!currentGoals.length) return;
-  if (!confirm("Limpar todos os gols desta partida?")) return;
-  currentGoals = [];
-  renderGoals();
-}
-
-function saveMatch() {
-  if (!teams.A.length || !teams.B.length) {
-    return alert("Sorteie os times antes de salvar a partida.");
-  }
-  if (!currentGoals.length) {
-    return alert("Registre pelo menos um gol antes de salvar.");
-  }
-
-  const match = {
-    id:crypto.randomUUID(),
-    date:new Date().toISOString(),
-    note:document.getElementById("matchNote").value.trim(),
-    teams:{
-      A:teams.A.map(p=>p.id),
-      B:teams.B.map(p=>p.id)
-    },
-    goals:currentGoals.map(g=>({...g})),
-    scoreA:currentGoals.filter(g=>g.team==="A").length,
-    scoreB:currentGoals.filter(g=>g.team==="B").length
-  };
-
-  db.matches.unshift(match);
-  persist();
-
-  currentGoals = [];
-  teams = {A:[],B:[]};
-  selected.clear();
-  document.getElementById("matchNote").value = "";
-
-  renderAll();
-  renderTeams();
-  renderGoals();
-  alert("Partida salva no histórico!");
-  document.querySelector('[data-tab="historico"]').click();
-}
-
-// Histórico
-function formatDate(date) {
-  return new Date(date).toLocaleString("pt-BR",{
-    dateStyle:"short",timeStyle:"short"
-  });
-}
-
-function renderHistory() {
-  const el = document.getElementById("historyList");
-
-  if (!db.matches.length) {
-    el.innerHTML = '<div class="empty">Nenhuma partida registrada ainda.</div>';
-    return;
-  }
-
-  el.innerHTML = db.matches.map(m=>`
-    <div class="history-item">
-      <div class="muted">${formatDate(m.date)}</div>
-      <div class="score">
-        <span class="score-rosa">TIME ROSA ${m.scoreA}</span>
-        ×
-        <span class="score-laranja">${m.scoreB} TIME LARANJA</span>
-      </div>
-      ${m.note ? `<div class="muted">${escapeHTML(m.note)}</div>` : ""}
-      <div class="notice">
-        ${m.goals.map(g=>
-          `${teamName(g.team)}: ${escapeHTML(playerName(g.scorerId))}`+
-          (g.assistId ? ` (assistência: ${escapeHTML(playerName(g.assistId))})` : " (gol solo)")
-        ).join("<br>")}
-      </div>
-    </div>
-  `).join("");
-}
-
-// Estatísticas
-function getStats() {
-  const stats = {};
-  db.players.forEach(p=>{
-    stats[p.id] = {name:p.name,goals:0,assists:0};
-  });
-
-  db.matches.forEach(m=>{
-    m.goals.forEach(g=>{
-      if (!stats[g.scorerId]) {
-        stats[g.scorerId] = {name:playerName(g.scorerId),goals:0,assists:0};
-      }
-      stats[g.scorerId].goals++;
-      if (g.assistId) {
-        if (!stats[g.assistId]) {
-          stats[g.assistId] = {name:playerName(g.assistId),goals:0,assists:0};
-        }
-        stats[g.assistId].assists++;
-      }
-    });
-  });
-
-  return Object.values(stats);
-}
-
-function renderStats() {
-  const stats = getStats();
-  const goals = stats.reduce((s,p)=>s+p.goals,0);
-  const assists = stats.reduce((s,p)=>s+p.assists,0);
-
-  document.getElementById("statGoals").textContent = goals;
-  document.getElementById("statAssists").textContent = assists;
-
-  const scorer = stats.slice().sort((a,b)=>b.goals-a.goals || a.name.localeCompare(b.name));
-  const assistant = stats.slice().sort((a,b)=>b.assists-a.assists || a.name.localeCompare(b.name));
-
-  document.getElementById("scorerRanking").innerHTML =
-    scorer.length ? scorer.map((p,i)=>`
-      <div class="stat-row">
-        <span>${i+1}º ${escapeHTML(p.name)}</span>
-        <strong>${p.goals} gols</strong>
-      </div>`).join("") : '<div class="empty">Sem dados ainda.</div>';
-
-  document.getElementById("assistRanking").innerHTML =
-    assistant.length ? assistant.map((p,i)=>`
-      <div class="stat-row">
-        <span>${i+1}º ${escapeHTML(p.name)}</span>
-        <strong>${p.assists} assistências</strong>
-      </div>`).join("") : '<div class="empty">Sem dados ainda.</div>';
-}
-
-function renderHome() {
-  const goals = db.matches.reduce((s,m)=>s+m.goals.length,0);
-  const assists = db.matches.reduce((s,m)=>s+m.goals.filter(g=>g.assistId).length,0);
-
-  document.getElementById("totalPlayers").textContent = db.players.length;
-  document.getElementById("totalMatches").textContent = db.matches.length;
-  document.getElementById("totalGoals").textContent = goals;
-  document.getElementById("totalAssists").textContent = assists;
-
-  const last = db.matches[0];
-  document.getElementById("lastMatch").innerHTML = last
-    ? `<div class="muted">${formatDate(last.date)}</div>
-       <div class="score">
-         <span class="score-rosa">TIME ROSA ${last.scoreA}</span>
-         ×
-         <span class="score-laranja">${last.scoreB} TIME LARANJA</span>
-       </div>
-       ${last.note ? escapeHTML(last.note) : ""}`
-    : "Nenhuma partida registrada ainda.";
-}
-
-function renderAll() {
-  renderHome();
-  renderPlayers();
-  renderAttendance();
-  renderHistory();
-  renderStats();
-  updateScorerOptions();
-  renderGoals();
-}
-
-renderAll();
+init();
 </script>
 </body>
 </html>
-
