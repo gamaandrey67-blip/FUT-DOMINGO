@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -118,7 +119,7 @@ input,select{width:100%;padding:12px;border-radius:9px;border:1px solid var(--bo
 <script>
 const SUPABASE_URL="https://qrxnlepvgqtevflyfoov.supabase.co";
 const SUPABASE_ANON_KEY="sb_publishable_0UcrIzhBdIp6Fr8quAVSCQ_KKvBOSmw";
-const DB_KEY="futdomingo_validacao_v2",IDB_NAME="futdomingo_offline_v1",OUTBOX_KEY="futdomingo_outbox_v1";
+const DB_KEY="futdomingo_validacao_v2",IDB_NAME="futdomingo_offline_v1",OUTBOX_KEY="futdomingo_outbox_v1",LOCAL_AUTH_KEY="futdomingo_local_auth_v1";
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 let db={players:[],matches:[]},selected=new Set(),teams={A:[],B:[]},currentGoals=[];
 let currentUser=null,currentProfile=null,isSyncing=false,idb=null;
@@ -142,6 +143,45 @@ function openLocalDB(){return new Promise((resolve,reject)=>{if(!("indexedDB"in 
 function idbGet(key){return new Promise(resolve=>{if(!idb)return resolve(null);const r=idb.transaction("kv","readonly").objectStore("kv").get(key);r.onsuccess=()=>resolve(r.result??null);r.onerror=()=>resolve(null);});}
 function idbSet(key,value){return new Promise(resolve=>{if(!idb)return resolve(false);const t=idb.transaction("kv","readwrite");t.objectStore("kv").put(value,key);t.oncomplete=()=>resolve(true);t.onerror=()=>resolve(false);});}
 async function loadLocal(){try{idb=await openLocalDB();const saved=await idbGet("database");if(saved&&(!db.matches.length&&!db.players.length))db=saved;const q=await idbGet("outbox");if(Array.isArray(q))localStorage.setItem(OUTBOX_KEY,JSON.stringify(q));}catch(e){console.warn("IndexedDB indisponível",e);}persist();}
+
+async function saveLocalAuth(user,profile){
+  const authData={
+    userId:user.id,
+    email:user.email||"",
+    profile:profile,
+    savedAt:new Date().toISOString()
+  };
+  await idbSet(LOCAL_AUTH_KEY,authData);
+}
+
+async function getLocalAuth(){
+  return await idbGet(LOCAL_AUTH_KEY);
+}
+
+async function clearLocalAuth(){
+  await idbSet(LOCAL_AUTH_KEY,null);
+}
+
+async function restoreLocalSession(){
+  const saved=await getLocalAuth();
+
+  if(!saved||!saved.userId||!saved.profile){
+    return false;
+  }
+
+  currentUser={
+    id:saved.userId,
+    email:saved.email||""
+  };
+
+  currentProfile=saved.profile;
+
+  showApp();
+  setStatus("Offline · sessão recuperada neste aparelho",false);
+
+  return true;
+}
+
 function getOutbox(){try{return JSON.parse(localStorage.getItem(OUTBOX_KEY)||"[]")}catch(e){return []}}
 async function saveOutbox(q){localStorage.setItem(OUTBOX_KEY,JSON.stringify(q));await idbSet("outbox",q);updatePendingLabel();}
 function updatePendingLabel(){const n=getOutbox().length;$("syncDetails").textContent=n?`${n} operação(ões) aguardando sincronização.`:"Dados locais atualizados."; }
@@ -151,88 +191,901 @@ function showApp(){ $("authPanel").classList.add("hidden");$("appContent").class
 function showLogin(){ $("authPanel").classList.remove("hidden");$("appContent").classList.add("hidden");}
 async function login(){const email=$("authEmail").value.trim(),password=$("authPassword").value;if(!email||!password)return showAuthMessage("Informe e-mail e senha.",true);setBusy(true);const {data,error}=await sb.auth.signInWithPassword({email,password});setBusy(false);if(error)return showAuthMessage(error.message,true);await startSession(data.user);}
 async function signup(){const email=$("authEmail").value.trim(),password=$("authPassword").value;if(!email||!password)return showAuthMessage("Informe e-mail e senha.",true);if(password.length<6)return showAuthMessage("Use uma senha com pelo menos 6 caracteres.",true);setBusy(true);const {data,error}=await sb.auth.signUp({email,password});setBusy(false);if(error)return showAuthMessage(error.message,true);if(!data.session){showAuthMessage("Conta criada. Confirme o e-mail e depois entre no aplicativo.");return;}const name=email.split("@")[0];const p=await sb.from("profiles").upsert({id:data.user.id,name,role:"participant"},{onConflict:"id"});if(p.error)return showAuthMessage("Conta criada, mas o perfil não foi criado: "+p.error.message,true);await startSession(data.user);}
-async function logout(){await sb.auth.signOut();currentUser=null;currentProfile=null;showLogin();setStatus("Desconectado",navigator.onLine);}
-async function startSession(user){currentUser=user;const {data:profile,error}=await sb.from("profiles").select("id,name,role").eq("id",user.id).maybeSingle();if(error){showAuthMessage("Falha ao consultar perfil: "+error.message,true);return;}if(!profile){showAuthMessage("Seu usuário ainda não tem perfil. Peça ao administrador para cadastrá-lo no Supabase.",true);await sb.auth.signOut();currentUser=null;return;}currentProfile=profile;await idbSet("profile",profile);await saveLocalDB();showApp();if(navigator.onLine)await syncNow();else setStatus("Offline · usando dados deste aparelho",false);}
-window.addEventListener("online",()=>{setStatus("Conectado · sincronizando",true);if(currentUser)syncNow();});
-window.addEventListener("offline",()=>setStatus("Offline · dados locais",false));
-async function syncNow(){if(!currentUser){setStatus("Entre para sincronizar",navigator.onLine);return;}if(!navigator.onLine){setStatus("Offline · dados locais",false);return;}if(isSyncing)return;isSyncing=true;setStatus("Sincronizando...",true);
-try{
- let q=getOutbox(),remaining=[];
- // Importa jogadores antigos deste aparelho que ainda não existam na nuvem.
- if(currentProfile?.role==="admin" && db.players.length){
-  const {data:known,error:knownErr}=await sb.from("players").select("id,name");
-  if(knownErr)throw knownErr;
-  const knownIds=new Set((known||[]).map(p=>p.id));
-  const knownNames=new Set((known||[]).map(p=>(p.name||"").trim().toLowerCase()));
-  for(const p of db.players){
-   if(!knownIds.has(p.id) && !knownNames.has((p.name||"").trim().toLowerCase())){
-    q.push({type:"player",payload:{id:p.id,name:p.name,stars:Number(p.stars)||3,active:p.active!==false,created_by:currentUser.id},queuedAt:new Date().toISOString()});
-    knownNames.add((p.name||"").trim().toLowerCase());
-   }
+
+async function logout(){
+  await clearLocalAuth();
+
+  try{
+    await sb.auth.signOut();
+  }catch(e){
+    console.warn("Não foi possível encerrar a sessão online.",e);
   }
-  await saveOutbox(q);
- }
- for(const op of q){try{
-  if(op.type==="match"){
-   const {error:e1}=await sb.from("matches").upsert(op.match,{onConflict:"id"});if(e1)throw e1;
-   if(op.roster?.length){const {error:e2}=await sb.from("match_players").upsert(op.roster,{onConflict:"id"});if(e2)throw e2;}
-   if(op.goals?.length){const {error:e3}=await sb.from("goals").upsert(op.goals,{onConflict:"id"});if(e3)throw e3;}
-  }else if(op.type==="player"){
-   const {error}=await sb.from("players").upsert(op.payload,{onConflict:"id"});if(error)throw error;
-  }else if(op.type==="playerUpdate"){
-   const {error}=await sb.from("players").update(op.payload).eq("id",op.id);if(error)throw error;
-  }else if(op.type==="playerDelete"){
-   const {error}=await sb.from("players").delete().eq("id",op.id);if(error)throw error;
+
+  currentUser=null;
+  currentProfile=null;
+
+  showLogin();
+  setStatus("Desconectado",navigator.onLine);
+}
+
+async function startSession(user){
+  currentUser=user;
+
+  const {data:profile,error}=await sb
+    .from("profiles")
+    .select("id,name,role")
+    .eq("id",user.id)
+    .maybeSingle();
+
+  if(error){
+    showAuthMessage("Falha ao consultar perfil: "+error.message,true);
+    return;
   }
- }catch(err){op.lastError=err.message;remaining.push(op);}}
- await saveOutbox(remaining);
- const localPlayers=db.players.slice(),localMatches=db.matches.slice();
- const {data:players,error:pe}=await sb.from("players").select("id,name,stars,active").order("name");if(pe)throw pe;
- const {data:matches,error:me}=await sb.from("matches").select("id,played_at,note,score_pink,score_orange,created_at").order("played_at",{ascending:false});if(me)throw me;
- const ids=(matches||[]).map(m=>m.id);let roster=[],goals=[];
- if(ids.length){const r=await sb.from("match_players").select("match_id,player_id,team,stars").in("match_id",ids);if(r.error)throw r.error;roster=r.data||[];const g=await sb.from("goals").select("id,match_id,team,scorer_id,assist_id,solo,created_at").in("match_id",ids);if(g.error)throw g.error;goals=g.data||[];}
- const cloudMatches=(matches||[]).map(m=>{const rr=roster.filter(x=>x.match_id===m.id),gg=goals.filter(x=>x.match_id===m.id).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));return{id:m.id,date:m.played_at||m.created_at,note:m.note||"",teams:{A:rr.filter(x=>x.team==="pink").map(x=>x.player_id),B:rr.filter(x=>x.team==="orange").map(x=>x.player_id)},teamStars:rr.reduce((o,x)=>(o[x.player_id]=x.stars,o),{}),goals:gg.map(x=>({id:x.id,team:teamFromDb(x.team),scorerId:x.scorer_id,assistId:x.assist_id,solo:x.solo})),scoreA:m.score_pink,scoreB:m.score_orange};});
- const cloudP=new Set((players||[]).map(x=>x.id)),cloudM=new Set(cloudMatches.map(x=>x.id));
- db.players=[...(players||[]),...localPlayers.filter(x=>!cloudP.has(x.id))];
- db.matches=[...cloudMatches,...localMatches.filter(x=>!cloudM.has(x.id))].sort((a,b)=>new Date(b.date)-new Date(a.date));
- await saveLocalDB();renderAll();setStatus(remaining.length?`Sincronização parcial · ${remaining.length} pendente(s)`:"Sincronizado com a nuvem",true);
- if(remaining.length)console.warn("Operações pendentes:",remaining);
- }catch(e){console.error(e);setStatus("Falha na sincronização · dados locais preservados",navigator.onLine);alert("Não foi possível sincronizar: "+(e.message||"Erro desconhecido")+". Os dados locais foram mantidos.");}
- finally{isSyncing=false;updatePendingLabel();}}
-document.querySelectorAll("nav button").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));btn.classList.add("active");$(btn.dataset.tab).classList.add("active");renderAll();}));
-async function savePlayer(){if(currentProfile?.role!=="admin")return alert("Somente administradores podem alterar o elenco.");const name=$("playerName").value.trim(),stars=Number($("playerStars").value),editId=$("editPlayerId").value;if(!name)return alert("Digite o nome do jogador.");if(db.players.some(p=>p.name.toLowerCase()===name.toLowerCase()&&p.id!==editId))return alert("Já existe um jogador com esse nome.");const id=editId||uuid(),active=editId?(playerById(id)?.active!==false):true,payload={id,name,stars,active,created_by:currentUser.id};if(editId){const p=playerById(id);if(p){p.name=name;p.stars=stars;p.active=active;}}else db.players.push({id,name,stars,active});await saveLocalDB();await queueOperation({type:"player",payload});cancelEdit();renderAll();if(navigator.onLine)syncNow();else alert("Jogador salvo neste aparelho. Será enviado quando a internet voltar.");}
-function editPlayer(id){if(currentProfile?.role!=="admin")return;const p=playerById(id);if(!p)return;$("playerName").value=p.name;$("playerStars").value=p.stars;$("editPlayerId").value=p.id;$("playerFormTitle").textContent="Editar jogador";$("playerName").focus();}
-function cancelEdit(){$("playerName").value="";$("playerStars").value="3";$("editPlayerId").value="";$("playerFormTitle").textContent="Cadastrar jogador";}
-async function togglePlayer(id){if(currentProfile?.role!=="admin")return alert("Somente administradores.");const p=playerById(id);if(!p)return;p.active=p.active===false;await saveLocalDB();await queueOperation({type:"playerUpdate",id,payload:{active:p.active}});renderAll();if(navigator.onLine)syncNow();}
-async function deletePlayer(id){if(currentProfile?.role!=="admin")return alert("Somente administradores.");const p=playerById(id);if(!p||!confirm("Excluir "+p.name+"? Partidas antigas podem continuar referenciando este jogador."))return;db.players=db.players.filter(x=>x.id!==id);selected.delete(id);await saveLocalDB();await queueOperation({type:"playerDelete",id});renderAll();if(navigator.onLine)syncNow();}
-function renderPlayers(){const list=$("playersList");if(!db.players.length){list.innerHTML='<div class="empty">Nenhum jogador cadastrado.</div>';return;}list.innerHTML=db.players.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(p=>`<div class="player"><div><div class="player-name">${escapeHTML(p.name)}</div><div class="player-info"><span class="stars">${starsText(p.stars)}</span> · ${p.active===false?"Inativo":"Ativo"}</div></div><div class="actions" style="margin:0">${currentProfile?.role==="admin"?`<button class="btn secondary small" onclick="editPlayer('${p.id}')">Editar</button><button class="btn secondary small" onclick="togglePlayer('${p.id}')">${p.active===false?"Ativar":"Pausar"}</button><button class="btn danger small" onclick="deletePlayer('${p.id}')">Excluir</button>`:""}</div></div>`).join("");}
-function renderAttendance(){const list=$("attendanceList"),ps=activePlayers();if(!ps.length){list.innerHTML='<div class="empty">Nenhum jogador ativo cadastrado.</div>';return;}list.innerHTML=ps.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(p=>`<div class="checkbox-row"><input type="checkbox" id="att_${p.id}" ${selected.has(p.id)?"checked":""} onchange="setAttendance('${p.id}',this.checked)"><label for="att_${p.id}">${escapeHTML(p.name)} <span class="stars">${starsText(p.stars)}</span></label></div>`).join("");}
-function setAttendance(id,c){if(c)selected.add(id);else selected.delete(id);}function selectAll(){activePlayers().forEach(p=>selected.add(p.id));renderAttendance();}function clearSelection(){selected.clear();renderAttendance();}
-function drawTeams(){const ps=activePlayers().filter(p=>selected.has(p.id));if(ps.length<2)return alert("Selecione pelo menos dois jogadores.");const shuffled=ps.slice().sort(()=>Math.random()-.5).sort((a,b)=>b.stars-a.stars);let best=null,diff=Infinity;function search(i,a,b,sa,sb){if(i===shuffled.length){if(Math.abs(a.length-b.length)>1)return;const d=Math.abs(sa-sb);if(d<diff){diff=d;best={A:a.slice(),B:b.slice()};}return;}const p=shuffled[i];if(a.length<Math.ceil(shuffled.length/2)){a.push(p);search(i+1,a,b,sa+p.stars,sb);a.pop();}if(b.length<Math.ceil(shuffled.length/2)){b.push(p);search(i+1,a,b,sa,sb+p.stars);b.pop();}}if(shuffled.length<=16)search(0,[],[],0,0);else{const r={A:[],B:[]};let a=0,b=0;shuffled.forEach(p=>{if(r.A.length<Math.ceil(shuffled.length/2)&&(a<=b||r.B.length>=Math.ceil(shuffled.length/2))){r.A.push(p);a+=p.stars;}else{r.B.push(p);b+=p.stars;}});best=r;}teams=best||{A:[],B:[]};currentGoals=[];renderTeams();updateScorerOptions();renderGoals();}
-function renderTeams(){const el=$("teamsResult");if(!teams.A.length||!teams.B.length){el.innerHTML="";return;}const ta=teams.A.reduce((s,p)=>s+p.stars,0),tb=teams.B.reduce((s,p)=>s+p.stars,0);function box(n,ps,total,cls){return `<div class="team ${cls}"><h3>${n}</h3>${ps.map(p=>`<div class="team-player"><span>${escapeHTML(p.name)}</span><span class="stars">${starsText(p.stars)}</span></div>`).join("")}<div class="team-total">${ps.length} jogadores · ${total} estrelas</div></div>`;}el.innerHTML=`<div class="panel"><h3>Times sorteados</h3><div class="team-grid">${box("TIME ROSA",teams.A,ta,"team-a")}${box("TIME LARANJA",teams.B,tb,"team-b")}</div><div class="actions"><button class="btn" onclick="drawTeams()">↻ Sortear novamente</button><button class="btn secondary" onclick="goToResult()">Registrar resultado</button></div></div>`;}
-function goToResult(){document.querySelector('[data-tab="resultado"]').click();}
-function updateScorerOptions(){const t=$("goalTeam").value,ps=teams[t]||[],sel=$("goalScorer"),cur=sel.value;sel.innerHTML=ps.length?ps.map(p=>`<option value="${p.id}">${escapeHTML(p.name)}</option>`).join(""):'<option value="">Sorteie os times primeiro</option>';if(ps.some(p=>p.id===cur))sel.value=cur;updateAssistOptions();}
-function updateAssistOptions(){const t=$("goalTeam").value,sid=$("goalScorer").value,el=$("goalAssist"),solo=$("soloGoal").checked,ps=(teams[t]||[]).filter(p=>p.id!==sid);el.disabled=solo;el.innerHTML=ps.length?'<option value="">Sem assistência</option>'+ps.map(p=>`<option value="${p.id}">${escapeHTML(p.name)}</option>`).join(""):'<option value="">Sem outro jogador disponível</option>';}
-$("goalScorer").addEventListener("change",updateAssistOptions);$("goalTeam").addEventListener("change",updateScorerOptions);function toggleAssist(){updateAssistOptions();}
-function addGoal(){if(!teams.A.length||!teams.B.length)return alert("Faça o sorteio dos times antes de registrar gols.");const t=$("goalTeam").value,s=$("goalScorer").value,a=$("soloGoal").checked?null:($("goalAssist").value||null);if(!s)return alert("Selecione quem fez o gol.");if(a===s)return alert("O autor do gol não pode ser o próprio assistente.");currentGoals.push({id:uuid(),team:t,scorerId:s,assistId:a,solo:!a});$("soloGoal").checked=false;updateAssistOptions();renderGoals();}
-function removeGoal(id){currentGoals=currentGoals.filter(g=>g.id!==id);renderGoals();}function renderGoals(){const a=currentGoals.filter(g=>g.team==="A").length,b=currentGoals.filter(g=>g.team==="B").length;$("scoreA").textContent=a;$("scoreB").textContent=b;const el=$("goalEvents");if(!currentGoals.length){el.innerHTML='<div class="empty">Nenhum gol registrado nesta partida.</div>';return;}el.innerHTML=currentGoals.map((g,i)=>`<div class="goal-item"><div><strong>${i+1}. ${teamName(g.team)}</strong><br><span>${escapeHTML(playerName(g.scorerId))}</span><small>${g.assistId?" · Assistência: "+escapeHTML(playerName(g.assistId)):" · Gol solo"}</small></div><button class="btn danger small" onclick="removeGoal('${g.id}')">Remover</button></div>`).join("");}
-function clearGoals(){if(!currentGoals.length)return;if(!confirm("Limpar todos os gols desta partida?"))return;currentGoals=[];renderGoals();}
-async function saveMatch(){if(!teams.A.length||!teams.B.length)return alert("Sorteie os times antes de salvar a partida.");if(!currentGoals.length)return alert("Registre pelo menos um gol antes de salvar.");if(!currentUser)return alert("Entre na sua conta antes de registrar partidas.");const id=uuid(),date=new Date().toISOString(),note=$("matchNote").value.trim()||null;const scoreA=currentGoals.filter(g=>g.team==="A").length,scoreB=currentGoals.filter(g=>g.team==="B").length;const match={id,date,note,teams:{A:teams.A.map(p=>p.id),B:teams.B.map(p=>p.id)},teamStars:{...teams.A.reduce((o,p)=>(o[p.id]=p.stars,o),{}),...teams.B.reduce((o,p)=>(o[p.id]=p.stars,o),{})},goals:currentGoals.map(g=>({...g})),scoreA,scoreB};db.matches.unshift(match);await saveLocalDB();const matchRow={id,played_at:date,note,score_pink:scoreA,score_orange:scoreB,created_by:currentUser.id};const roster=[...teams.A.map(p=>({id:uuid(),match_id:id,player_id:p.id,team:"pink",stars:p.stars})),...teams.B.map(p=>({id:uuid(),match_id:id,player_id:p.id,team:"orange",stars:p.stars}))];const goalRows=currentGoals.map(g=>({id:g.id,match_id:id,team:teamToDb(g.team),scorer_id:g.scorerId,assist_id:g.assistId,solo:!g.assistId}));await queueOperation({type:"match",match:matchRow,roster,goals:goalRows});currentGoals=[];teams={A:[],B:[]};selected.clear();$("matchNote").value="";renderAll();renderTeams();renderGoals();document.querySelector('[data-tab="historico"]').click();if(navigator.onLine){await syncNow();alert("Partida salva localmente e enviada para sincronização.");}else alert("Partida salva neste aparelho! Ela será sincronizada automaticamente quando a internet voltar.");}
-function formatDate(d){return new Date(d).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"});}
-function startOfDay(s){return s?new Date(s+"T00:00:00"):null;}function endOfDay(s){return s?new Date(s+"T23:59:59.999"):null;}
-function getPeriodRange(prefix){const mode=$(prefix+"Period").value,now=new Date();let start=null,end=null,label="Todo o histórico";if(mode==="month"){start=new Date(now.getFullYear(),now.getMonth(),1);end=new Date(now.getFullYear(),now.getMonth()+1,0,23,59,59,999);label="Este mês";}else if(mode==="specific"){const v=$(prefix+"Month").value;if(v){const [y,m]=v.split("-").map(Number);start=new Date(y,m-1,1);end=new Date(y,m,0,23,59,59,999);label=`${String(m).padStart(2,"0")}/${y}`;}else label="Selecione o mês";}else if(mode==="year"){const y=Number($(prefix+"Year").value)||now.getFullYear();start=new Date(y,0,1);end=new Date(y,11,31,23,59,59,999);label=String(y);}else if(mode==="custom"){const a=$(prefix+"Start").value,b=$(prefix+"End").value;start=startOfDay(a);end=endOfDay(b);label=(a?new Date(a+"T00:00:00").toLocaleDateString("pt-BR"):"início")+" até "+(b?new Date(b+"T00:00:00").toLocaleDateString("pt-BR"):"hoje");}return{start,end,label,mode};}
-function inRange(m,r){const d=new Date(m.date);if(Number.isNaN(d.getTime()))return false;if(r.start&&d<r.start)return false;if(r.end&&d>r.end)return false;return true;}
-function filteredMatches(prefix){const r=getPeriodRange(prefix);return{range:r,matches:db.matches.filter(m=>inRange(m,r))};}
-function updatePeriodControls(prefix){const mode=$(prefix+"Period").value;$(prefix+"MonthWrap").classList.toggle("hidden",mode!=="specific");$(prefix+"YearWrap").classList.toggle("hidden",mode!=="year");$(prefix+"StartWrap").classList.toggle("hidden",mode!=="custom");$(prefix+"EndWrap").classList.toggle("hidden",mode!=="custom");}
-function onHistoryPeriodChange(){updatePeriodControls("history");renderHistory();}function onStatsPeriodChange(){updatePeriodControls("stats");renderStats();}
-function fillYearSelects(){const years=new Set([new Date().getFullYear(),...db.matches.map(m=>new Date(m.date).getFullYear()).filter(Number.isFinite)]);["historyYear","statsYear"].forEach(id=>{$(id).innerHTML=[...years].sort((a,b)=>b-a).map(y=>`<option value="${y}">${y}</option>`).join("");});}
-function renderHistory(){const el=$("historyList"),{range,matches}=filteredMatches("history");if(!matches.length){el.innerHTML='<div class="empty">Nenhuma partida encontrada neste período.</div>';return;}el.innerHTML=matches.map(m=>`<div class="history-item"><div class="muted">${formatDate(m.date)}</div><div class="score"><span class="score-rosa">TIME ROSA ${m.scoreA}</span> × <span class="score-laranja">${m.scoreB} TIME LARANJA</span></div>${m.note?`<div class="muted">${escapeHTML(m.note)}</div>`:""}<div class="notice">${(m.goals||[]).map(g=>`${teamName(g.team)}: ${escapeHTML(playerName(g.scorerId))}`+(g.assistId?` (assistência: ${escapeHTML(playerName(g.assistId))})`:" (gol solo)")).join("<br>")}</div></div>`).join("");}
-function getStats(matches){const s={};db.players.forEach(p=>s[p.id]={name:p.name,goals:0,assists:0});matches.forEach(m=>(m.goals||[]).forEach(g=>{if(!s[g.scorerId])s[g.scorerId]={name:playerName(g.scorerId),goals:0,assists:0};s[g.scorerId].goals++;if(g.assistId){if(!s[g.assistId])s[g.assistId]={name:playerName(g.assistId),goals:0,assists:0};s[g.assistId].assists++;}}));return Object.values(s);}
-function renderStats(){const {range,matches}=filteredMatches("stats"),stats=getStats(matches),goals=stats.reduce((s,p)=>s+p.goals,0),assists=stats.reduce((s,p)=>s+p.assists,0);$("statGoals").textContent=goals;$("statAssists").textContent=assists;$("statMatches").textContent=matches.length;$("statsPeriodLabel").textContent=`Exibindo ${matches.length} partida(s) · ${range.label}`;const a=stats.slice().sort((x,y)=>y.goals-x.goals||x.name.localeCompare(y.name)),b=stats.slice().sort((x,y)=>y.assists-x.assists||x.name.localeCompare(y.name));$("scorerRanking").innerHTML=a.some(p=>p.goals)?a.filter(p=>p.goals).map((p,i)=>`<div class="stat-row"><span>${i+1}º ${escapeHTML(p.name)}</span><strong>${p.goals} gols</strong></div>`).join(""):'<div class="empty">Sem gols neste período.</div>';$("assistRanking").innerHTML=b.some(p=>p.assists)?b.filter(p=>p.assists).map((p,i)=>`<div class="stat-row"><span>${i+1}º ${escapeHTML(p.name)}</span><strong>${p.assists} assistências</strong></div>`).join(""):'<div class="empty">Sem assistências neste período.</div>';}
-function renderHome(){const goals=db.matches.reduce((s,m)=>s+(m.goals||[]).length,0),assists=db.matches.reduce((s,m)=>s+(m.goals||[]).filter(g=>g.assistId).length,0);$("totalPlayers").textContent=db.players.length;$("totalMatches").textContent=db.matches.length;$("totalGoals").textContent=goals;$("totalAssists").textContent=assists;const m=db.matches[0];$("lastMatch").innerHTML=m?`<div class="muted">${formatDate(m.date)}</div><div class="score"><span class="score-rosa">TIME ROSA ${m.scoreA}</span> × <span class="score-laranja">${m.scoreB} TIME LARANJA</span></div>${m.note?escapeHTML(m.note):""}`:"Nenhuma partida registrada ainda.";}
-function renderAll(){fillYearSelects();renderHome();renderPlayers();renderAttendance();renderHistory();renderStats();updateScorerOptions();renderGoals();updatePendingLabel();}
-async function init(){await loadLocal();setStatus(navigator.onLine?"Aguardando login":"Offline · aguardando sessão salva",navigator.onLine);updatePeriodControls("history");updatePeriodControls("stats");const {data:{session}}=await sb.auth.getSession();if(session?.user){if(navigator.onLine)await startSession(session.user);else{currentUser=session.user;const cached=await idbGet("profile");if(cached){currentProfile=cached;showApp();setStatus("Offline · dados deste aparelho",false);}else showAuthMessage("Conecte-se uma vez para carregar seu perfil e liberar o uso offline.",true);}}}
-if("serviceWorker"in navigator&&location.protocol!=="file:"){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(e=>console.warn("SW não registrado",e)));}
+
+  if(!profile){
+    showAuthMessage("Seu usuário ainda não tem perfil. Peça ao administrador para cadastrá-lo no Supabase.",true);
+    await sb.auth.signOut();
+    currentUser=null;
+    currentProfile=null;
+    return;
+  }
+
+  currentProfile=profile;
+
+  await idbSet("profile",profile);
+  await saveLocalAuth(user,profile);
+  await saveLocalDB();
+
+  showApp();
+
+  if(navigator.onLine){
+    await syncNow();
+  }else{
+    setStatus("Offline · usando dados deste aparelho",false);
+  }
+}
+
+window.addEventListener("online",()=>{
+  setStatus("Conectado · sincronizando",true);
+  if(currentUser)syncNow();
+});
+
+window.addEventListener("offline",()=>{
+  setStatus("Offline · dados locais",false);
+});
+
+async function syncNow(){
+  if(!currentUser){
+    setStatus("Entre para sincronizar",navigator.onLine);
+    return;
+  }
+
+  if(!navigator.onLine){
+    setStatus("Offline · dados locais",false);
+    return;
+  }
+
+  if(isSyncing)return;
+
+  const {data:{session},error:sessionError}=await sb.auth.getSession();
+
+  if(sessionError||!session){
+    setStatus("Conecte-se novamente para sincronizar",true);
+    return;
+  }
+
+  isSyncing=true;
+  setStatus("Sincronizando...",true);
+
+  try{
+    let q=getOutbox(),remaining=[];
+
+    // Importa jogadores antigos deste aparelho que ainda não existam na nuvem.
+    if(currentProfile?.role==="admin"&&db.players.length){
+      const {data:known,error:knownErr}=await sb.from("players").select("id,name");
+      if(knownErr)throw knownErr;
+
+      const knownIds=new Set((known||[]).map(p=>p.id));
+      const knownNames=new Set((known||[]).map(p=>(p.name||"").trim().toLowerCase()));
+
+      for(const p of db.players){
+        if(!knownIds.has(p.id)&&!knownNames.has((p.name||"").trim().toLowerCase())){
+          q.push({
+            type:"player",
+            payload:{
+              id:p.id,
+              name:p.name,
+              stars:Number(p.stars)||3,
+              active:p.active!==false,
+              created_by:currentUser.id
+            },
+            queuedAt:new Date().toISOString()
+          });
+          knownNames.add((p.name||"").trim().toLowerCase());
+        }
+      }
+
+      await saveOutbox(q);
+    }
+
+    for(const op of q){
+      try{
+        if(op.type==="match"){
+          const {error:e1}=await sb.from("matches").upsert(op.match,{onConflict:"id"});
+          if(e1)throw e1;
+
+          if(op.roster?.length){
+            const {error:e2}=await sb.from("match_players").upsert(op.roster,{onConflict:"id"});
+            if(e2)throw e2;
+          }
+
+          if(op.goals?.length){
+            const {error:e3}=await sb.from("goals").upsert(op.goals,{onConflict:"id"});
+            if(e3)throw e3;
+          }
+        }else if(op.type==="player"){
+          const {error}=await sb.from("players").upsert(op.payload,{onConflict:"id"});
+          if(error)throw error;
+        }else if(op.type==="playerUpdate"){
+          const {error}=await sb.from("players").update(op.payload).eq("id",op.id);
+          if(error)throw error;
+        }else if(op.type==="playerDelete"){
+          const {error}=await sb.from("players").delete().eq("id",op.id);
+          if(error)throw error;
+        }
+      }catch(err){
+        op.lastError=err.message;
+        remaining.push(op);
+      }
+    }
+
+    await saveOutbox(remaining);
+
+    const localPlayers=db.players.slice(),localMatches=db.matches.slice();
+
+    const {data:players,error:pe}=await sb.from("players").select("id,name,stars,active").order("name");
+    if(pe)throw pe;
+
+    const {data:matches,error:me}=await sb.from("matches").select("id,played_at,note,score_pink,score_orange,created_at").order("played_at",{ascending:false});
+    if(me)throw me;
+
+    const ids=(matches||[]).map(m=>m.id);
+    let roster=[],goals=[];
+
+    if(ids.length){
+      const r=await sb.from("match_players").select("match_id,player_id,team,stars").in("match_id",ids);
+      if(r.error)throw r.error;
+      roster=r.data||[];
+
+      const g=await sb.from("goals").select("id,match_id,team,scorer_id,assist_id,solo,created_at").in("match_id",ids);
+      if(g.error)throw g.error;
+      goals=g.data||[];
+    }
+
+    const cloudMatches=(matches||[]).map(m=>{
+      const rr=roster.filter(x=>x.match_id===m.id);
+      const gg=goals.filter(x=>x.match_id===m.id).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+
+      return{
+        id:m.id,
+        date:m.played_at||m.created_at,
+        note:m.note||"",
+        teams:{
+          A:rr.filter(x=>x.team==="pink").map(x=>x.player_id),
+          B:rr.filter(x=>x.team==="orange").map(x=>x.player_id)
+        },
+        teamStars:rr.reduce((o,x)=>(o[x.player_id]=x.stars,o),{}),
+        goals:gg.map(x=>({
+          id:x.id,
+          team:teamFromDb(x.team),
+          scorerId:x.scorer_id,
+          assistId:x.assist_id,
+          solo:x.solo
+        })),
+        scoreA:m.score_pink,
+        scoreB:m.score_orange
+      };
+    });
+
+    const cloudP=new Set((players||[]).map(x=>x.id));
+    const cloudM=new Set(cloudMatches.map(x=>x.id));
+
+    db.players=[
+      ...(players||[]),
+      ...localPlayers.filter(x=>!cloudP.has(x.id))
+    ];
+
+    db.matches=[
+      ...cloudMatches,
+      ...localMatches.filter(x=>!cloudM.has(x.id))
+    ].sort((a,b)=>new Date(b.date)-new Date(a.date));
+
+    await saveLocalDB();
+    renderAll();
+
+    setStatus(
+      remaining.length
+        ?`Sincronização parcial · ${remaining.length} pendente(s)`
+        :"Sincronizado com a nuvem",
+      true
+    );
+
+    if(remaining.length)console.warn("Operações pendentes:",remaining);
+
+  }catch(e){
+    console.error(e);
+    setStatus("Falha na sincronização · dados locais preservados",navigator.onLine);
+    alert("Não foi possível sincronizar: "+(e.message||"Erro desconhecido")+". Os dados locais foram mantidos.");
+  }finally{
+    isSyncing=false;
+    updatePendingLabel();
+  }
+}
+
+document.querySelectorAll("nav button").forEach(btn=>btn.addEventListener("click",()=>{
+  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+  btn.classList.add("active");
+  $(btn.dataset.tab).classList.add("active");
+  renderAll();
+}));
+
+async function savePlayer(){
+  if(currentProfile?.role!=="admin")return alert("Somente administradores podem alterar o elenco.");
+
+  const name=$("playerName").value.trim();
+  const stars=Number($("playerStars").value);
+  const editId=$("editPlayerId").value;
+
+  if(!name)return alert("Digite o nome do jogador.");
+  if(db.players.some(p=>p.name.toLowerCase()===name.toLowerCase()&&p.id!==editId))return alert("Já existe um jogador com esse nome.");
+
+  const id=editId||uuid();
+  const active=editId?(playerById(id)?.active!==false):true;
+  const payload={id,name,stars,active,created_by:currentUser.id};
+
+  if(editId){
+    const p=playerById(id);
+    if(p){
+      p.name=name;
+      p.stars=stars;
+      p.active=active;
+    }
+  }else{
+    db.players.push({id,name,stars,active});
+  }
+
+  await saveLocalDB();
+  await queueOperation({type:"player",payload});
+  cancelEdit();
+  renderAll();
+
+  if(navigator.onLine)syncNow();
+  else alert("Jogador salvo neste aparelho. Será enviado quando a internet voltar.");
+}
+
+function editPlayer(id){
+  if(currentProfile?.role!=="admin")return;
+  const p=playerById(id);
+  if(!p)return;
+  $("playerName").value=p.name;
+  $("playerStars").value=p.stars;
+  $("editPlayerId").value=p.id;
+  $("playerFormTitle").textContent="Editar jogador";
+  $("playerName").focus();
+}
+
+function cancelEdit(){
+  $("playerName").value="";
+  $("playerStars").value="3";
+  $("editPlayerId").value="";
+  $("playerFormTitle").textContent="Cadastrar jogador";
+}
+
+async function togglePlayer(id){
+  if(currentProfile?.role!=="admin")return alert("Somente administradores.");
+  const p=playerById(id);
+  if(!p)return;
+  p.active=p.active===false;
+  await saveLocalDB();
+  await queueOperation({type:"playerUpdate",id,payload:{active:p.active}});
+  renderAll();
+  if(navigator.onLine)syncNow();
+}
+
+async function deletePlayer(id){
+  if(currentProfile?.role!=="admin")return alert("Somente administradores.");
+  const p=playerById(id);
+  if(!p||!confirm("Excluir "+p.name+"? Partidas antigas podem continuar referenciando este jogador."))return;
+  db.players=db.players.filter(x=>x.id!==id);
+  selected.delete(id);
+  await saveLocalDB();
+  await queueOperation({type:"playerDelete",id});
+  renderAll();
+  if(navigator.onLine)syncNow();
+}
+
+function renderPlayers(){
+  const list=$("playersList");
+  if(!db.players.length){
+    list.innerHTML='<div class="empty">Nenhum jogador cadastrado.</div>';
+    return;
+  }
+
+  list.innerHTML=db.players.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(p=>`
+    <div class="player">
+      <div>
+        <div class="player-name">${escapeHTML(p.name)}</div>
+        <div class="player-info"><span class="stars">${starsText(p.stars)}</span> · ${p.active===false?"Inativo":"Ativo"}</div>
+      </div>
+      <div class="actions" style="margin:0">
+        ${currentProfile?.role==="admin"?`
+          <button class="btn secondary small" onclick="editPlayer('${p.id}')">Editar</button>
+          <button class="btn secondary small" onclick="togglePlayer('${p.id}')">${p.active===false?"Ativar":"Pausar"}</button>
+          <button class="btn danger small" onclick="deletePlayer('${p.id}')">Excluir</button>
+        `:""}
+      </div>
+    </div>
+  `).join("");
+}
+
+function renderAttendance(){
+  const list=$("attendanceList"),ps=activePlayers();
+
+  if(!ps.length){
+    list.innerHTML='<div class="empty">Nenhum jogador ativo cadastrado.</div>';
+    return;
+  }
+
+  list.innerHTML=ps.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(p=>`
+    <div class="checkbox-row">
+      <input type="checkbox" id="att_${p.id}" ${selected.has(p.id)?"checked":""} onchange="setAttendance('${p.id}',this.checked)">
+      <label for="att_${p.id}">${escapeHTML(p.name)} <span class="stars">${starsText(p.stars)}</span></label>
+    </div>
+  `).join("");
+}
+
+function setAttendance(id,c){
+  if(c)selected.add(id);
+  else selected.delete(id);
+}
+
+function selectAll(){
+  activePlayers().forEach(p=>selected.add(p.id));
+  renderAttendance();
+}
+
+function clearSelection(){
+  selected.clear();
+  renderAttendance();
+}
+
+function drawTeams(){
+  const ps=activePlayers().filter(p=>selected.has(p.id));
+  if(ps.length<2)return alert("Selecione pelo menos dois jogadores.");
+
+  const shuffled=ps.slice().sort(()=>Math.random()-.5).sort((a,b)=>b.stars-a.stars);
+  let best=null,diff=Infinity;
+
+  function search(i,a,b,sa,sb){
+    if(i===shuffled.length){
+      if(Math.abs(a.length-b.length)>1)return;
+      const d=Math.abs(sa-sb);
+      if(d<diff){
+        diff=d;
+        best={A:a.slice(),B:b.slice()};
+      }
+      return;
+    }
+
+    const p=shuffled[i];
+
+    if(a.length<Math.ceil(shuffled.length/2)){
+      a.push(p);
+      search(i+1,a,b,sa+p.stars,sb);
+      a.pop();
+    }
+
+    if(b.length<Math.ceil(shuffled.length/2)){
+      b.push(p);
+      search(i+1,a,b,sa,sb+p.stars);
+      b.pop();
+    }
+  }
+
+  if(shuffled.length<=16){
+    search(0,[],[],0,0);
+  }else{
+    const r={A:[],B:[]};
+    let a=0,b=0;
+
+    shuffled.forEach(p=>{
+      if(r.A.length<Math.ceil(shuffled.length/2)&&(a<=b||r.B.length>=Math.ceil(shuffled.length/2))){
+        r.A.push(p);
+        a+=p.stars;
+      }else{
+        r.B.push(p);
+        b+=p.stars;
+      }
+    });
+
+    best=r;
+  }
+
+  teams=best||{A:[],B:[]};
+  currentGoals=[];
+  renderTeams();
+  updateScorerOptions();
+  renderGoals();
+}
+
+function renderTeams(){
+  const el=$("teamsResult");
+
+  if(!teams.A.length||!teams.B.length){
+    el.innerHTML="";
+    return;
+  }
+
+  const ta=teams.A.reduce((s,p)=>s+p.stars,0);
+  const tb=teams.B.reduce((s,p)=>s+p.stars,0);
+
+  function box(n,ps,total,cls){
+    return `
+      <div class="team ${cls}">
+        <h3>${n}</h3>
+        ${ps.map(p=>`
+          <div class="team-player">
+            <span>${escapeHTML(p.name)}</span>
+            <span class="stars">${starsText(p.stars)}</span>
+          </div>
+        `).join("")}
+        <div class="team-total">${ps.length} jogadores · ${total} estrelas</div>
+      </div>
+    `;
+  }
+
+  el.innerHTML=`
+    <div class="panel">
+      <h3>Times sorteados</h3>
+      <div class="team-grid">
+        ${box("TIME ROSA",teams.A,ta,"team-a")}
+        ${box("TIME LARANJA",teams.B,tb,"team-b")}
+      </div>
+      <div class="actions">
+        <button class="btn" onclick="drawTeams()">↻ Sortear novamente</button>
+        <button class="btn secondary" onclick="goToResult()">Registrar resultado</button>
+      </div>
+    </div>
+  `;
+}
+
+function goToResult(){
+  document.querySelector('[data-tab="resultado"]').click();
+}
+
+function updateScorerOptions(){
+  const t=$("goalTeam").value;
+  const ps=teams[t]||[];
+  const sel=$("goalScorer");
+  const cur=sel.value;
+
+  sel.innerHTML=ps.length
+    ?ps.map(p=>`<option value="${p.id}">${escapeHTML(p.name)}</option>`).join("")
+    :'<option value="">Sorteie os times primeiro</option>';
+
+  if(ps.some(p=>p.id===cur))sel.value=cur;
+  updateAssistOptions();
+}
+
+function updateAssistOptions(){
+  const t=$("goalTeam").value;
+  const sid=$("goalScorer").value;
+  const el=$("goalAssist");
+  const solo=$("soloGoal").checked;
+  const ps=(teams[t]||[]).filter(p=>p.id!==sid);
+
+  el.disabled=solo;
+  el.innerHTML=ps.length
+    ?'<option value="">Sem assistência</option>'+ps.map(p=>`<option value="${p.id}">${escapeHTML(p.name)}</option>`).join("")
+    :'<option value="">Sem outro jogador disponível</option>';
+}
+
+$("goalScorer").addEventListener("change",updateAssistOptions);
+$("goalTeam").addEventListener("change",updateScorerOptions);
+
+function toggleAssist(){
+  updateAssistOptions();
+}
+
+function addGoal(){
+  if(!teams.A.length||!teams.B.length)return alert("Faça o sorteio dos times antes de registrar gols.");
+
+  const t=$("goalTeam").value;
+  const s=$("goalScorer").value;
+  const a=$("soloGoal").checked?null:($("goalAssist").value||null);
+
+  if(!s)return alert("Selecione quem fez o gol.");
+  if(a===s)return alert("O autor do gol não pode ser o próprio assistente.");
+
+  currentGoals.push({
+    id:uuid(),
+    team:t,
+    scorerId:s,
+    assistId:a,
+    solo:!a
+  });
+
+  $("soloGoal").checked=false;
+  updateAssistOptions();
+  renderGoals();
+}
+
+function removeGoal(id){
+  currentGoals=currentGoals.filter(g=>g.id!==id);
+  renderGoals();
+}
+
+function renderGoals(){
+  const a=currentGoals.filter(g=>g.team==="A").length;
+  const b=currentGoals.filter(g=>g.team==="B").length;
+
+  $("scoreA").textContent=a;
+  $("scoreB").textContent=b;
+
+  const el=$("goalEvents");
+
+  if(!currentGoals.length){
+    el.innerHTML='<div class="empty">Nenhum gol registrado nesta partida.</div>';
+    return;
+  }
+
+  el.innerHTML=currentGoals.map((g,i)=>`
+    <div class="goal-item">
+      <div>
+        <strong>${i+1}. ${teamName(g.team)}</strong><br>
+        <span>${escapeHTML(playerName(g.scorerId))}</span>
+        <small>${g.assistId?" · Assistência: "+escapeHTML(playerName(g.assistId)):" · Gol solo"}</small>
+      </div>
+      <button class="btn danger small" onclick="removeGoal('${g.id}')">Remover</button>
+    </div>
+  `).join("");
+}
+
+function clearGoals(){
+  if(!currentGoals.length)return;
+  if(!confirm("Limpar todos os gols desta partida?"))return;
+  currentGoals=[];
+  renderGoals();
+}
+
+async function saveMatch(){
+  if(!teams.A.length||!teams.B.length)return alert("Sorteie os times antes de salvar a partida.");
+  if(!currentGoals.length)return alert("Registre pelo menos um gol antes de salvar.");
+  if(!currentUser)return alert("Entre na sua conta antes de registrar partidas.");
+
+  const id=uuid();
+  const date=new Date().toISOString();
+  const note=$("matchNote").value.trim()||null;
+  const scoreA=currentGoals.filter(g=>g.team==="A").length;
+  const scoreB=currentGoals.filter(g=>g.team==="B").length;
+
+  const match={
+    id,
+    date,
+    note,
+    teams:{
+      A:teams.A.map(p=>p.id),
+      B:teams.B.map(p=>p.id)
+    },
+    teamStars:{
+      ...teams.A.reduce((o,p)=>(o[p.id]=p.stars,o),{}),
+      ...teams.B.reduce((o,p)=>(o[p.id]=p.stars,o),{})
+    },
+    goals:currentGoals.map(g=>({...g})),
+    scoreA,
+    scoreB
+  };
+
+  db.matches.unshift(match);
+  await saveLocalDB();
+
+  const matchRow={
+    id,
+    played_at:date,
+    note,
+    score_pink:scoreA,
+    score_orange:scoreB,
+    created_by:currentUser.id
+  };
+
+  const roster=[
+    ...teams.A.map(p=>({
+      id:uuid(),
+      match_id:id,
+      player_id:p.id,
+      team:"pink",
+      stars:p.stars
+    })),
+    ...teams.B.map(p=>({
+      id:uuid(),
+      match_id:id,
+      player_id:p.id,
+      team:"orange",
+      stars:p.stars
+    }))
+  ];
+
+  const goalRows=currentGoals.map(g=>({
+    id:g.id,
+    match_id:id,
+    team:teamToDb(g.team),
+    scorer_id:g.scorerId,
+    assist_id:g.assistId,
+    solo:!g.assistId
+  }));
+
+  await queueOperation({
+    type:"match",
+    match:matchRow,
+    roster,
+    goals:goalRows
+  });
+
+  currentGoals=[];
+  teams={A:[],B:[]};
+  selected.clear();
+  $("matchNote").value="";
+
+  renderAll();
+  renderTeams();
+  renderGoals();
+
+  document.querySelector('[data-tab="historico"]').click();
+
+  if(navigator.onLine){
+    await syncNow();
+    alert("Partida salva localmente e enviada para sincronização.");
+  }else{
+    alert("Partida salva neste aparelho! Ela será sincronizada automaticamente quando a internet voltar.");
+  }
+}
+
+function formatDate(d){
+  return new Date(d).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"});
+}
+
+function startOfDay(s){
+  return s?new Date(s+"T00:00:00"):null;
+}
+
+function endOfDay(s){
+  return s?new Date(s+"T23:59:59.999"):null;
+}
+
+function getPeriodRange(prefix){
+  const mode=$(prefix+"Period").value;
+  const now=new Date();
+  let start=null,end=null,label="Todo o histórico";
+
+  if(mode==="month"){
+    start=new Date(now.getFullYear(),now.getMonth(),1);
+    end=new Date(now.getFullYear(),now.getMonth()+1,0,23,59,59,999);
+    label="Este mês";
+  }else if(mode==="specific"){
+    const v=$(prefix+"Month").value;
+    if(v){
+      const [y,m]=v.split("-").map(Number);
+      start=new Date(y,m-1,1);
+      end=new Date(y,m,0,23,59,59,999);
+      label=`${String(m).padStart(2,"0")}/${y}`;
+    }else{
+      label="Selecione o mês";
+    }
+  }else if(mode==="year"){
+    const y=Number($(prefix+"Year").value)||now.getFullYear();
+    start=new Date(y,0,1);
+    end=new Date(y,11,31,23,59,59,999);
+    label=String(y);
+  }else if(mode==="custom"){
+    const a=$(prefix+"Start").value;
+    const b=$(prefix+"End").value;
+    start=startOfDay(a);
+    end=endOfDay(b);
+    label=(a?new Date(a+"T00:00:00").toLocaleDateString("pt-BR"):"início")+" até "+(b?new Date(b+"T00:00:00").toLocaleDateString("pt-BR"):"hoje");
+  }
+
+  return{start,end,label,mode};
+}
+
+function inRange(m,r){
+  const d=new Date(m.date);
+  if(Number.isNaN(d.getTime()))return false;
+  if(r.start&&d<r.start)return false;
+  if(r.end&&d>r.end)return false;
+  return true;
+}
+
+function filteredMatches(prefix){
+  const r=getPeriodRange(prefix);
+  return{range:r,matches:db.matches.filter(m=>inRange(m,r))};
+}
+
+function updatePeriodControls(prefix){
+  const mode=$(prefix+"Period").value;
+  $(prefix+"MonthWrap").classList.toggle("hidden",mode!=="specific");
+  $(prefix+"YearWrap").classList.toggle("hidden",mode!=="year");
+  $(prefix+"StartWrap").classList.toggle("hidden",mode!=="custom");
+  $(prefix+"EndWrap").classList.toggle("hidden",mode!=="custom");
+}
+
+function onHistoryPeriodChange(){
+  updatePeriodControls("history");
+  renderHistory();
+}
+
+function onStatsPeriodChange(){
+  updatePeriodControls("stats");
+  renderStats();
+}
+
+function fillYearSelects(){
+  const years=new Set([
+    new Date().getFullYear(),
+    ...db.matches.map(m=>new Date(m.date).getFullYear()).filter(Number.isFinite)
+  ]);
+
+  ["historyYear","statsYear"].forEach(id=>{
+    $(id).innerHTML=[...years].sort((a,b)=>b-a).map(y=>`<option value="${y}">${y}</option>`).join("");
+  });
+}
+
+function renderHistory(){
+  const el=$("historyList");
+  const {range,matches}=filteredMatches("history");
+
+  if(!matches.length){
+    el.innerHTML='<div class="empty">Nenhuma partida encontrada neste período.</div>';
+    return;
+  }
+
+  el.innerHTML=matches.map(m=>`
+    <div class="history-item">
+      <div class="muted">${formatDate(m.date)}</div>
+      <div class="score">
+        <span class="score-rosa">TIME ROSA ${m.scoreA}</span> ×
+        <span class="score-laranja">${m.scoreB} TIME LARANJA</span>
+      </div>
+      ${m.note?`<div class="muted">${escapeHTML(m.note)}</div>`:""}
+      <div class="notice">
+        ${(m.goals||[]).map(g=>`${teamName(g.team)}: ${escapeHTML(playerName(g.scorerId))}`+(g.assistId?` (assistência: ${escapeHTML(playerName(g.assistId))})`:" (gol solo)")).join("<br>")}
+      </div>
+    </div>
+  `).join("");
+}
+
+function getStats(matches){
+  const s={};
+
+  db.players.forEach(p=>{
+    s[p.id]={name:p.name,goals:0,assists:0};
+  });
+
+  matches.forEach(m=>(m.goals||[]).forEach(g=>{
+    if(!s[g.scorerId])s[g.scorerId]={name:playerName(g.scorerId),goals:0,assists:0};
+    s[g.scorerId].goals++;
+
+    if(g.assistId){
+      if(!s[g.assistId])s[g.assistId]={name:playerName(g.assistId),goals:0,assists:0};
+      s[g.assistId].assists++;
+    }
+  }));
+
+  return Object.values(s);
+}
+
+function renderStats(){
+  const {range,matches}=filteredMatches("stats");
+  const stats=getStats(matches);
+  const goals=stats.reduce((s,p)=>s+p.goals,0);
+  const assists=stats.reduce((s,p)=>s+p.assists,0);
+
+  $("statGoals").textContent=goals;
+  $("statAssists").textContent=assists;
+  $("statMatches").textContent=matches.length;
+  $("statsPeriodLabel").textContent=`Exibindo ${matches.length} partida(s) · ${range.label}`;
+
+  const a=stats.slice().sort((x,y)=>y.goals-x.goals||x.name.localeCompare(y.name));
+  const b=stats.slice().sort((x,y)=>y.assists-x.assists||x.name.localeCompare(y.name));
+
+  $("scorerRanking").innerHTML=a.some(p=>p.goals)
+    ?a.filter(p=>p.goals).map((p,i)=>`<div class="stat-row"><span>${i+1}º ${escapeHTML(p.name)}</span><strong>${p.goals} gols</strong></div>`).join("")
+    :'<div class="empty">Sem gols neste período.</div>';
+
+  $("assistRanking").innerHTML=b.some(p=>p.assists)
+    ?b.filter(p=>p.assists).map((p,i)=>`<div class="stat-row"><span>${i+1}º ${escapeHTML(p.name)}</span><strong>${p.assists} assistências</strong></div>`).join("")
+    :'<div class="empty">Sem assistências neste período.</div>';
+}
+
+function renderHome(){
+  const goals=db.matches.reduce((s,m)=>s+(m.goals||[]).length,0);
+  const assists=db.matches.reduce((s,m)=>s+(m.goals||[]).filter(g=>g.assistId).length,0);
+
+  $("totalPlayers").textContent=db.players.length;
+  $("totalMatches").textContent=db.matches.length;
+  $("totalGoals").textContent=goals;
+  $("totalAssists").textContent=assists;
+
+  const m=db.matches[0];
+
+  $("lastMatch").innerHTML=m
+    ?`<div class="muted">${formatDate(m.date)}</div><div class="score"><span class="score-rosa">TIME ROSA ${m.scoreA}</span> × <span class="score-laranja">${m.scoreB} TIME LARANJA</span></div>${m.note?escapeHTML(m.note):""}`
+    :"Nenhuma partida registrada ainda.";
+}
+
+function renderAll(){
+  fillYearSelects();
+  renderHome();
+  renderPlayers();
+  renderAttendance();
+  renderHistory();
+  renderStats();
+  updateScorerOptions();
+  renderGoals();
+  updatePendingLabel();
+}
+
+async function init(){
+  await loadLocal();
+
+  setStatus(
+    navigator.onLine
+      ?"Aguardando login"
+      :"Offline · verificando acesso salvo",
+    navigator.onLine
+  );
+
+  updatePeriodControls("history");
+  updatePeriodControls("stats");
+
+  let session=null;
+
+  try{
+    const result=await sb.auth.getSession();
+    session=result.data?.session||null;
+  }catch(e){
+    console.warn("Não foi possível consultar a sessão online.",e);
+  }
+
+  if(session?.user&&navigator.onLine){
+    await startSession(session.user);
+    return;
+  }
+
+  if(!navigator.onLine){
+    const restored=await restoreLocalSession();
+
+    if(restored)return;
+
+    showAuthMessage(
+      "Conecte-se uma vez com internet para liberar o uso offline.",
+      true
+    );
+
+    return;
+  }
+
+  showLogin();
+}
+
+if("serviceWorker"in navigator&&location.protocol!=="file:"){
+  window.addEventListener("load",()=>{
+    navigator.serviceWorker.register("./sw.js")
+      .catch(e=>console.warn("SW não registrado",e));
+  });
+}
+
 init();
 </script>
-</body></html>
+</body>
+</html>
