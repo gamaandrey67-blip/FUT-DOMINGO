@@ -1,0 +1,24 @@
+
+{
+  "name": "FUTDOMINGO",
+  "short_name": "FUTDOMINGO",
+  "description": "Gestão de futebol, sorteio de times e histórico de partidas.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#071b14",
+  "theme_color": "#071b14",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
