@@ -93,7 +93,7 @@ table.simple{width:100%;border-collapse:collapse;font-size:12px}table.simple th,
 <section class="section" id="jogadores">
 <h2>Jogadores</h2><p class="description">Gerencie o elenco e a avaliação de cada jogador. Toque no nome ou na foto para abrir o perfil.</p>
 <div class="panel" id="playerEditor"><h3 id="playerFormTitle">Cadastrar jogador</h3><input type="hidden" id="editPlayerId">
-<div class="form-grid"><div><label>Nome do jogador</label><input id="playerName" placeholder="Digite o nome"></div><div><label>Nível do jogador</label><select id="playerStars"><option value="1">1 estrela</option><option value="2">2 estrelas</option><option value="3" selected>3 estrelas</option><option value="4">4 estrelas</option><option value="5">5 estrelas</option></select></div></div>
+<div class="form-grid"><div><label>Nome do jogador</label><input id="playerName" placeholder="Digite o nome"></div><div><label>Nível do jogador</label><select id="playerStars"><option value="1">1 estrela</option><option value="2">2 estrelas</option><option value="3" selected>3 estrelas</option><option value="4">4 estrelas</option><option value="5">5 estrelas</option></select></div><div><label>Posição</label><select id="playerPosition"><option value="Zagueiro">Zagueiro</option><option value="Meio">Meio</option><option value="Atacante">Atacante</option></select></div></div>
 <div class="photo-tools">
   <div id="photoPreview"></div>
   <div>
@@ -220,6 +220,7 @@ async function loadLocal(){
     const pc=await idbGet("photoCache");if(pc&&typeof pc==="object")photoCache=pc;
   }catch(e){console.warn("IndexedDB indisponível",e);}
   if(!Array.isArray(db.players))db.players=[];if(!Array.isArray(db.matches))db.matches=[];if(!Array.isArray(db.series))db.series=[];
+  db.players.forEach(p=>{if(!p.position)p.position="Meio";});
   persist();
 }
 
@@ -456,6 +457,7 @@ async function syncNow(){
               name:p.name,
               stars:Number(p.stars)||3,
               active:p.active!==false,
+              position:p.position||"Meio",
               created_by:currentUser.id
             },
             queuedAt:new Date().toISOString()
@@ -539,7 +541,7 @@ async function syncNow(){
 
     const localPlayers=db.players.slice(),localMatches=db.matches.slice(),localSeries=(db.series||[]).slice();
 
-    const {data:players,error:pe}=await sb.from("players").select("id,name,stars,active,photo_url").order("name");
+    const {data:players,error:pe}=await sb.from("players").select("id,name,stars,active,photo_url,position").order("name");
     if(pe)throw pe;
 
     const matchCols="id,played_at,note,score_pink,score_orange,created_at";
@@ -612,8 +614,8 @@ async function syncNow(){
     const cloudM=new Set(cloudMatches.map(x=>x.id));
 
     db.players=[
-      ...(players||[]),
-      ...localPlayers.filter(x=>!cloudP.has(x.id))
+      ...(players||[]).map(p=>({...p,position:p.position||"Meio"})),
+      ...localPlayers.filter(x=>!cloudP.has(x.id)).map(p=>({...p,position:p.position||"Meio"}))
     ];
 
     db.matches=[
@@ -670,6 +672,7 @@ async function savePlayer(){
 
   const name=$("playerName").value.trim();
   const stars=Number($("playerStars").value);
+  const position=$("playerPosition").value;
   const editId=$("editPlayerId").value;
 
   if(!name)return alert("Digite o nome do jogador.");
@@ -677,7 +680,7 @@ async function savePlayer(){
 
   const id=editId||uuid();
   const active=editId?(playerById(id)?.active!==false):true;
-  const payload={id,name,stars,active,created_by:currentUser.id};
+  const payload={id,name,stars,active,position,created_by:currentUser.id};
 
   if(editId){
     const p=playerById(id);
@@ -685,9 +688,10 @@ async function savePlayer(){
       p.name=name;
       p.stars=stars;
       p.active=active;
+      p.position=position;
     }
   }else{
-    db.players.push({id,name,stars,active});
+    db.players.push({id,name,stars,active,position});
   }
 
   await saveLocalDB();
@@ -714,6 +718,7 @@ function editPlayer(id){
   if(!p)return;
   $("playerName").value=p.name;
   $("playerStars").value=p.stars;
+  $("playerPosition").value=p.position||"Meio";
   $("editPlayerId").value=p.id;
   $("playerFormTitle").textContent="Editar jogador";
   pendingPhoto=null;
@@ -724,6 +729,7 @@ function editPlayer(id){
 function cancelEdit(){
   $("playerName").value="";
   $("playerStars").value="3";
+  $("playerPosition").value="Meio";
   $("editPlayerId").value="";
   $("playerFormTitle").textContent="Cadastrar jogador";
   pendingPhoto=null;
@@ -766,7 +772,7 @@ function renderPlayers(){
         <span class="link" onclick="openProfile('${p.id}')">${avatarHTML(p)}</span>
         <div>
           <div class="player-name link" onclick="openProfile('${p.id}')">${escapeHTML(p.name)}</div>
-          <div class="player-info"><span class="stars">${starsText(p.stars)}</span> · ${p.active===false?"Inativo":"Ativo"}${localPhotos[p.id]?" · foto aguardando envio":""}</div>
+          <div class="player-info"><span class="stars">${starsText(p.stars)}</span> · ${escapeHTML(p.position||"Meio")} · ${p.active===false?"Inativo":"Ativo"}${localPhotos[p.id]?" · foto aguardando envio":""}</div>
         </div>
       </div>
       <div class="actions" style="margin:0">
@@ -791,7 +797,7 @@ function renderAttendance(){
   list.innerHTML=ps.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(p=>`
     <div class="checkbox-row">
       <input type="checkbox" id="att_${p.id}" ${selected.has(p.id)?"checked":""} onchange="setAttendance('${p.id}',this.checked)">
-      <label for="att_${p.id}">${escapeHTML(p.name)} <span class="stars">${starsText(p.stars)}</span></label>
+      <label for="att_${p.id}">${escapeHTML(p.name)} <span class="stars">${starsText(p.stars)}</span> <span class="muted">· ${escapeHTML(p.position||"Meio")}</span></label>
     </div>
   `).join("");
 }
@@ -901,7 +907,7 @@ function renderTeams(){
         <h3>${n}</h3>
         ${ps.map(p=>`
           <div class="team-player">
-            <span>${escapeHTML(p.name)}</span>
+            <span>${escapeHTML(p.name)} <small class="muted">· ${escapeHTML(p.position||"Meio")}</small></span>
             <span><span class="stars">${starsText(p.stars)}</span>${canAdjust?` <button class="btn secondary small" title="Mover para o outro time" onclick="movePlayer('${p.id}')">⇄</button>`:""}</span>
           </div>
         `).join("")}
