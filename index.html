@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#071b14">
+<meta name="description" content="FUTDOMINGO — futebol, equilíbrio e resenha de domingo.">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-192.png">
 <title>FUTDOMINGO</title>
 <style>
 :root{--bg:#071b14;--panel:#10271e;--panel2:#163529;--green:#35d07f;--text:#f3fff8;--muted:#9bb6a6;--red:#ff6565;--pink:#ff78b7;--orange:#ff9b45;--border:rgba(255,255,255,.09)}
@@ -26,6 +29,7 @@ input,select{width:100%;padding:12px;border-radius:9px;border:1px solid var(--bo
 .goal-item{padding:12px;background:#0a2117;border-radius:10px;margin-top:9px;display:flex;justify-content:space-between;gap:10px;font-size:13px}.goal-item small{color:var(--muted)}.empty{color:var(--muted);font-size:13px;padding:14px 0}
 .history-item{border-bottom:1px solid var(--border);padding:14px 0}.history-item:last-child{border:0}.score{font-size:23px;font-weight:900;color:var(--green);margin:8px 0}.score-rosa{color:var(--pink)}.score-laranja{color:var(--orange)}.stat-row{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}.stat-row:last-child{border:0}
 .muted{color:var(--muted)}.notice{font-size:12px;color:var(--muted);line-height:1.5;margin-top:10px}.auth-panel{max-width:520px;margin:18px auto}.auth-panel h2{margin-top:0}.hidden{display:none!important}.topline{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.error{color:#ff9a9a;font-size:12px;margin-top:10px}.success{color:var(--green);font-size:12px;margin-top:10px}
+.period-tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;align-items:end;margin-bottom:14px}.period-tools .field label{margin-top:0}.period-tools button{width:100%}.sync-pill{font-size:11px;color:var(--muted);margin-top:7px}
 @media(max-width:600px){main{padding:13px}.team-grid{grid-template-columns:1fr}.logo{font-size:24px}.player{align-items:flex-start}}
 </style>
 </head>
@@ -34,6 +38,7 @@ input,select{width:100%;padding:12px;border-radius:9px;border:1px solid var(--bo
   <div class="logo">FUT<span>DOMINGO</span> ⚽</div>
   <div class="subtitle">Futebol, equilíbrio e resenha de domingo.</div>
   <div class="status"><span class="dot" id="connectionDot"></span><span id="connectionStatus">Verificando conexão...</span></div>
+  <div class="sync-pill" id="syncDetails">Os dados deste aparelho serão sincronizados quando houver internet.</div>
 </div></header>
 <main>
 <section class="panel auth-panel" id="authPanel">
@@ -46,7 +51,7 @@ input,select{width:100%;padding:12px;border-radius:9px;border:1px solid var(--bo
     <button class="btn secondary" id="signupButton" onclick="signup()">Criar conta participante</button>
   </div>
   <div id="authMessage" aria-live="polite"></div>
-  <p class="notice">A conta criada pelo aplicativo recebe perfil de participante. A administração do elenco continua restrita aos administradores cadastrados no Supabase.</p>
+  <p class="notice">A conta criada pelo aplicativo recebe perfil de participante. A administração do elenco continua restrita aos administradores cadastrados no Supabase. Para o primeiro acesso, entre online.</p>
 </section>
 <div id="appContent" class="hidden">
 <div class="topline panel">
@@ -64,7 +69,7 @@ input,select{width:100%;padding:12px;border-radius:9px;border:1px solid var(--bo
 <div class="card"><div class="metric" id="totalGoals">0</div><div class="metric-label">Gols registrados</div></div>
 <div class="card"><div class="metric" id="totalAssists">0</div><div class="metric-label">Assistências registradas</div></div>
 </div>
-<div class="panel"><h3>Como funciona</h3><p class="notice">1. Cadastre os jogadores e defina suas estrelas.<br>2. Selecione quem vai jogar.<br>3. Sorteie os times buscando equilíbrio.<br>4. Registre cada gol, seu autor e a assistência.<br>5. Consulte o histórico e as estatísticas.</p></div>
+<div class="panel"><h3>Como funciona</h3><p class="notice">1. Cadastre os jogadores e defina suas estrelas.<br>2. Selecione quem vai jogar.<br>3. Sorteie os times buscando equilíbrio.<br>4. Registre cada gol, seu autor e a assistência.<br>5. Consulte o histórico e as estatísticas por período. O app também guarda partidas offline para sincronizar depois.</p></div>
 <div class="panel"><h3>Última partida</h3><div id="lastMatch" class="empty">Nenhuma partida registrada ainda.</div></div>
 </section>
 <section class="section" id="jogadores">
@@ -85,235 +90,149 @@ input,select{width:100%;padding:12px;border-radius:9px;border:1px solid var(--bo
 <h3>Adicionar gol</h3><div class="form-grid"><div><label>Qual time marcou?</label><select id="goalTeam" onchange="updateScorerOptions()"><option value="A">Time Rosa</option><option value="B">Time Laranja</option></select></div><div><label>Quem fez o gol?</label><select id="goalScorer"></select></div></div>
 <div class="checkbox-row"><input type="checkbox" id="soloGoal" onchange="toggleAssist()"><label for="soloGoal">Gol solo (sem assistência)</label></div>
 <div><label>Quem deu a assistência?</label><select id="goalAssist"></select></div><div class="actions"><button class="btn" onclick="addGoal()">+ Registrar gol</button></div><div id="goalEvents"></div></div>
-<div class="panel"><h3>Finalizar partida</h3><label>Observação (opcional)</label><input id="matchNote" placeholder="Ex.: jogo de domingo, campo principal..."><div class="actions"><button class="btn" onclick="saveMatch()">Salvar resultado e histórico</button><button class="btn secondary" onclick="clearGoals()">Limpar gols</button></div><p class="notice">O placar é calculado automaticamente a partir dos gols registrados. Ao salvar, a partida entra no histórico compartilhado.</p></div>
+<div class="panel"><h3>Finalizar partida</h3><label>Observação (opcional)</label><input id="matchNote" placeholder="Ex.: jogo de domingo, campo principal..."><div class="actions"><button class="btn" onclick="saveMatch()">Salvar resultado e histórico</button><button class="btn secondary" onclick="clearGoals()">Limpar gols</button></div><p class="notice">A partida é guardada neste aparelho imediatamente. Se estiver offline, será enviada ao Supabase quando a conexão voltar.</p></div>
 </section>
-<section class="section" id="historico"><h2>Histórico de partidas</h2><p class="description">Consulte os resultados já registrados.</p><div class="panel"><div id="historyList"></div></div></section>
-<section class="section" id="estatisticas"><h2>Estatísticas</h2><p class="description">Desempenho individual dos jogadores.</p>
-<div class="grid"><div class="card"><div class="metric" id="statGoals">0</div><div class="metric-label">Gols no total</div></div><div class="card"><div class="metric" id="statAssists">0</div><div class="metric-label">Assistências no total</div></div></div>
+<section class="section" id="historico">
+<h2>Histórico de partidas</h2><p class="description">Consulte os resultados já registrados.</p>
+<div class="panel"><div class="period-tools">
+<div class="field"><label>Período</label><select id="historyPeriod" onchange="onHistoryPeriodChange()"><option value="all">Todo o histórico</option><option value="month">Este mês</option><option value="specific">Mês específico</option><option value="year">Ano específico</option><option value="custom">Período personalizado</option></select></div>
+<div class="field" id="historyMonthWrap"><label>Mês</label><input type="month" id="historyMonth" onchange="renderHistory()"></div>
+<div class="field hidden" id="historyYearWrap"><label>Ano</label><select id="historyYear" onchange="renderHistory()"></select></div>
+<div class="field hidden" id="historyStartWrap"><label>Data inicial</label><input type="date" id="historyStart" onchange="renderHistory()"></div>
+<div class="field hidden" id="historyEndWrap"><label>Data final</label><input type="date" id="historyEnd" onchange="renderHistory()"></div>
+</div><div id="historyList"></div></div></section>
+<section class="section" id="estatisticas"><h2>Estatísticas</h2><p class="description">Desempenho individual dos jogadores no período selecionado.</p>
+<div class="panel"><div class="period-tools">
+<div class="field"><label>Período das estatísticas</label><select id="statsPeriod" onchange="onStatsPeriodChange()"><option value="all">Todo o histórico</option><option value="month">Este mês</option><option value="specific">Mês específico</option><option value="year">Ano específico</option><option value="custom">Período personalizado</option></select></div>
+<div class="field" id="statsMonthWrap"><label>Mês</label><input type="month" id="statsMonth" onchange="renderStats()"></div>
+<div class="field hidden" id="statsYearWrap"><label>Ano</label><select id="statsYear" onchange="renderStats()"></select></div>
+<div class="field hidden" id="statsStartWrap"><label>Data inicial</label><input type="date" id="statsStart" onchange="renderStats()"></div>
+<div class="field hidden" id="statsEndWrap"><label>Data final</label><input type="date" id="statsEnd" onchange="renderStats()"></div>
+</div><div id="statsPeriodLabel" class="notice"></div></div>
+<div class="grid"><div class="card"><div class="metric" id="statGoals">0</div><div class="metric-label">Gols no período</div></div><div class="card"><div class="metric" id="statAssists">0</div><div class="metric-label">Assistências no período</div></div><div class="card"><div class="metric" id="statMatches">0</div><div class="metric-label">Partidas no período</div></div></div>
 <div class="panel"><h3>Artilharia</h3><div id="scorerRanking"></div></div><div class="panel"><h3>Ranking de assistências</h3><div id="assistRanking"></div></div>
 </section>
 </div>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-/* CONFIGURAÇÃO DO PROJETO FUTDOMINGO */
-const SUPABASE_URL = "https://qrxnlepvgqtevflyfoov.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_0UcrIzhBdIp6Fr8quAVSCQ_KKvBOSmw";
-const DB_KEY = "futdomingo_validacao_v2";
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-let db = {players:[],matches:[]};
-try { db = JSON.parse(localStorage.getItem(DB_KEY) || '{"players":[],"matches":[]}'); } catch(e) {}
-if (!Array.isArray(db.players)) db.players=[];
-if (!Array.isArray(db.matches)) db.matches=[];
-let selected=new Set(), teams={A:[],B:[]}, currentGoals=[];
-let currentUser=null, currentProfile=null, isSyncing=false;
-const $ = id => document.getElementById(id);
-
-function persist(){ localStorage.setItem(DB_KEY,JSON.stringify(db)); }
-function escapeHTML(value){return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));}
+const SUPABASE_URL="https://qrxnlepvgqtevflyfoov.supabase.co";
+const SUPABASE_ANON_KEY="sb_publishable_0UcrIzhBdIp6Fr8quAVSCQ_KKvBOSmw";
+const DB_KEY="futdomingo_validacao_v2",IDB_NAME="futdomingo_offline_v1",OUTBOX_KEY="futdomingo_outbox_v1";
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+let db={players:[],matches:[]},selected=new Set(),teams={A:[],B:[]},currentGoals=[];
+let currentUser=null,currentProfile=null,isSyncing=false,idb=null;
+try{db=JSON.parse(localStorage.getItem(DB_KEY)||'{"players":[],"matches":[]}')}catch(e){}
+if(!Array.isArray(db.players))db.players=[];if(!Array.isArray(db.matches))db.matches=[];
+const $=id=>document.getElementById(id);
+const uuid=()=>crypto.randomUUID();
+function persist(){localStorage.setItem(DB_KEY,JSON.stringify(db));}
+function escapeHTML(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));}
 function starsText(n){return "★".repeat(Number(n))+"☆".repeat(5-Number(n));}
 function playerById(id){return db.players.find(p=>p.id===id);}
 function playerName(id){return playerById(id)?.name||"Jogador removido";}
 function activePlayers(){return db.players.filter(p=>p.active!==false);}
 function teamName(t){return t==="A"?"Time Rosa":"Time Laranja";}
-function teamUpperName(t){return t==="A"?"TIME ROSA":"TIME LARANJA";}
 function teamToDb(t){return t==="A"?"pink":"orange";}
 function teamFromDb(t){return t==="pink"?"A":"B";}
-function setStatus(message,online=navigator.onLine){$("connectionStatus").textContent=message;$("connectionDot").style.background=online?"var(--green)":"var(--red)";}
+function setStatus(msg,online=navigator.onLine){$("connectionStatus").textContent=msg;$("connectionDot").style.background=online?"var(--green)":"var(--red)";}
 function showAuthMessage(msg,error=false){$("authMessage").className=error?"error":"success";$("authMessage").textContent=msg;}
 function setBusy(b){$("loginButton").disabled=b;$("signupButton").disabled=b;$("loginButton").textContent=b?"Aguarde...":"Entrar";}
-
-function showApp(){
-  $("authPanel").classList.add("hidden");$("appContent").classList.remove("hidden");
-  $("signedUser").textContent=currentProfile?.name||currentUser?.email||"Usuário";
-  $("userRole").textContent=currentProfile?.role==="admin"?"Administrador":"Participante";
-  const admin=currentProfile?.role==="admin";
-  $("playerEditor").classList.toggle("hidden",!admin);
-  $("playerPermissionNote").textContent=admin?"Você pode cadastrar, editar e pausar jogadores.":"Somente administradores podem alterar o elenco.";
-  renderAll();
-}
-function showLogin(){ $("authPanel").classList.remove("hidden");$("appContent").classList.add("hidden"); }
-
-async function login(){
-  const email=$("authEmail").value.trim(),password=$("authPassword").value;
-  if(!email||!password)return showAuthMessage("Informe e-mail e senha.",true);
-  setBusy(true);
-  const {data,error}=await sb.auth.signInWithPassword({email,password});
-  setBusy(false);
-  if(error)return showAuthMessage(error.message,true);
-  await startSession(data.user);
-}
-async function signup(){
-  const email=$("authEmail").value.trim(),password=$("authPassword").value;
-  if(!email||!password)return showAuthMessage("Informe e-mail e senha.",true);
-  if(password.length<6)return showAuthMessage("Use uma senha com pelo menos 6 caracteres.",true);
-  setBusy(true);
-  const {data,error}=await sb.auth.signUp({email,password});
-  setBusy(false);
-  if(error)return showAuthMessage(error.message,true);
-  if(!data.session){showAuthMessage("Conta criada. Confirme o e-mail e depois entre no aplicativo.");return;}
-  const displayName=email.split("@")[0];
-  const profile=await sb.from("profiles").upsert({id:data.user.id,name:displayName,role:"participant"},{onConflict:"id"});
-  if(profile.error){showAuthMessage("Conta criada, mas não foi possível criar o perfil: "+profile.error.message,true);return;}
-  await startSession(data.user);
-}
+function openLocalDB(){return new Promise((resolve,reject)=>{if(!("indexedDB"in window))return resolve(null);const req=indexedDB.open(IDB_NAME,1);req.onupgradeneeded=()=>{const d=req.result;if(!d.objectStoreNames.contains("kv"))d.createObjectStore("kv");};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});}
+function idbGet(key){return new Promise(resolve=>{if(!idb)return resolve(null);const r=idb.transaction("kv","readonly").objectStore("kv").get(key);r.onsuccess=()=>resolve(r.result??null);r.onerror=()=>resolve(null);});}
+function idbSet(key,value){return new Promise(resolve=>{if(!idb)return resolve(false);const t=idb.transaction("kv","readwrite");t.objectStore("kv").put(value,key);t.oncomplete=()=>resolve(true);t.onerror=()=>resolve(false);});}
+async function loadLocal(){try{idb=await openLocalDB();const saved=await idbGet("database");if(saved&&(!db.matches.length&&!db.players.length))db=saved;const q=await idbGet("outbox");if(Array.isArray(q))localStorage.setItem(OUTBOX_KEY,JSON.stringify(q));}catch(e){console.warn("IndexedDB indisponível",e);}persist();}
+function getOutbox(){try{return JSON.parse(localStorage.getItem(OUTBOX_KEY)||"[]")}catch(e){return []}}
+async function saveOutbox(q){localStorage.setItem(OUTBOX_KEY,JSON.stringify(q));await idbSet("outbox",q);updatePendingLabel();}
+function updatePendingLabel(){const n=getOutbox().length;$("syncDetails").textContent=n?`${n} operação(ões) aguardando sincronização.`:"Dados locais atualizados."; }
+async function queueOperation(op){const q=getOutbox();q.push({...op,queuedAt:new Date().toISOString()});await saveOutbox(q);}
+async function saveLocalDB(){persist();await idbSet("database",db);}
+function showApp(){ $("authPanel").classList.add("hidden");$("appContent").classList.remove("hidden");$("signedUser").textContent=currentProfile?.name||currentUser?.email||"Usuário";$("userRole").textContent=currentProfile?.role==="admin"?"Administrador":"Participante";const admin=currentProfile?.role==="admin";$("playerEditor").classList.toggle("hidden",!admin);$("playerPermissionNote").textContent=admin?"Você pode cadastrar, editar e pausar jogadores.":"Somente administradores podem alterar o elenco.";renderAll(); }
+function showLogin(){ $("authPanel").classList.remove("hidden");$("appContent").classList.add("hidden");}
+async function login(){const email=$("authEmail").value.trim(),password=$("authPassword").value;if(!email||!password)return showAuthMessage("Informe e-mail e senha.",true);setBusy(true);const {data,error}=await sb.auth.signInWithPassword({email,password});setBusy(false);if(error)return showAuthMessage(error.message,true);await startSession(data.user);}
+async function signup(){const email=$("authEmail").value.trim(),password=$("authPassword").value;if(!email||!password)return showAuthMessage("Informe e-mail e senha.",true);if(password.length<6)return showAuthMessage("Use uma senha com pelo menos 6 caracteres.",true);setBusy(true);const {data,error}=await sb.auth.signUp({email,password});setBusy(false);if(error)return showAuthMessage(error.message,true);if(!data.session){showAuthMessage("Conta criada. Confirme o e-mail e depois entre no aplicativo.");return;}const name=email.split("@")[0];const p=await sb.from("profiles").upsert({id:data.user.id,name,role:"participant"},{onConflict:"id"});if(p.error)return showAuthMessage("Conta criada, mas o perfil não foi criado: "+p.error.message,true);await startSession(data.user);}
 async function logout(){await sb.auth.signOut();currentUser=null;currentProfile=null;showLogin();setStatus("Desconectado",navigator.onLine);}
-async function startSession(user){
-  currentUser=user;
-  const {data:profile,error}=await sb.from("profiles").select("id,name,role").eq("id",user.id).maybeSingle();
-  if(error){showAuthMessage("Falha ao consultar perfil: "+error.message,true);return;}
-  if(!profile){showAuthMessage("Seu usuário ainda não tem perfil. Peça ao administrador para cadastrá-lo no Supabase.",true);await sb.auth.signOut();currentUser=null;return;}
-  currentProfile=profile;showApp();
-  await syncNow();
-}
+async function startSession(user){currentUser=user;const {data:profile,error}=await sb.from("profiles").select("id,name,role").eq("id",user.id).maybeSingle();if(error){showAuthMessage("Falha ao consultar perfil: "+error.message,true);return;}if(!profile){showAuthMessage("Seu usuário ainda não tem perfil. Peça ao administrador para cadastrá-lo no Supabase.",true);await sb.auth.signOut();currentUser=null;return;}currentProfile=profile;await idbSet("profile",profile);await saveLocalDB();showApp();if(navigator.onLine)await syncNow();else setStatus("Offline · usando dados deste aparelho",false);}
 window.addEventListener("online",()=>{setStatus("Conectado · sincronizando",true);if(currentUser)syncNow();});
 window.addEventListener("offline",()=>setStatus("Offline · dados locais",false));
-
-/* CARREGAMENTO E SINCRONIZAÇÃO */
-async function syncNow(){
-  if(!currentUser){setStatus("Entre para sincronizar",navigator.onLine);return;}
-  if(!navigator.onLine){setStatus("Offline · dados locais",false);return;}
-  if(isSyncing)return;
-  isSyncing=true;setStatus("Sincronizando...",true);
-  try{
-    // Mantém uma cópia dos dados locais para não apagar registros que ainda não estejam na nuvem.
-    const localPlayers = db.players.slice();
-    const localMatches = db.matches.slice();
-    // O perfil admin pode importar o elenco que já estava salvo neste aparelho.
-    if(currentProfile?.role==="admin" && db.players.length){
-      const {data:cloudPlayers,error:readErr}=await sb.from("players").select("id,name,stars,active");
-      if(readErr)throw readErr;
-      const names=new Set((cloudPlayers||[]).map(p=>p.name.trim().toLowerCase()));
-      const missing=db.players.filter(p=>!names.has(p.name.trim().toLowerCase()));
-      for(const p of missing){
-        const {error}=await sb.from("players").insert({id:p.id,name:p.name,stars:Number(p.stars),active:p.active!==false,created_by:currentUser.id});
-        if(error && error.code!=="23505")throw error;
-      }
-    }
-    const {data:players,error:playersErr}=await sb.from("players").select("id,name,stars,active").order("name");
-    if(playersErr)throw playersErr;
-    const cloudPlayers=(players||[]).map(p=>({id:p.id,name:p.name,stars:p.stars,active:p.active}));
-    const cloudPlayerIds=new Set(cloudPlayers.map(p=>p.id));
-    db.players=[...cloudPlayers,...localPlayers.filter(p=>!cloudPlayerIds.has(p.id))];
-    const {data:matches,error:matchesErr}=await sb.from("matches").select("id,played_at,note,score_pink,score_orange,created_at").order("played_at",{ascending:false});
-    if(matchesErr)throw matchesErr;
-    const matchIds=(matches||[]).map(m=>m.id);
-    let roster=[],goals=[];
-    if(matchIds.length){
-      const r=await sb.from("match_players").select("match_id,player_id,team,stars").in("match_id",matchIds);if(r.error)throw r.error;roster=r.data||[];
-      const g=await sb.from("goals").select("id,match_id,team,scorer_id,assist_id,solo,created_at").in("match_id",matchIds);if(g.error)throw g.error;goals=g.data||[];
-    }
-    const cloudMatches=matches.map(m=>{
-      const matchRoster=roster.filter(r=>r.match_id===m.id);
-      const matchGoals=goals.filter(g=>g.match_id===m.id).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
-      return {id:m.id,date:m.played_at||m.created_at,note:m.note||"",teams:{
-        A:matchRoster.filter(r=>r.team==="pink").map(r=>r.player_id),
-        B:matchRoster.filter(r=>r.team==="orange").map(r=>r.player_id)
-      },teamStars:matchRoster.reduce((o,r)=>(o[r.player_id]=r.stars,o),{}),
-      goals:matchGoals.map(g=>({id:g.id,team:teamFromDb(g.team),scorerId:g.scorer_id,assistId:g.assist_id,solo:g.solo})),
-      scoreA:m.score_pink,scoreB:m.score_orange};
-    });
-    const cloudMatchIds=new Set(cloudMatches.map(m=>m.id));
-    db.matches=[...cloudMatches,...localMatches.filter(m=>!cloudMatchIds.has(m.id))];
-    db.matches.sort((a,b)=>new Date(b.date)-new Date(a.date));
-    persist();renderAll();setStatus("Sincronizado com a nuvem",true);
-  }catch(e){
-    console.error(e);setStatus("Falha na sincronização · dados locais preservados",navigator.onLine);
-    alert("Não foi possível sincronizar: "+(e.message||"Erro desconhecido")+"\nSe persistir, envie esta mensagem para conferirmos as permissões do Supabase.");
-  }finally{isSyncing=false;}
-}
-
-/* NAVEGAÇÃO */
-document.querySelectorAll("nav button").forEach(btn=>btn.addEventListener("click",()=>{
- document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
- document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
- btn.classList.add("active");$(btn.dataset.tab).classList.add("active");renderAll();
-}));
-
-/* JOGADORES - SOMENTE ADMIN */
-async function savePlayer(){
- if(currentProfile?.role!=="admin")return alert("Somente administradores podem alterar o elenco.");
- const name=$("playerName").value.trim(),stars=Number($("playerStars").value),editId=$("editPlayerId").value;
- if(!name)return alert("Digite o nome do jogador.");
- if(db.players.some(p=>p.name.toLowerCase()===name.toLowerCase()&&p.id!==editId))return alert("Já existe um jogador com esse nome.");
- const id=editId||crypto.randomUUID(),payload={id,name,stars,active:editId?(playerById(id)?.active!==false):true,created_by:currentUser.id};
- if(!navigator.onLine)return alert("Para cadastrar ou editar jogadores, conecte-se à internet. O elenco compartilhado precisa ser atualizado no Supabase.");
- const {error}=await sb.from("players").upsert(payload,{onConflict:"id"});
- if(error)return alert("Não foi possível salvar o jogador: "+error.message);
- const local=playerById(id);
- if(local){local.name=name;local.stars=stars;local.active=payload.active;}else db.players.push({id,name,stars,active:true});
- persist();cancelEdit();renderAll();
-}
+async function syncNow(){if(!currentUser){setStatus("Entre para sincronizar",navigator.onLine);return;}if(!navigator.onLine){setStatus("Offline · dados locais",false);return;}if(isSyncing)return;isSyncing=true;setStatus("Sincronizando...",true);
+try{
+ let q=getOutbox(),remaining=[];
+ // Importa jogadores antigos deste aparelho que ainda não existam na nuvem.
+ if(currentProfile?.role==="admin" && db.players.length){
+  const {data:known,error:knownErr}=await sb.from("players").select("id,name");
+  if(knownErr)throw knownErr;
+  const knownIds=new Set((known||[]).map(p=>p.id));
+  const knownNames=new Set((known||[]).map(p=>(p.name||"").trim().toLowerCase()));
+  for(const p of db.players){
+   if(!knownIds.has(p.id) && !knownNames.has((p.name||"").trim().toLowerCase())){
+    q.push({type:"player",payload:{id:p.id,name:p.name,stars:Number(p.stars)||3,active:p.active!==false,created_by:currentUser.id},queuedAt:new Date().toISOString()});
+    knownNames.add((p.name||"").trim().toLowerCase());
+   }
+  }
+  await saveOutbox(q);
+ }
+ for(const op of q){try{
+  if(op.type==="match"){
+   const {error:e1}=await sb.from("matches").upsert(op.match,{onConflict:"id"});if(e1)throw e1;
+   if(op.roster?.length){const {error:e2}=await sb.from("match_players").upsert(op.roster,{onConflict:"id"});if(e2)throw e2;}
+   if(op.goals?.length){const {error:e3}=await sb.from("goals").upsert(op.goals,{onConflict:"id"});if(e3)throw e3;}
+  }else if(op.type==="player"){
+   const {error}=await sb.from("players").upsert(op.payload,{onConflict:"id"});if(error)throw error;
+  }else if(op.type==="playerUpdate"){
+   const {error}=await sb.from("players").update(op.payload).eq("id",op.id);if(error)throw error;
+  }else if(op.type==="playerDelete"){
+   const {error}=await sb.from("players").delete().eq("id",op.id);if(error)throw error;
+  }
+ }catch(err){op.lastError=err.message;remaining.push(op);}}
+ await saveOutbox(remaining);
+ const localPlayers=db.players.slice(),localMatches=db.matches.slice();
+ const {data:players,error:pe}=await sb.from("players").select("id,name,stars,active").order("name");if(pe)throw pe;
+ const {data:matches,error:me}=await sb.from("matches").select("id,played_at,note,score_pink,score_orange,created_at").order("played_at",{ascending:false});if(me)throw me;
+ const ids=(matches||[]).map(m=>m.id);let roster=[],goals=[];
+ if(ids.length){const r=await sb.from("match_players").select("match_id,player_id,team,stars").in("match_id",ids);if(r.error)throw r.error;roster=r.data||[];const g=await sb.from("goals").select("id,match_id,team,scorer_id,assist_id,solo,created_at").in("match_id",ids);if(g.error)throw g.error;goals=g.data||[];}
+ const cloudMatches=(matches||[]).map(m=>{const rr=roster.filter(x=>x.match_id===m.id),gg=goals.filter(x=>x.match_id===m.id).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));return{id:m.id,date:m.played_at||m.created_at,note:m.note||"",teams:{A:rr.filter(x=>x.team==="pink").map(x=>x.player_id),B:rr.filter(x=>x.team==="orange").map(x=>x.player_id)},teamStars:rr.reduce((o,x)=>(o[x.player_id]=x.stars,o),{}),goals:gg.map(x=>({id:x.id,team:teamFromDb(x.team),scorerId:x.scorer_id,assistId:x.assist_id,solo:x.solo})),scoreA:m.score_pink,scoreB:m.score_orange};});
+ const cloudP=new Set((players||[]).map(x=>x.id)),cloudM=new Set(cloudMatches.map(x=>x.id));
+ db.players=[...(players||[]),...localPlayers.filter(x=>!cloudP.has(x.id))];
+ db.matches=[...cloudMatches,...localMatches.filter(x=>!cloudM.has(x.id))].sort((a,b)=>new Date(b.date)-new Date(a.date));
+ await saveLocalDB();renderAll();setStatus(remaining.length?`Sincronização parcial · ${remaining.length} pendente(s)`:"Sincronizado com a nuvem",true);
+ if(remaining.length)console.warn("Operações pendentes:",remaining);
+ }catch(e){console.error(e);setStatus("Falha na sincronização · dados locais preservados",navigator.onLine);alert("Não foi possível sincronizar: "+(e.message||"Erro desconhecido")+". Os dados locais foram mantidos.");}
+ finally{isSyncing=false;updatePendingLabel();}}
+document.querySelectorAll("nav button").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));btn.classList.add("active");$(btn.dataset.tab).classList.add("active");renderAll();}));
+async function savePlayer(){if(currentProfile?.role!=="admin")return alert("Somente administradores podem alterar o elenco.");const name=$("playerName").value.trim(),stars=Number($("playerStars").value),editId=$("editPlayerId").value;if(!name)return alert("Digite o nome do jogador.");if(db.players.some(p=>p.name.toLowerCase()===name.toLowerCase()&&p.id!==editId))return alert("Já existe um jogador com esse nome.");const id=editId||uuid(),active=editId?(playerById(id)?.active!==false):true,payload={id,name,stars,active,created_by:currentUser.id};if(editId){const p=playerById(id);if(p){p.name=name;p.stars=stars;p.active=active;}}else db.players.push({id,name,stars,active});await saveLocalDB();await queueOperation({type:"player",payload});cancelEdit();renderAll();if(navigator.onLine)syncNow();else alert("Jogador salvo neste aparelho. Será enviado quando a internet voltar.");}
 function editPlayer(id){if(currentProfile?.role!=="admin")return;const p=playerById(id);if(!p)return;$("playerName").value=p.name;$("playerStars").value=p.stars;$("editPlayerId").value=p.id;$("playerFormTitle").textContent="Editar jogador";$("playerName").focus();}
 function cancelEdit(){$("playerName").value="";$("playerStars").value="3";$("editPlayerId").value="";$("playerFormTitle").textContent="Cadastrar jogador";}
-async function togglePlayer(id){if(currentProfile?.role!=="admin")return alert("Somente administradores.");const p=playerById(id);if(!p)return;const active=p.active===false;if(!navigator.onLine)return alert("Conecte-se à internet para alterar o elenco.");const {error}=await sb.from("players").update({active}).eq("id",id);if(error)return alert(error.message);p.active=active;persist();renderAll();}
-async function deletePlayer(id){if(currentProfile?.role!=="admin")return alert("Somente administradores.");const p=playerById(id);if(!p)return;if(!confirm("Excluir "+p.name+"? Partidas antigas podem continuar referenciando este jogador."))return;if(!navigator.onLine)return alert("Conecte-se à internet para alterar o elenco.");const {error}=await sb.from("players").delete().eq("id",id);if(error)return alert("Não foi possível excluir: "+error.message);db.players=db.players.filter(x=>x.id!==id);selected.delete(id);persist();renderAll();}
-function renderPlayers(){
- const list=$("playersList");if(!db.players.length){list.innerHTML='<div class="empty">Nenhum jogador cadastrado.</div>';return;}
- list.innerHTML=db.players.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(p=>`
- <div class="player"><div><div class="player-name">${escapeHTML(p.name)}</div><div class="player-info"><span class="stars">${starsText(p.stars)}</span> · ${p.active===false?"Inativo":"Ativo"}</div></div>
- <div class="actions" style="margin:0">${currentProfile?.role==="admin"?`<button class="btn secondary small" onclick="editPlayer('${p.id}')">Editar</button><button class="btn secondary small" onclick="togglePlayer('${p.id}')">${p.active===false?"Ativar":"Pausar"}</button><button class="btn danger small" onclick="deletePlayer('${p.id}')">Excluir</button>`:""}</div></div>`).join("");
-}
-
-/* PRESENÇA E SORTEIO */
-function renderAttendance(){const list=$("attendanceList"),players=activePlayers();if(!players.length){list.innerHTML='<div class="empty">Nenhum jogador ativo cadastrado.</div>';return;}list.innerHTML=players.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(p=>`<div class="checkbox-row"><input type="checkbox" id="att_${p.id}" ${selected.has(p.id)?"checked":""} onchange="setAttendance('${p.id}',this.checked)"><label for="att_${p.id}">${escapeHTML(p.name)} <span class="stars">${starsText(p.stars)}</span></label></div>`).join("");}
-function setAttendance(id,checked){if(checked)selected.add(id);else selected.delete(id);}
-function selectAll(){activePlayers().forEach(p=>selected.add(p.id));renderAttendance();}
-function clearSelection(){selected.clear();renderAttendance();}
-function drawTeams(){
- const players=activePlayers().filter(p=>selected.has(p.id));if(players.length<2)return alert("Selecione pelo menos dois jogadores.");
- const shuffled=players.slice().sort(()=>Math.random()-.5).sort((a,b)=>b.stars-a.stars);let best=null,bestDiff=Infinity;
- function search(i,a,b,sa,sb){if(i===shuffled.length){if(Math.abs(a.length-b.length)>1)return;const d=Math.abs(sa-sb);if(d<bestDiff){bestDiff=d;best={A:a.slice(),B:b.slice()};}return;}const p=shuffled[i];if(a.length<Math.ceil(shuffled.length/2)){a.push(p);search(i+1,a,b,sa+p.stars,sb);a.pop();}if(b.length<Math.ceil(shuffled.length/2)){b.push(p);search(i+1,a,b,sa,sb+p.stars);b.pop();}}
- if(shuffled.length<=16)search(0,[],[],0,0);else{const r={A:[],B:[]};let sa=0,sb=0;shuffled.forEach(p=>{if(r.A.length<Math.ceil(shuffled.length/2)&&(sa<=sb||r.B.length>=Math.ceil(shuffled.length/2))){r.A.push(p);sa+=p.stars;}else{r.B.push(p);sb+=p.stars;}});best=r;}
- teams=best||{A:[],B:[]};currentGoals=[];renderTeams();updateScorerOptions();renderGoals();
-}
-function renderTeams(){const el=$("teamsResult");if(!teams.A.length||!teams.B.length){el.innerHTML="";return;}const totalA=teams.A.reduce((s,p)=>s+p.stars,0),totalB=teams.B.reduce((s,p)=>s+p.stars,0);function teamHTML(name,ps,total,cls){return `<div class="team ${cls}"><h3>${name}</h3>${ps.map(p=>`<div class="team-player"><span>${escapeHTML(p.name)}</span><span class="stars">${starsText(p.stars)}</span></div>`).join("")}<div class="team-total">${ps.length} jogadores · ${total} estrelas</div></div>`;}el.innerHTML=`<div class="panel"><h3>Times sorteados</h3><div class="team-grid">${teamHTML("TIME ROSA",teams.A,totalA,"team-a")}${teamHTML("TIME LARANJA",teams.B,totalB,"team-b")}</div><div class="actions"><button class="btn" onclick="drawTeams()">↻ Sortear novamente</button><button class="btn secondary" onclick="goToResult()">Registrar resultado</button></div></div>`;}
+async function togglePlayer(id){if(currentProfile?.role!=="admin")return alert("Somente administradores.");const p=playerById(id);if(!p)return;p.active=p.active===false;await saveLocalDB();await queueOperation({type:"playerUpdate",id,payload:{active:p.active}});renderAll();if(navigator.onLine)syncNow();}
+async function deletePlayer(id){if(currentProfile?.role!=="admin")return alert("Somente administradores.");const p=playerById(id);if(!p||!confirm("Excluir "+p.name+"? Partidas antigas podem continuar referenciando este jogador."))return;db.players=db.players.filter(x=>x.id!==id);selected.delete(id);await saveLocalDB();await queueOperation({type:"playerDelete",id});renderAll();if(navigator.onLine)syncNow();}
+function renderPlayers(){const list=$("playersList");if(!db.players.length){list.innerHTML='<div class="empty">Nenhum jogador cadastrado.</div>';return;}list.innerHTML=db.players.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(p=>`<div class="player"><div><div class="player-name">${escapeHTML(p.name)}</div><div class="player-info"><span class="stars">${starsText(p.stars)}</span> · ${p.active===false?"Inativo":"Ativo"}</div></div><div class="actions" style="margin:0">${currentProfile?.role==="admin"?`<button class="btn secondary small" onclick="editPlayer('${p.id}')">Editar</button><button class="btn secondary small" onclick="togglePlayer('${p.id}')">${p.active===false?"Ativar":"Pausar"}</button><button class="btn danger small" onclick="deletePlayer('${p.id}')">Excluir</button>`:""}</div></div>`).join("");}
+function renderAttendance(){const list=$("attendanceList"),ps=activePlayers();if(!ps.length){list.innerHTML='<div class="empty">Nenhum jogador ativo cadastrado.</div>';return;}list.innerHTML=ps.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(p=>`<div class="checkbox-row"><input type="checkbox" id="att_${p.id}" ${selected.has(p.id)?"checked":""} onchange="setAttendance('${p.id}',this.checked)"><label for="att_${p.id}">${escapeHTML(p.name)} <span class="stars">${starsText(p.stars)}</span></label></div>`).join("");}
+function setAttendance(id,c){if(c)selected.add(id);else selected.delete(id);}function selectAll(){activePlayers().forEach(p=>selected.add(p.id));renderAttendance();}function clearSelection(){selected.clear();renderAttendance();}
+function drawTeams(){const ps=activePlayers().filter(p=>selected.has(p.id));if(ps.length<2)return alert("Selecione pelo menos dois jogadores.");const shuffled=ps.slice().sort(()=>Math.random()-.5).sort((a,b)=>b.stars-a.stars);let best=null,diff=Infinity;function search(i,a,b,sa,sb){if(i===shuffled.length){if(Math.abs(a.length-b.length)>1)return;const d=Math.abs(sa-sb);if(d<diff){diff=d;best={A:a.slice(),B:b.slice()};}return;}const p=shuffled[i];if(a.length<Math.ceil(shuffled.length/2)){a.push(p);search(i+1,a,b,sa+p.stars,sb);a.pop();}if(b.length<Math.ceil(shuffled.length/2)){b.push(p);search(i+1,a,b,sa,sb+p.stars);b.pop();}}if(shuffled.length<=16)search(0,[],[],0,0);else{const r={A:[],B:[]};let a=0,b=0;shuffled.forEach(p=>{if(r.A.length<Math.ceil(shuffled.length/2)&&(a<=b||r.B.length>=Math.ceil(shuffled.length/2))){r.A.push(p);a+=p.stars;}else{r.B.push(p);b+=p.stars;}});best=r;}teams=best||{A:[],B:[]};currentGoals=[];renderTeams();updateScorerOptions();renderGoals();}
+function renderTeams(){const el=$("teamsResult");if(!teams.A.length||!teams.B.length){el.innerHTML="";return;}const ta=teams.A.reduce((s,p)=>s+p.stars,0),tb=teams.B.reduce((s,p)=>s+p.stars,0);function box(n,ps,total,cls){return `<div class="team ${cls}"><h3>${n}</h3>${ps.map(p=>`<div class="team-player"><span>${escapeHTML(p.name)}</span><span class="stars">${starsText(p.stars)}</span></div>`).join("")}<div class="team-total">${ps.length} jogadores · ${total} estrelas</div></div>`;}el.innerHTML=`<div class="panel"><h3>Times sorteados</h3><div class="team-grid">${box("TIME ROSA",teams.A,ta,"team-a")}${box("TIME LARANJA",teams.B,tb,"team-b")}</div><div class="actions"><button class="btn" onclick="drawTeams()">↻ Sortear novamente</button><button class="btn secondary" onclick="goToResult()">Registrar resultado</button></div></div>`;}
 function goToResult(){document.querySelector('[data-tab="resultado"]').click();}
-
-/* GOLS */
-function updateScorerOptions(){const team=$("goalTeam").value,players=teams[team]||[],scorer=$("goalScorer"),current=scorer.value;scorer.innerHTML=players.length?players.map(p=>`<option value="${p.id}">${escapeHTML(p.name)}</option>`).join(""):'<option value="">Sorteie os times primeiro</option>';if(players.some(p=>p.id===current))scorer.value=current;updateAssistOptions();}
-function updateAssistOptions(){const team=$("goalTeam").value,scorerId=$("goalScorer").value,assist=$("goalAssist"),solo=$("soloGoal").checked,players=(teams[team]||[]).filter(p=>p.id!==scorerId);assist.disabled=solo;assist.innerHTML=players.length?'<option value="">Sem assistência</option>'+players.map(p=>`<option value="${p.id}">${escapeHTML(p.name)}</option>`).join(""):'<option value="">Sem outro jogador disponível</option>';}
-$("goalScorer").addEventListener("change",updateAssistOptions);$("goalTeam").addEventListener("change",updateScorerOptions);
-function toggleAssist(){updateAssistOptions();}
-function addGoal(){if(!teams.A.length||!teams.B.length)return alert("Faça o sorteio dos times antes de registrar gols.");const team=$("goalTeam").value,scorerId=$("goalScorer").value,assistId=$("soloGoal").checked?null:($("goalAssist").value||null);if(!scorerId)return alert("Selecione quem fez o gol.");if(assistId===scorerId)return alert("O autor do gol não pode ser o próprio assistente.");currentGoals.push({id:crypto.randomUUID(),team,scorerId,assistId,solo:!assistId});$("soloGoal").checked=false;updateAssistOptions();renderGoals();}
-function removeGoal(id){currentGoals=currentGoals.filter(g=>g.id!==id);renderGoals();}
-function renderGoals(){const a=currentGoals.filter(g=>g.team==="A").length,b=currentGoals.filter(g=>g.team==="B").length;$("scoreA").textContent=a;$("scoreB").textContent=b;const el=$("goalEvents");if(!currentGoals.length){el.innerHTML='<div class="empty">Nenhum gol registrado nesta partida.</div>';return;}el.innerHTML=currentGoals.map((g,i)=>`<div class="goal-item"><div><strong>${i+1}. ${teamName(g.team)}</strong><br><span>${escapeHTML(playerName(g.scorerId))}</span><small>${g.assistId?" · Assistência: "+escapeHTML(playerName(g.assistId)):" · Gol solo"}</small></div><button class="btn danger small" onclick="removeGoal('${g.id}')">Remover</button></div>`).join("");}
+function updateScorerOptions(){const t=$("goalTeam").value,ps=teams[t]||[],sel=$("goalScorer"),cur=sel.value;sel.innerHTML=ps.length?ps.map(p=>`<option value="${p.id}">${escapeHTML(p.name)}</option>`).join(""):'<option value="">Sorteie os times primeiro</option>';if(ps.some(p=>p.id===cur))sel.value=cur;updateAssistOptions();}
+function updateAssistOptions(){const t=$("goalTeam").value,sid=$("goalScorer").value,el=$("goalAssist"),solo=$("soloGoal").checked,ps=(teams[t]||[]).filter(p=>p.id!==sid);el.disabled=solo;el.innerHTML=ps.length?'<option value="">Sem assistência</option>'+ps.map(p=>`<option value="${p.id}">${escapeHTML(p.name)}</option>`).join(""):'<option value="">Sem outro jogador disponível</option>';}
+$("goalScorer").addEventListener("change",updateAssistOptions);$("goalTeam").addEventListener("change",updateScorerOptions);function toggleAssist(){updateAssistOptions();}
+function addGoal(){if(!teams.A.length||!teams.B.length)return alert("Faça o sorteio dos times antes de registrar gols.");const t=$("goalTeam").value,s=$("goalScorer").value,a=$("soloGoal").checked?null:($("goalAssist").value||null);if(!s)return alert("Selecione quem fez o gol.");if(a===s)return alert("O autor do gol não pode ser o próprio assistente.");currentGoals.push({id:uuid(),team:t,scorerId:s,assistId:a,solo:!a});$("soloGoal").checked=false;updateAssistOptions();renderGoals();}
+function removeGoal(id){currentGoals=currentGoals.filter(g=>g.id!==id);renderGoals();}function renderGoals(){const a=currentGoals.filter(g=>g.team==="A").length,b=currentGoals.filter(g=>g.team==="B").length;$("scoreA").textContent=a;$("scoreB").textContent=b;const el=$("goalEvents");if(!currentGoals.length){el.innerHTML='<div class="empty">Nenhum gol registrado nesta partida.</div>';return;}el.innerHTML=currentGoals.map((g,i)=>`<div class="goal-item"><div><strong>${i+1}. ${teamName(g.team)}</strong><br><span>${escapeHTML(playerName(g.scorerId))}</span><small>${g.assistId?" · Assistência: "+escapeHTML(playerName(g.assistId)):" · Gol solo"}</small></div><button class="btn danger small" onclick="removeGoal('${g.id}')">Remover</button></div>`).join("");}
 function clearGoals(){if(!currentGoals.length)return;if(!confirm("Limpar todos os gols desta partida?"))return;currentGoals=[];renderGoals();}
-
-async function saveMatch(){
- if(!teams.A.length||!teams.B.length)return alert("Sorteie os times antes de salvar a partida.");
- if(!currentGoals.length)return alert("Registre pelo menos um gol antes de salvar.");
- if(!currentUser)return alert("Entre na sua conta para salvar partidas compartilhadas.");
- if(!navigator.onLine)return alert("Você está offline. Nesta primeira etapa, o salvamento de partidas exige internet. O modo offline com fila de sincronização será a próxima etapa.");
- const matchId=crypto.randomUUID(),date=new Date().toISOString();
- const matchPayload={id:matchId,played_at:date,note:$("matchNote").value.trim()||null,score_pink:currentGoals.filter(g=>g.team==="A").length,score_orange:currentGoals.filter(g=>g.team==="B").length,created_by:currentUser.id};
- const {error:matchError}=await sb.from("matches").insert(matchPayload);
- if(matchError)return alert("Erro ao salvar partida: "+matchError.message);
- const roster=[...teams.A.map(p=>({match_id:matchId,player_id:p.id,team:"pink",stars:p.stars})),...teams.B.map(p=>({match_id:matchId,player_id:p.id,team:"orange",stars:p.stars}))];
- const {error:rosterError}=await sb.from("match_players").insert(roster);
- if(rosterError){alert("A partida foi criada, mas houve erro ao salvar os jogadores: "+rosterError.message+". Avise o administrador.");return;}
- const goalRows=currentGoals.map(g=>({id:g.id,match_id:matchId,team:teamToDb(g.team),scorer_id:g.scorerId,assist_id:g.assistId,solo:!g.assistId}));
- const {error:goalError}=await sb.from("goals").insert(goalRows);
- if(goalError){alert("A partida e os jogadores foram salvos, mas houve erro nos gols: "+goalError.message+". Não repita a partida; vamos corrigir esse registro.");return;}
- const match={id:matchId,date,note:matchPayload.note||"",teams:{A:teams.A.map(p=>p.id),B:teams.B.map(p=>p.id)},goals:currentGoals.map(g=>({...g})),scoreA:matchPayload.score_pink,scoreB:matchPayload.score_orange};
- db.matches.unshift(match);persist();currentGoals=[];teams={A:[],B:[]};selected.clear();$("matchNote").value="";renderAll();renderTeams();renderGoals();alert("Partida salva no Supabase e no histórico compartilhado!");document.querySelector('[data-tab="historico"]').click();
-}
-
-/* HISTÓRICO E ESTATÍSTICAS */
+async function saveMatch(){if(!teams.A.length||!teams.B.length)return alert("Sorteie os times antes de salvar a partida.");if(!currentGoals.length)return alert("Registre pelo menos um gol antes de salvar.");if(!currentUser)return alert("Entre na sua conta antes de registrar partidas.");const id=uuid(),date=new Date().toISOString(),note=$("matchNote").value.trim()||null;const scoreA=currentGoals.filter(g=>g.team==="A").length,scoreB=currentGoals.filter(g=>g.team==="B").length;const match={id,date,note,teams:{A:teams.A.map(p=>p.id),B:teams.B.map(p=>p.id)},teamStars:{...teams.A.reduce((o,p)=>(o[p.id]=p.stars,o),{}),...teams.B.reduce((o,p)=>(o[p.id]=p.stars,o),{})},goals:currentGoals.map(g=>({...g})),scoreA,scoreB};db.matches.unshift(match);await saveLocalDB();const matchRow={id,played_at:date,note,score_pink:scoreA,score_orange:scoreB,created_by:currentUser.id};const roster=[...teams.A.map(p=>({id:uuid(),match_id:id,player_id:p.id,team:"pink",stars:p.stars})),...teams.B.map(p=>({id:uuid(),match_id:id,player_id:p.id,team:"orange",stars:p.stars}))];const goalRows=currentGoals.map(g=>({id:g.id,match_id:id,team:teamToDb(g.team),scorer_id:g.scorerId,assist_id:g.assistId,solo:!g.assistId}));await queueOperation({type:"match",match:matchRow,roster,goals:goalRows});currentGoals=[];teams={A:[],B:[]};selected.clear();$("matchNote").value="";renderAll();renderTeams();renderGoals();document.querySelector('[data-tab="historico"]').click();if(navigator.onLine){await syncNow();alert("Partida salva localmente e enviada para sincronização.");}else alert("Partida salva neste aparelho! Ela será sincronizada automaticamente quando a internet voltar.");}
 function formatDate(d){return new Date(d).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"});}
-function renderHistory(){const el=$("historyList");if(!db.matches.length){el.innerHTML='<div class="empty">Nenhuma partida registrada ainda.</div>';return;}el.innerHTML=db.matches.map(m=>`<div class="history-item"><div class="muted">${formatDate(m.date)}</div><div class="score"><span class="score-rosa">TIME ROSA ${m.scoreA}</span> × <span class="score-laranja">${m.scoreB} TIME LARANJA</span></div>${m.note?`<div class="muted">${escapeHTML(m.note)}</div>`:""}<div class="notice">${(m.goals||[]).map(g=>`${teamName(g.team)}: ${escapeHTML(playerName(g.scorerId))}`+(g.assistId?` (assistência: ${escapeHTML(playerName(g.assistId))})`:" (gol solo)")).join("<br>")}</div></div>`).join("");}
-function getStats(){const stats={};db.players.forEach(p=>stats[p.id]={name:p.name,goals:0,assists:0});db.matches.forEach(m=>(m.goals||[]).forEach(g=>{if(!stats[g.scorerId])stats[g.scorerId]={name:playerName(g.scorerId),goals:0,assists:0};stats[g.scorerId].goals++;if(g.assistId){if(!stats[g.assistId])stats[g.assistId]={name:playerName(g.assistId),goals:0,assists:0};stats[g.assistId].assists++;}}));return Object.values(stats);}
-function renderStats(){const stats=getStats(),goals=stats.reduce((s,p)=>s+p.goals,0),assists=stats.reduce((s,p)=>s+p.assists,0);$("statGoals").textContent=goals;$("statAssists").textContent=assists;const scorer=stats.slice().sort((a,b)=>b.goals-a.goals||a.name.localeCompare(b.name)),assistant=stats.slice().sort((a,b)=>b.assists-a.assists||a.name.localeCompare(b.name));$("scorerRanking").innerHTML=scorer.length?scorer.map((p,i)=>`<div class="stat-row"><span>${i+1}º ${escapeHTML(p.name)}</span><strong>${p.goals} gols</strong></div>`).join(""):'<div class="empty">Sem dados ainda.</div>';$("assistRanking").innerHTML=assistant.length?assistant.map((p,i)=>`<div class="stat-row"><span>${i+1}º ${escapeHTML(p.name)}</span><strong>${p.assists} assistências</strong></div>`).join(""):'<div class="empty">Sem dados ainda.</div>';}
-function renderHome(){const goals=db.matches.reduce((s,m)=>s+(m.goals||[]).length,0),assists=db.matches.reduce((s,m)=>s+(m.goals||[]).filter(g=>g.assistId).length,0);$("totalPlayers").textContent=db.players.length;$("totalMatches").textContent=db.matches.length;$("totalGoals").textContent=goals;$("totalAssists").textContent=assists;const last=db.matches[0];$("lastMatch").innerHTML=last?`<div class="muted">${formatDate(last.date)}</div><div class="score"><span class="score-rosa">TIME ROSA ${last.scoreA}</span> × <span class="score-laranja">${last.scoreB} TIME LARANJA</span></div>${last.note?escapeHTML(last.note):""}`:"Nenhuma partida registrada ainda.";}
-function renderAll(){renderHome();renderPlayers();renderAttendance();renderHistory();renderStats();updateScorerOptions();renderGoals();}
-
-async function init(){
- setStatus(navigator.onLine?"Aguardando login":"Offline · aguardando login",navigator.onLine);
- const {data:{session}}=await sb.auth.getSession();
- if(session?.user)await startSession(session.user);
-}
+function startOfDay(s){return s?new Date(s+"T00:00:00"):null;}function endOfDay(s){return s?new Date(s+"T23:59:59.999"):null;}
+function getPeriodRange(prefix){const mode=$(prefix+"Period").value,now=new Date();let start=null,end=null,label="Todo o histórico";if(mode==="month"){start=new Date(now.getFullYear(),now.getMonth(),1);end=new Date(now.getFullYear(),now.getMonth()+1,0,23,59,59,999);label="Este mês";}else if(mode==="specific"){const v=$(prefix+"Month").value;if(v){const [y,m]=v.split("-").map(Number);start=new Date(y,m-1,1);end=new Date(y,m,0,23,59,59,999);label=`${String(m).padStart(2,"0")}/${y}`;}else label="Selecione o mês";}else if(mode==="year"){const y=Number($(prefix+"Year").value)||now.getFullYear();start=new Date(y,0,1);end=new Date(y,11,31,23,59,59,999);label=String(y);}else if(mode==="custom"){const a=$(prefix+"Start").value,b=$(prefix+"End").value;start=startOfDay(a);end=endOfDay(b);label=(a?new Date(a+"T00:00:00").toLocaleDateString("pt-BR"):"início")+" até "+(b?new Date(b+"T00:00:00").toLocaleDateString("pt-BR"):"hoje");}return{start,end,label,mode};}
+function inRange(m,r){const d=new Date(m.date);if(Number.isNaN(d.getTime()))return false;if(r.start&&d<r.start)return false;if(r.end&&d>r.end)return false;return true;}
+function filteredMatches(prefix){const r=getPeriodRange(prefix);return{range:r,matches:db.matches.filter(m=>inRange(m,r))};}
+function updatePeriodControls(prefix){const mode=$(prefix+"Period").value;$(prefix+"MonthWrap").classList.toggle("hidden",mode!=="specific");$(prefix+"YearWrap").classList.toggle("hidden",mode!=="year");$(prefix+"StartWrap").classList.toggle("hidden",mode!=="custom");$(prefix+"EndWrap").classList.toggle("hidden",mode!=="custom");}
+function onHistoryPeriodChange(){updatePeriodControls("history");renderHistory();}function onStatsPeriodChange(){updatePeriodControls("stats");renderStats();}
+function fillYearSelects(){const years=new Set([new Date().getFullYear(),...db.matches.map(m=>new Date(m.date).getFullYear()).filter(Number.isFinite)]);["historyYear","statsYear"].forEach(id=>{$(id).innerHTML=[...years].sort((a,b)=>b-a).map(y=>`<option value="${y}">${y}</option>`).join("");});}
+function renderHistory(){const el=$("historyList"),{range,matches}=filteredMatches("history");if(!matches.length){el.innerHTML='<div class="empty">Nenhuma partida encontrada neste período.</div>';return;}el.innerHTML=matches.map(m=>`<div class="history-item"><div class="muted">${formatDate(m.date)}</div><div class="score"><span class="score-rosa">TIME ROSA ${m.scoreA}</span> × <span class="score-laranja">${m.scoreB} TIME LARANJA</span></div>${m.note?`<div class="muted">${escapeHTML(m.note)}</div>`:""}<div class="notice">${(m.goals||[]).map(g=>`${teamName(g.team)}: ${escapeHTML(playerName(g.scorerId))}`+(g.assistId?` (assistência: ${escapeHTML(playerName(g.assistId))})`:" (gol solo)")).join("<br>")}</div></div>`).join("");}
+function getStats(matches){const s={};db.players.forEach(p=>s[p.id]={name:p.name,goals:0,assists:0});matches.forEach(m=>(m.goals||[]).forEach(g=>{if(!s[g.scorerId])s[g.scorerId]={name:playerName(g.scorerId),goals:0,assists:0};s[g.scorerId].goals++;if(g.assistId){if(!s[g.assistId])s[g.assistId]={name:playerName(g.assistId),goals:0,assists:0};s[g.assistId].assists++;}}));return Object.values(s);}
+function renderStats(){const {range,matches}=filteredMatches("stats"),stats=getStats(matches),goals=stats.reduce((s,p)=>s+p.goals,0),assists=stats.reduce((s,p)=>s+p.assists,0);$("statGoals").textContent=goals;$("statAssists").textContent=assists;$("statMatches").textContent=matches.length;$("statsPeriodLabel").textContent=`Exibindo ${matches.length} partida(s) · ${range.label}`;const a=stats.slice().sort((x,y)=>y.goals-x.goals||x.name.localeCompare(y.name)),b=stats.slice().sort((x,y)=>y.assists-x.assists||x.name.localeCompare(y.name));$("scorerRanking").innerHTML=a.some(p=>p.goals)?a.filter(p=>p.goals).map((p,i)=>`<div class="stat-row"><span>${i+1}º ${escapeHTML(p.name)}</span><strong>${p.goals} gols</strong></div>`).join(""):'<div class="empty">Sem gols neste período.</div>';$("assistRanking").innerHTML=b.some(p=>p.assists)?b.filter(p=>p.assists).map((p,i)=>`<div class="stat-row"><span>${i+1}º ${escapeHTML(p.name)}</span><strong>${p.assists} assistências</strong></div>`).join(""):'<div class="empty">Sem assistências neste período.</div>';}
+function renderHome(){const goals=db.matches.reduce((s,m)=>s+(m.goals||[]).length,0),assists=db.matches.reduce((s,m)=>s+(m.goals||[]).filter(g=>g.assistId).length,0);$("totalPlayers").textContent=db.players.length;$("totalMatches").textContent=db.matches.length;$("totalGoals").textContent=goals;$("totalAssists").textContent=assists;const m=db.matches[0];$("lastMatch").innerHTML=m?`<div class="muted">${formatDate(m.date)}</div><div class="score"><span class="score-rosa">TIME ROSA ${m.scoreA}</span> × <span class="score-laranja">${m.scoreB} TIME LARANJA</span></div>${m.note?escapeHTML(m.note):""}`:"Nenhuma partida registrada ainda.";}
+function renderAll(){fillYearSelects();renderHome();renderPlayers();renderAttendance();renderHistory();renderStats();updateScorerOptions();renderGoals();updatePendingLabel();}
+async function init(){await loadLocal();setStatus(navigator.onLine?"Aguardando login":"Offline · aguardando sessão salva",navigator.onLine);updatePeriodControls("history");updatePeriodControls("stats");const {data:{session}}=await sb.auth.getSession();if(session?.user){if(navigator.onLine)await startSession(session.user);else{currentUser=session.user;const cached=await idbGet("profile");if(cached){currentProfile=cached;showApp();setStatus("Offline · dados deste aparelho",false);}else showAuthMessage("Conecte-se uma vez para carregar seu perfil e liberar o uso offline.",true);}}}
+if("serviceWorker"in navigator&&location.protocol!=="file:"){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(e=>console.warn("SW não registrado",e)));}
 init();
 </script>
-</body>
-</html>
+</body></html>
