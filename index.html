@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -24,14 +23,32 @@ input,select{width:100%;padding:12px;border-radius:9px;border:1px solid var(--bo
 .btn{border:0;border-radius:9px;padding:12px 15px;font-weight:800;cursor:pointer;background:var(--green);color:#062013}.btn:hover{filter:brightness(1.08)}.btn.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--border)}.btn.danger{background:#512323;color:#ffdede}.btn.small{padding:8px 10px;font-size:12px}
 .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
 .player{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:13px 0;border-bottom:1px solid var(--border)}.player:last-child{border:0}.player-name{font-weight:800}.player-info{font-size:12px;color:var(--muted);margin-top:4px}.stars{color:#ffd166;letter-spacing:2px}
-.badge{background:#1b4933;color:var(--green);padding:5px 8px;border-radius:20px;font-size:11px;font-weight:800}.checkbox-row{display:flex;align-items:center;gap:9px;margin:12px 0}.checkbox-row input{width:auto;accent-color:var(--green)}.checkbox-row label{margin:0;color:var(--text);font-size:13px}
+.badge{background:#1b4933;color:var(--green);padding:5px 8px;border-radius:20px;font-size:11px;font-weight:800;display:inline-block}.checkbox-row{display:flex;align-items:center;gap:9px;margin:12px 0}.checkbox-row input{width:auto;accent-color:var(--green)}.checkbox-row label{margin:0;color:var(--text);font-size:13px}
 .team-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.team{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:15px}.team h3{margin:0 0 12px}.team-a{border-color:rgba(255,120,183,.35)}.team-b{border-color:rgba(255,155,69,.35)}.team-a h3{color:var(--pink)}.team-b h3{color:var(--orange)}
-.team-player{padding:9px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:8px;font-size:13px}.team-player:last-child{border:0}.team-total{font-size:12px;color:var(--muted);margin-top:12px}
+.team-player{padding:9px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px}.team-player:last-child{border:0}.team-total{font-size:12px;color:var(--muted);margin-top:12px}
 .goal-item{padding:12px;background:#0a2117;border-radius:10px;margin-top:9px;display:flex;justify-content:space-between;gap:10px;font-size:13px}.goal-item small{color:var(--muted)}.empty{color:var(--muted);font-size:13px;padding:14px 0}
 .history-item{border-bottom:1px solid var(--border);padding:14px 0}.history-item:last-child{border:0}.score{font-size:23px;font-weight:900;color:var(--green);margin:8px 0}.score-rosa{color:var(--pink)}.score-laranja{color:var(--orange)}.stat-row{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}.stat-row:last-child{border:0}
 .muted{color:var(--muted)}.notice{font-size:12px;color:var(--muted);line-height:1.5;margin-top:10px}.auth-panel{max-width:520px;margin:18px auto}.auth-panel h2{margin-top:0}.hidden{display:none!important}.topline{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.error{color:#ff9a9a;font-size:12px;margin-top:10px}.success{color:var(--green);font-size:12px;margin-top:10px}
 .period-tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;align-items:end;margin-bottom:14px}.period-tools .field label{margin-top:0}.period-tools button{width:100%}.sync-pill{font-size:11px;color:var(--muted);margin-top:7px}
-@media(max-width:600px){main{padding:13px}.team-grid{grid-template-columns:1fr}.logo{font-size:24px}.player{align-items:flex-start}}
+/* ===== Novos recursos: fotos, perfil, recomendação, séries ===== */
+.avatar{width:44px;height:44px;border-radius:50%;object-fit:cover;background:var(--panel2);border:2px solid var(--green);flex:none;display:inline-flex;align-items:center;justify-content:center;font-weight:900;color:var(--green);font-size:18px}
+.avatar.lg{width:84px;height:84px;font-size:34px}
+.player-main{display:flex;align-items:center;gap:11px;min-width:0}
+.link{cursor:pointer}.link:hover{color:var(--green)}
+.photo-tools{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:50;overflow-y:auto;padding:14px}
+.modal-box{max-width:680px;margin:0 auto;background:var(--bg);border:1px solid var(--border);border-radius:16px;padding:16px}
+.profile-head{display:flex;align-items:center;gap:14px;min-width:0}
+.mini-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:9px;margin-bottom:14px}
+.mini{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px}.mini span{font-size:11px;color:var(--muted)}.mini b{display:block;font-size:22px;color:var(--green);margin-top:4px}
+.res-V{color:var(--green)}.res-E{color:#ffd166}.res-D{color:var(--red)}
+.rec-box{background:#0a2117;border-radius:10px;padding:12px;margin-top:10px;font-size:13px;line-height:1.5}
+.mode-switch{display:flex;gap:8px;flex-wrap:wrap}
+.series-box{background:#0a2117;border:1px solid var(--border);border-radius:12px;padding:13px;margin-top:12px;font-size:13px;line-height:1.6}
+.rec-row{padding:13px 0;border-bottom:1px solid var(--border)}.rec-row:last-child{border:0}
+table.simple{width:100%;border-collapse:collapse;font-size:12px}table.simple th,table.simple td{padding:8px 6px;border-bottom:1px solid var(--border);text-align:center}table.simple th:first-child,table.simple td:first-child{text-align:left}table.simple th{color:var(--muted)}
+.table-wrap{overflow-x:auto}
+@media(max-width:600px){main{padding:13px}.team-grid{grid-template-columns:1fr}.logo{font-size:24px}.player{align-items:flex-start;flex-wrap:wrap}}
 </style>
 </head>
 <body>
@@ -60,7 +77,7 @@ input,select{width:100%;padding:12px;border-radius:9px;border:1px solid var(--bo
   <div class="actions" style="margin:0"><button class="btn secondary small" onclick="syncNow()">Sincronizar</button><button class="btn danger small" onclick="logout()">Sair</button></div>
 </div>
 <nav>
-  <button class="active" data-tab="inicio">Início</button><button data-tab="jogadores">Jogadores</button><button data-tab="sorteio">Sorteio</button><button data-tab="resultado">Resultado</button><button data-tab="historico">Histórico</button><button data-tab="estatisticas">Estatísticas</button>
+  <button class="active" data-tab="inicio">Início</button><button data-tab="jogadores">Jogadores</button><button data-tab="sorteio">Sorteio</button><button data-tab="resultado">Resultado</button><button data-tab="historico">Histórico</button><button data-tab="estatisticas">Estatísticas</button><button data-tab="series">Séries</button>
 </nav>
 <section class="section active" id="inicio">
 <h2>Visão geral</h2><p class="description">O resumo do nosso futebol.</p>
@@ -70,19 +87,40 @@ input,select{width:100%;padding:12px;border-radius:9px;border:1px solid var(--bo
 <div class="card"><div class="metric" id="totalGoals">0</div><div class="metric-label">Gols registrados</div></div>
 <div class="card"><div class="metric" id="totalAssists">0</div><div class="metric-label">Assistências registradas</div></div>
 </div>
-<div class="panel"><h3>Como funciona</h3><p class="notice">1. Cadastre os jogadores e defina suas estrelas.<br>2. Selecione quem vai jogar.<br>3. Sorteie os times buscando equilíbrio.<br>4. Registre cada gol, seu autor e a assistência.<br>5. Consulte o histórico e as estatísticas por período. O app também guarda partidas offline para sincronizar depois.</p></div>
+<div class="panel"><h3>Como funciona</h3><p class="notice">1. Cadastre os jogadores e defina suas estrelas.<br>2. Selecione quem vai jogar.<br>3. Sorteie os times buscando equilíbrio (ou use uma série para manter os times).<br>4. Registre cada gol, seu autor e a assistência.<br>5. Consulte o histórico e as estatísticas por período. Toque no nome de um jogador para ver o perfil. O app também guarda partidas offline para sincronizar depois.</p></div>
 <div class="panel"><h3>Última partida</h3><div id="lastMatch" class="empty">Nenhuma partida registrada ainda.</div></div>
 </section>
 <section class="section" id="jogadores">
-<h2>Jogadores</h2><p class="description">Gerencie o elenco e a avaliação de cada jogador.</p>
+<h2>Jogadores</h2><p class="description">Gerencie o elenco e a avaliação de cada jogador. Toque no nome ou na foto para abrir o perfil.</p>
 <div class="panel" id="playerEditor"><h3 id="playerFormTitle">Cadastrar jogador</h3><input type="hidden" id="editPlayerId">
 <div class="form-grid"><div><label>Nome do jogador</label><input id="playerName" placeholder="Digite o nome"></div><div><label>Nível do jogador</label><select id="playerStars"><option value="1">1 estrela</option><option value="2">2 estrelas</option><option value="3" selected>3 estrelas</option><option value="4">4 estrelas</option><option value="5">5 estrelas</option></select></div></div>
+<div class="photo-tools">
+  <div id="photoPreview"></div>
+  <div>
+    <div class="actions" style="margin:0"><button type="button" class="btn secondary small" onclick="$('photoGallery').click()">🖼 Galeria</button><button type="button" class="btn secondary small" onclick="$('photoCamera').click()">📷 Câmera</button><button type="button" class="btn secondary small" id="photoClearBtn" onclick="clearPendingPhoto()">Descartar nova foto</button></div>
+    <div class="notice" id="photoNote">Escolha uma foto. Ela será reduzida e comprimida antes do envio.</div>
+  </div>
+  <input type="file" id="photoGallery" accept="image/*" class="hidden" onchange="onPhotoSelected(this)">
+  <input type="file" id="photoCamera" accept="image/*" capture="user" class="hidden" onchange="onPhotoSelected(this)">
+</div>
 <div class="actions"><button class="btn" onclick="savePlayer()">Salvar jogador</button><button class="btn secondary" onclick="cancelEdit()">Limpar</button></div><p class="notice">As estrelas representam o nível definido pelo administrador e serão usadas no equilíbrio dos times.</p><div id="playerPermissionNote" class="notice"></div></div>
 <div class="panel"><h3>Elenco cadastrado</h3><div id="playersList"></div></div>
 </section>
 <section class="section" id="sorteio">
 <h2>Montar os times</h2><p class="description">Selecione os jogadores presentes e faça o sorteio.</p>
-<div class="panel"><h3>Quem vai jogar?</h3><div id="attendanceList"></div><div class="actions"><button class="btn secondary" onclick="selectAll()">Selecionar todos</button><button class="btn secondary" onclick="clearSelection()">Limpar seleção</button><button class="btn" onclick="drawTeams()">⚽ Sortear times</button></div><p class="notice">O sorteio procura dividir os jogadores de forma equilibrada pelas estrelas. Com quantidade ímpar, um time ficará com um jogador a mais.</p></div><div id="teamsResult"></div>
+<div class="panel"><h3>Como montar os times?</h3>
+<div class="mode-switch"><button class="btn small" id="modeNormalBtn" onclick="setDrawMode('normal')">Sorteio normal</button><button class="btn secondary small" id="modeSerieBtn" onclick="setDrawMode('serie')">Modo SÉRIE</button><button class="btn secondary small" onclick="repeatLastTeams()">↺ Repetir último time</button></div>
+<p class="notice">Sorteio normal: nova divisão a cada partida. Modo SÉRIE: os mesmos times durante um período. Repetir último time: reaproveita a formação da última partida salva.</p></div>
+<div class="panel hidden" id="seriesPanel"><h3>Série</h3>
+<div id="seriesCreateBox">
+<label>Nome da série</label><input id="seriesName" placeholder="Ex.: Série de novembro">
+<div class="form-grid"><div><label>Duração</label><select id="seriesDuration" onchange="applySeriesDuration()"><option value="14">2 semanas</option><option value="1m" selected>1 mês</option><option value="2m">2 meses</option><option value="3m">3 meses</option><option value="custom">Personalizada</option></select></div><div><label>Início</label><input type="date" id="seriesStart" onchange="applySeriesDuration()"></div><div><label>Término</label><input type="date" id="seriesEnd"></div></div>
+<div class="actions"><button class="btn" onclick="startSeriesDraw('create')">⚽ Sortear times da série</button></div>
+<p class="notice">Selecione os jogadores da série na lista abaixo, sorteie e confirme. Os times ficarão fixos até o administrador decidir sortear de novo.</p>
+</div>
+<div id="seriesActiveBox"></div>
+</div>
+<div class="panel"><h3>Quem vai jogar?</h3><div id="attendanceList"></div><div class="actions"><button class="btn secondary" onclick="selectAll()">Selecionar todos</button><button class="btn secondary" onclick="clearSelection()">Limpar seleção</button><button class="btn" id="drawNormalBtn" onclick="drawTeams()">⚽ Sortear times</button></div><p class="notice">O sorteio procura dividir os jogadores de forma equilibrada pelas estrelas. Com quantidade ímpar, um time ficará com um jogador a mais.</p></div><div id="teamsResult"></div>
 </section>
 <section class="section" id="resultado">
 <h2>Registrar resultado</h2><p class="description">Cada gol precisa ter um autor. A assistência é opcional.</p>
@@ -91,7 +129,7 @@ input,select{width:100%;padding:12px;border-radius:9px;border:1px solid var(--bo
 <h3>Adicionar gol</h3><div class="form-grid"><div><label>Qual time marcou?</label><select id="goalTeam" onchange="updateScorerOptions()"><option value="A">Time Rosa</option><option value="B">Time Laranja</option></select></div><div><label>Quem fez o gol?</label><select id="goalScorer"></select></div></div>
 <div class="checkbox-row"><input type="checkbox" id="soloGoal" onchange="toggleAssist()"><label for="soloGoal">Gol solo (sem assistência)</label></div>
 <div><label>Quem deu a assistência?</label><select id="goalAssist"></select></div><div class="actions"><button class="btn" onclick="addGoal()">+ Registrar gol</button></div><div id="goalEvents"></div></div>
-<div class="panel"><h3>Finalizar partida</h3><label>Observação (opcional)</label><input id="matchNote" placeholder="Ex.: jogo de domingo, campo principal..."><div class="actions"><button class="btn" onclick="saveMatch()">Salvar resultado e histórico</button><button class="btn secondary" onclick="clearGoals()">Limpar gols</button></div><p class="notice">A partida é guardada neste aparelho imediatamente. Se estiver offline, será enviada ao Supabase quando a conexão voltar.</p></div>
+<div class="panel"><h3>Finalizar partida</h3><div id="matchSeriesInfo" class="notice"></div><label>Observação (opcional)</label><input id="matchNote" placeholder="Ex.: jogo de domingo, campo principal..."><div class="actions"><button class="btn" onclick="saveMatch()">Salvar resultado e histórico</button><button class="btn secondary" onclick="clearGoals()">Limpar gols</button></div><p class="notice">A partida é guardada neste aparelho imediatamente. Se estiver offline, será enviada ao Supabase quando a conexão voltar.</p></div>
 </section>
 <section class="section" id="historico">
 <h2>Histórico de partidas</h2><p class="description">Consulte os resultados já registrados.</p>
@@ -112,19 +150,47 @@ input,select{width:100%;padding:12px;border-radius:9px;border:1px solid var(--bo
 </div><div id="statsPeriodLabel" class="notice"></div></div>
 <div class="grid"><div class="card"><div class="metric" id="statGoals">0</div><div class="metric-label">Gols no período</div></div><div class="card"><div class="metric" id="statAssists">0</div><div class="metric-label">Assistências no período</div></div><div class="card"><div class="metric" id="statMatches">0</div><div class="metric-label">Partidas no período</div></div></div>
 <div class="panel"><h3>Artilharia</h3><div id="scorerRanking"></div></div><div class="panel"><h3>Ranking de assistências</h3><div id="assistRanking"></div></div>
+<div class="panel hidden" id="starRecPanel"><h3>Recomendação de estrelas (administrador)</h3>
+<p class="notice" style="margin-top:0">Sugestão calculada com todo o histórico, comparando os jogadores com 3 partidas ou mais. Nada muda sozinho: as estrelas só são alteradas quando você toca em “Aplicar”.</p>
+<div id="starRecList"></div></div>
+</section>
+<section class="section" id="series"><h2>Séries</h2><p class="description">Períodos em que os mesmos times se enfrentam. Cada partida continua registrada individualmente.</p>
+<div class="panel"><h3>Séries cadastradas</h3><div id="seriesList"></div></div>
+<div id="seriesDetail"></div>
 </section>
 </div>
 </main>
+
+<div class="modal hidden" id="profileModal" onclick="if(event.target===this)closeProfile()">
+  <div class="modal-box">
+    <div class="topline"><div class="profile-head" id="profileHead"></div><button class="btn secondary small" onclick="closeProfile()">Fechar</button></div>
+    <div class="panel" style="margin-top:14px"><div class="period-tools" style="margin-bottom:0">
+      <div class="field"><label>Período</label><select id="profilePeriod" onchange="onProfilePeriodChange()"><option value="all">Todo o histórico</option><option value="month">Este mês</option><option value="specific">Mês específico</option><option value="year">Ano específico</option><option value="custom">Período personalizado</option></select></div>
+      <div class="field" id="profileMonthWrap"><label>Mês</label><input type="month" id="profileMonth" onchange="renderProfile()"></div>
+      <div class="field hidden" id="profileYearWrap"><label>Ano</label><select id="profileYear" onchange="renderProfile()"></select></div>
+      <div class="field hidden" id="profileStartWrap"><label>Data inicial</label><input type="date" id="profileStart" onchange="renderProfile()"></div>
+      <div class="field hidden" id="profileEndWrap"><label>Data final</label><input type="date" id="profileEnd" onchange="renderProfile()"></div>
+    </div><div id="profilePeriodLabel" class="notice"></div></div>
+    <div id="profileStats"></div>
+    <div id="profileRec"></div>
+    <div class="panel" style="margin-top:14px"><h3>Partidas do jogador</h3><div id="profileHistory"></div></div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const SUPABASE_URL="https://qrxnlepvgqtevflyfoov.supabase.co";
 const SUPABASE_ANON_KEY="sb_publishable_0UcrIzhBdIp6Fr8quAVSCQ_KKvBOSmw";
 const DB_KEY="futdomingo_validacao_v2",IDB_NAME="futdomingo_offline_v1",OUTBOX_KEY="futdomingo_outbox_v1",LOCAL_AUTH_KEY="futdomingo_local_auth_v1";
+const PHOTO_BUCKET="player-photos",MIN_GAMES_REC=3;
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-let db={players:[],matches:[]},selected=new Set(),teams={A:[],B:[]},currentGoals=[];
+let db={players:[],matches:[],series:[]},selected=new Set(),teams={A:[],B:[]},currentGoals=[];
 let currentUser=null,currentProfile=null,isSyncing=false,idb=null;
-try{db=JSON.parse(localStorage.getItem(DB_KEY)||'{"players":[],"matches":[]}')}catch(e){}
-if(!Array.isArray(db.players))db.players=[];if(!Array.isArray(db.matches))db.matches=[];
+// Novos estados
+let localPhotos={},photoCache={},pendingPhoto=null,profileId=null,openSeriesId=null;
+let drawMode="normal",currentSeriesId=null,seriesDraft=null,teamsEditable=false,seriesCloudOk=true;
+try{db=JSON.parse(localStorage.getItem(DB_KEY)||'{"players":[],"matches":[],"series":[]}')}catch(e){}
+if(!Array.isArray(db.players))db.players=[];if(!Array.isArray(db.matches))db.matches=[];if(!Array.isArray(db.series))db.series=[];
 const $=id=>document.getElementById(id);
 const uuid=()=>crypto.randomUUID();
 function persist(){localStorage.setItem(DB_KEY,JSON.stringify(db));}
@@ -136,13 +202,26 @@ function activePlayers(){return db.players.filter(p=>p.active!==false);}
 function teamName(t){return t==="A"?"Time Rosa":"Time Laranja";}
 function teamToDb(t){return t==="A"?"pink":"orange";}
 function teamFromDb(t){return t==="pink"?"A":"B";}
+function isAdmin(){return currentProfile?.role==="admin";}
 function setStatus(msg,online=navigator.onLine){$("connectionStatus").textContent=msg;$("connectionDot").style.background=online?"var(--green)":"var(--red)";}
 function showAuthMessage(msg,error=false){$("authMessage").className=error?"error":"success";$("authMessage").textContent=msg;}
 function setBusy(b){$("loginButton").disabled=b;$("signupButton").disabled=b;$("loginButton").textContent=b?"Aguarde...":"Entrar";}
 function openLocalDB(){return new Promise((resolve,reject)=>{if(!("indexedDB"in window))return resolve(null);const req=indexedDB.open(IDB_NAME,1);req.onupgradeneeded=()=>{const d=req.result;if(!d.objectStoreNames.contains("kv"))d.createObjectStore("kv");};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});}
 function idbGet(key){return new Promise(resolve=>{if(!idb)return resolve(null);const r=idb.transaction("kv","readonly").objectStore("kv").get(key);r.onsuccess=()=>resolve(r.result??null);r.onerror=()=>resolve(null);});}
 function idbSet(key,value){return new Promise(resolve=>{if(!idb)return resolve(false);const t=idb.transaction("kv","readwrite");t.objectStore("kv").put(value,key);t.oncomplete=()=>resolve(true);t.onerror=()=>resolve(false);});}
-async function loadLocal(){try{idb=await openLocalDB();const saved=await idbGet("database");if(saved&&(!db.matches.length&&!db.players.length))db=saved;const q=await idbGet("outbox");if(Array.isArray(q))localStorage.setItem(OUTBOX_KEY,JSON.stringify(q));}catch(e){console.warn("IndexedDB indisponível",e);}persist();}
+async function loadLocal(){
+  try{
+    idb=await openLocalDB();
+    const saved=await idbGet("database");
+    if(saved&&(!db.matches.length&&!db.players.length))db=saved;
+    const q=await idbGet("outbox");
+    if(Array.isArray(q))localStorage.setItem(OUTBOX_KEY,JSON.stringify(q));
+    const lp=await idbGet("localPhotos");if(lp&&typeof lp==="object")localPhotos=lp;
+    const pc=await idbGet("photoCache");if(pc&&typeof pc==="object")photoCache=pc;
+  }catch(e){console.warn("IndexedDB indisponível",e);}
+  if(!Array.isArray(db.players))db.players=[];if(!Array.isArray(db.matches))db.matches=[];if(!Array.isArray(db.series))db.series=[];
+  persist();
+}
 
 async function saveLocalAuth(user,profile){
   const authData={
@@ -187,7 +266,7 @@ async function saveOutbox(q){localStorage.setItem(OUTBOX_KEY,JSON.stringify(q));
 function updatePendingLabel(){const n=getOutbox().length;$("syncDetails").textContent=n?`${n} operação(ões) aguardando sincronização.`:"Dados locais atualizados."; }
 async function queueOperation(op){const q=getOutbox();q.push({...op,queuedAt:new Date().toISOString()});await saveOutbox(q);}
 async function saveLocalDB(){persist();await idbSet("database",db);}
-function showApp(){ $("authPanel").classList.add("hidden");$("appContent").classList.remove("hidden");$("signedUser").textContent=currentProfile?.name||currentUser?.email||"Usuário";$("userRole").textContent=currentProfile?.role==="admin"?"Administrador":"Participante";const admin=currentProfile?.role==="admin";$("playerEditor").classList.toggle("hidden",!admin);$("playerPermissionNote").textContent=admin?"Você pode cadastrar, editar e pausar jogadores.":"Somente administradores podem alterar o elenco.";renderAll(); }
+function showApp(){ $("authPanel").classList.add("hidden");$("appContent").classList.remove("hidden");$("signedUser").textContent=currentProfile?.name||currentUser?.email||"Usuário";$("userRole").textContent=currentProfile?.role==="admin"?"Administrador":"Participante";const admin=currentProfile?.role==="admin";$("playerEditor").classList.toggle("hidden",!admin);$("starRecPanel").classList.toggle("hidden",!admin);$("playerPermissionNote").textContent=admin?"Você pode cadastrar, editar e pausar jogadores.":"Somente administradores podem alterar o elenco.";renderAll(); }
 function showLogin(){ $("authPanel").classList.remove("hidden");$("appContent").classList.add("hidden");}
 async function login(){const email=$("authEmail").value.trim(),password=$("authPassword").value;if(!email||!password)return showAuthMessage("Informe e-mail e senha.",true);setBusy(true);const {data,error}=await sb.auth.signInWithPassword({email,password});setBusy(false);if(error)return showAuthMessage(error.message,true);await startSession(data.user);}
 async function signup(){const email=$("authEmail").value.trim(),password=$("authPassword").value;if(!email||!password)return showAuthMessage("Informe e-mail e senha.",true);if(password.length<6)return showAuthMessage("Use uma senha com pelo menos 6 caracteres.",true);setBusy(true);const {data,error}=await sb.auth.signUp({email,password});setBusy(false);if(error)return showAuthMessage(error.message,true);if(!data.session){showAuthMessage("Conta criada. Confirme o e-mail e depois entre no aplicativo.");return;}const name=email.split("@")[0];const p=await sb.from("profiles").upsert({id:data.user.id,name,role:"participant"},{onConflict:"id"});if(p.error)return showAuthMessage("Conta criada, mas o perfil não foi criado: "+p.error.message,true);await startSession(data.user);}
@@ -203,6 +282,7 @@ async function logout(){
 
   currentUser=null;
   currentProfile=null;
+  closeProfile();
 
   showLogin();
   setStatus("Desconectado",navigator.onLine);
@@ -254,6 +334,85 @@ window.addEventListener("offline",()=>{
   setStatus("Offline · dados locais",false);
 });
 
+/* ================= FOTOS ================= */
+function photoSrc(p){
+  if(!p)return "";
+  if(localPhotos[p.id]?.dataUrl)return localPhotos[p.id].dataUrl;
+  const c=photoCache[p.id];
+  if(c&&c.url===p.photo_url&&c.dataUrl)return c.dataUrl;
+  return p.photo_url||"";
+}
+function avatarHTML(p,big=false){
+  const src=photoSrc(p);
+  const cls="avatar"+(big?" lg":"");
+  if(src)return `<img class="${cls}" src="${escapeHTML(src)}" alt="Foto de ${escapeHTML(p.name)}">`;
+  return `<span class="${cls}">${escapeHTML((p?.name||"?").trim().charAt(0).toUpperCase()||"?")}</span>`;
+}
+function fileToCompressedDataUrl(file,size=400,quality=.75){
+  return new Promise((resolve,reject)=>{
+    const url=URL.createObjectURL(file),img=new Image();
+    img.onload=()=>{
+      try{
+        const s=Math.min(img.width,img.height),sx=(img.width-s)/2,sy=(img.height-s)/2;
+        const c=document.createElement("canvas");
+        c.width=c.height=Math.min(size,s);
+        c.getContext("2d").drawImage(img,sx,sy,s,s,0,0,c.width,c.height);
+        URL.revokeObjectURL(url);
+        resolve(c.toDataURL("image/jpeg",quality));
+      }catch(e){reject(e);}
+    };
+    img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error("Não foi possível ler a imagem escolhida."));};
+    img.src=url;
+  });
+}
+function dataUrlToBlob(dataUrl){
+  const [head,b64]=dataUrl.split(",");
+  const mime=(head.match(/:(.*?);/)||[])[1]||"image/jpeg";
+  const bin=atob(b64),arr=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);
+  return new Blob([arr],{type:mime});
+}
+function renderPhotoPreview(){
+  const editId=$("editPlayerId").value,p=editId?playerById(editId):null;
+  const nm=$("playerName").value.trim()||p?.name||"?";
+  let html;
+  if(pendingPhoto)html=`<img class="avatar lg" src="${pendingPhoto}" alt="Prévia da nova foto">`;
+  else if(p)html=avatarHTML(p,true);
+  else html=`<span class="avatar lg">${escapeHTML(nm.charAt(0).toUpperCase())}</span>`;
+  $("photoPreview").innerHTML=html;
+  $("photoClearBtn").classList.toggle("hidden",!pendingPhoto);
+  $("photoNote").textContent=pendingPhoto?"Prévia da nova foto. Ela só será salva ao tocar em “Salvar jogador”.":"Escolha uma foto. Ela será reduzida e comprimida antes do envio.";
+}
+async function onPhotoSelected(inp){
+  if(!isAdmin()){inp.value="";return alert("Somente administradores podem alterar fotos.");}
+  const f=inp.files&&inp.files[0];
+  inp.value="";
+  if(!f)return;
+  if(!/^image\//.test(f.type))return alert("Escolha um arquivo de imagem.");
+  try{pendingPhoto=await fileToCompressedDataUrl(f);renderPhotoPreview();}
+  catch(e){alert(e.message||"Falha ao preparar a foto.");}
+}
+function clearPendingPhoto(){pendingPhoto=null;renderPhotoPreview();}
+async function cachePhotos(){
+  let changed=false;
+  for(const p of db.players){
+    if(!p.photo_url||localPhotos[p.id])continue;
+    const c=photoCache[p.id];
+    if(c&&c.url===p.photo_url)continue;
+    try{
+      const r=await fetch(p.photo_url);
+      if(!r.ok)continue;
+      const blob=await r.blob();
+      const dataUrl=await new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.onerror=()=>rej(fr.error);fr.readAsDataURL(blob);});
+      photoCache[p.id]={url:p.photo_url,dataUrl};
+      changed=true;
+    }catch(e){console.warn("Foto não guardada para uso offline",e);}
+  }
+  if(changed)await idbSet("photoCache",photoCache);
+  return changed;
+}
+
+/* ================= SINCRONIZAÇÃO ================= */
 async function syncNow(){
   if(!currentUser){
     setStatus("Entre para sincronizar",navigator.onLine);
@@ -332,6 +491,43 @@ async function syncNow(){
         }else if(op.type==="playerDelete"){
           const {error}=await sb.from("players").delete().eq("id",op.id);
           if(error)throw error;
+        }else if(op.type==="playerPhoto"){
+          const entry=localPhotos[op.id];
+          // Foto já enviada, ou substituída por outra mais nova (que tem a própria operação).
+          if(entry&&entry.stamp===op.stamp){
+            const path=`${op.id}/${op.stamp}.jpg`;
+            const up=await sb.storage.from(PHOTO_BUCKET).upload(path,dataUrlToBlob(entry.dataUrl),{contentType:"image/jpeg",upsert:false,cacheControl:"31536000"});
+            if(up.error&&!/exist|duplicate|409/i.test((up.error.message||"")+(up.error.statusCode||"")))throw up.error;
+            const pub=sb.storage.from(PHOTO_BUCKET).getPublicUrl(path);
+            const url=pub.data.publicUrl;
+            const r=await sb.from("players").update({photo_url:url}).eq("id",op.id).select("id");
+            if(r.error)throw r.error;
+            if(!r.data||!r.data.length)throw new Error("O jogador ainda não está disponível na nuvem para receber a foto.");
+            const pl=playerById(op.id);if(pl)pl.photo_url=url;
+            if(localPhotos[op.id]&&localPhotos[op.id].stamp===op.stamp){
+              photoCache[op.id]={url,dataUrl:entry.dataUrl};
+              delete localPhotos[op.id];
+              await idbSet("localPhotos",localPhotos);
+              await idbSet("photoCache",photoCache);
+            }
+          }
+        }else if(op.type==="series"){
+          if(!op.playersOnly){
+            const {error:s1}=await sb.from("series").upsert(op.series,{onConflict:"id"});
+            if(s1)throw s1;
+          }
+          if(op.players?.length){
+            const {error:s2}=await sb.from("series_players").upsert(op.players,{onConflict:"series_id,player_id"});
+            if(s2)throw s2;
+          }
+          if(op.replace&&op.players?.length){
+            const keep="("+op.players.map(x=>x.player_id).join(",")+")";
+            const {error:s3}=await sb.from("series_players").delete().eq("series_id",op.series.id).not("player_id","in",keep);
+            if(s3)throw s3;
+          }
+        }else if(op.type==="seriesUpdate"){
+          const {error}=await sb.from("series").update(op.payload).eq("id",op.id);
+          if(error)throw error;
         }
       }catch(err){
         op.lastError=err.message;
@@ -341,13 +537,19 @@ async function syncNow(){
 
     await saveOutbox(remaining);
 
-    const localPlayers=db.players.slice(),localMatches=db.matches.slice();
+    const localPlayers=db.players.slice(),localMatches=db.matches.slice(),localSeries=(db.series||[]).slice();
 
-    const {data:players,error:pe}=await sb.from("players").select("id,name,stars,active").order("name");
+    const {data:players,error:pe}=await sb.from("players").select("id,name,stars,active,photo_url").order("name");
     if(pe)throw pe;
 
-    const {data:matches,error:me}=await sb.from("matches").select("id,played_at,note,score_pink,score_orange,created_at").order("played_at",{ascending:false});
-    if(me)throw me;
+    const matchCols="id,played_at,note,score_pink,score_orange,created_at";
+    let mres=await sb.from("matches").select(matchCols+",series_id").order("played_at",{ascending:false});
+    if(mres.error){
+      // Coluna series_id ainda não existe no Supabase: segue sem ela, sem perder dados locais.
+      mres=await sb.from("matches").select(matchCols).order("played_at",{ascending:false});
+    }
+    if(mres.error)throw mres.error;
+    const matches=mres.data;
 
     const ids=(matches||[]).map(m=>m.id);
     let roster=[],goals=[];
@@ -362,6 +564,24 @@ async function syncNow(){
       goals=g.data||[];
     }
 
+    // Séries (não derruba a sincronização se as tabelas ainda não existirem)
+    let cloudSeries=null;
+    try{
+      const s=await sb.from("series").select("id,name,start_date,end_date,status,closed_at,created_at");
+      if(s.error)throw s.error;
+      const sp=await sb.from("series_players").select("series_id,player_id,team");
+      if(sp.error)throw sp.error;
+      cloudSeries=(s.data||[]).map(x=>{
+        const rows=(sp.data||[]).filter(r=>r.series_id===x.id);
+        const A=rows.filter(r=>r.team==="pink").map(r=>r.player_id),B=rows.filter(r=>r.team==="orange").map(r=>r.player_id);
+        return{id:x.id,name:x.name,start:x.start_date,end:x.end_date,status:x.status,closedAt:x.closed_at||null,createdAt:x.created_at,teamA:A,teamB:B,players:[...A,...B]};
+      });
+      seriesCloudOk=true;
+    }catch(se){
+      seriesCloudOk=false;
+      console.warn("Séries ainda não disponíveis na nuvem:",se.message||se);
+    }
+
     const cloudMatches=(matches||[]).map(m=>{
       const rr=roster.filter(x=>x.match_id===m.id);
       const gg=goals.filter(x=>x.match_id===m.id).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
@@ -370,6 +590,7 @@ async function syncNow(){
         id:m.id,
         date:m.played_at||m.created_at,
         note:m.note||"",
+        seriesId:m.series_id||null,
         teams:{
           A:rr.filter(x=>x.team==="pink").map(x=>x.player_id),
           B:rr.filter(x=>x.team==="orange").map(x=>x.player_id)
@@ -400,17 +621,30 @@ async function syncNow(){
       ...localMatches.filter(x=>!cloudM.has(x.id))
     ].sort((a,b)=>new Date(b.date)-new Date(a.date));
 
+    if(cloudSeries){
+      const pend=new Set(remaining.filter(o=>o.type==="series"||o.type==="seriesUpdate").map(o=>o.series?.id||o.id));
+      const cloudIds=new Set(cloudSeries.map(x=>x.id));
+      db.series=[
+        ...cloudSeries.map(cs=>pend.has(cs.id)?(localSeries.find(x=>x.id===cs.id)||cs):cs),
+        ...localSeries.filter(x=>!cloudIds.has(x.id))
+      ];
+    }else{
+      db.series=localSeries;
+    }
+
     await saveLocalDB();
     renderAll();
 
-    setStatus(
-      remaining.length
+    let msg=remaining.length
         ?`Sincronização parcial · ${remaining.length} pendente(s)`
-        :"Sincronizado com a nuvem",
-      true
-    );
+        :"Sincronizado com a nuvem";
+    if(!seriesCloudOk&&(db.series.length||remaining.some(o=>o.series||o.seriesId)))msg+=" · séries aguardam a criação das tabelas no Supabase";
+    setStatus(msg,true);
 
     if(remaining.length)console.warn("Operações pendentes:",remaining);
+
+    // Guarda as fotos para exibição offline
+    try{if(await cachePhotos())renderAll();}catch(e){console.warn(e);}
 
   }catch(e){
     console.error(e);
@@ -430,6 +664,7 @@ document.querySelectorAll("nav button").forEach(btn=>btn.addEventListener("click
   renderAll();
 }));
 
+/* ================= JOGADORES ================= */
 async function savePlayer(){
   if(currentProfile?.role!=="admin")return alert("Somente administradores podem alterar o elenco.");
 
@@ -457,6 +692,15 @@ async function savePlayer(){
 
   await saveLocalDB();
   await queueOperation({type:"player",payload});
+
+  // Foto nova: guardada localmente e enviada pela fila (depois da operação do jogador)
+  if(pendingPhoto){
+    const stamp=Date.now();
+    localPhotos[id]={dataUrl:pendingPhoto,stamp};
+    await idbSet("localPhotos",localPhotos);
+    await queueOperation({type:"playerPhoto",id,stamp});
+  }
+
   cancelEdit();
   renderAll();
 
@@ -472,6 +716,8 @@ function editPlayer(id){
   $("playerStars").value=p.stars;
   $("editPlayerId").value=p.id;
   $("playerFormTitle").textContent="Editar jogador";
+  pendingPhoto=null;
+  renderPhotoPreview();
   $("playerName").focus();
 }
 
@@ -480,6 +726,8 @@ function cancelEdit(){
   $("playerStars").value="3";
   $("editPlayerId").value="";
   $("playerFormTitle").textContent="Cadastrar jogador";
+  pendingPhoto=null;
+  renderPhotoPreview();
 }
 
 async function togglePlayer(id){
@@ -514,9 +762,12 @@ function renderPlayers(){
 
   list.innerHTML=db.players.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(p=>`
     <div class="player">
-      <div>
-        <div class="player-name">${escapeHTML(p.name)}</div>
-        <div class="player-info"><span class="stars">${starsText(p.stars)}</span> · ${p.active===false?"Inativo":"Ativo"}</div>
+      <div class="player-main">
+        <span class="link" onclick="openProfile('${p.id}')">${avatarHTML(p)}</span>
+        <div>
+          <div class="player-name link" onclick="openProfile('${p.id}')">${escapeHTML(p.name)}</div>
+          <div class="player-info"><span class="stars">${starsText(p.stars)}</span> · ${p.active===false?"Inativo":"Ativo"}${localPhotos[p.id]?" · foto aguardando envio":""}</div>
+        </div>
       </div>
       <div class="actions" style="margin:0">
         ${currentProfile?.role==="admin"?`
@@ -560,7 +811,16 @@ function clearSelection(){
   renderAttendance();
 }
 
-function drawTeams(){
+/* ================= SORTEIO (algoritmo original preservado) ================= */
+function drawTeams(opts){
+  opts=opts||{};
+
+  // Novo: um sorteio normal sobre times de uma série pede confirmação (não altera a série).
+  if(!opts.series&&currentSeriesId&&teams.A.length){
+    const nm=seriesById(currentSeriesId)?.name||"";
+    if(!confirm('Os times atuais pertencem à série "'+nm+'". Um sorteio normal cria uma partida avulsa, fora da série (os times da série não serão alterados). Continuar?'))return false;
+  }
+
   const ps=activePlayers().filter(p=>selected.has(p.id));
   if(ps.length<2)return alert("Selecione pelo menos dois jogadores.");
 
@@ -613,10 +873,14 @@ function drawTeams(){
   }
 
   teams=best||{A:[],B:[]};
+  teamsEditable=false;
+  currentSeriesId=null;
+  if(!opts.series)seriesDraft=null;
   currentGoals=[];
   renderTeams();
   updateScorerOptions();
   renderGoals();
+  return true;
 }
 
 function renderTeams(){
@@ -629,6 +893,7 @@ function renderTeams(){
 
   const ta=teams.A.reduce((s,p)=>s+p.stars,0);
   const tb=teams.B.reduce((s,p)=>s+p.stars,0);
+  const canAdjust=teamsEditable&&isAdmin();
 
   function box(n,ps,total,cls){
     return `
@@ -637,7 +902,7 @@ function renderTeams(){
         ${ps.map(p=>`
           <div class="team-player">
             <span>${escapeHTML(p.name)}</span>
-            <span class="stars">${starsText(p.stars)}</span>
+            <span><span class="stars">${starsText(p.stars)}</span>${canAdjust?` <button class="btn secondary small" title="Mover para o outro time" onclick="movePlayer('${p.id}')">⇄</button>`:""}</span>
           </div>
         `).join("")}
         <div class="team-total">${ps.length} jogadores · ${total} estrelas</div>
@@ -645,19 +910,63 @@ function renderTeams(){
     `;
   }
 
+  let title="Times sorteados",buttons;
+  if(seriesDraft){
+    title=seriesDraft.mode==="create"?`Times da série "${escapeHTML(seriesDraft.name)}" (pré-visualização)`:"Novos times da série (pré-visualização)";
+    buttons=`
+      <button class="btn" onclick="confirmSeriesDraft()">✔ ${seriesDraft.mode==="create"?"Confirmar e iniciar série":"Confirmar e substituir times da série"}</button>
+      <button class="btn secondary" onclick="drawTeams({series:true})">↻ Sortear novamente</button>
+      <button class="btn secondary" onclick="cancelSeriesDraft()">Cancelar</button>`;
+  }else if(currentSeriesId){
+    title=`Times da série: ${escapeHTML(seriesById(currentSeriesId)?.name||"")}`;
+    buttons=`<button class="btn" onclick="goToResult()">Registrar resultado</button>`;
+  }else{
+    buttons=`
+        <button class="btn" onclick="drawTeams()">↻ Sortear novamente</button>
+        <button class="btn secondary" onclick="goToResult()">Registrar resultado</button>`;
+  }
+
+  let adjust="";
+  if(canAdjust){
+    const free=activePlayers().filter(p=>!teams.A.some(x=>x.id===p.id)&&!teams.B.some(x=>x.id===p.id)).sort((a,b)=>a.name.localeCompare(b.name));
+    adjust=`<div class="series-box"><strong>Ajustes (administrador)</strong><div class="notice" style="margin-top:4px">Valem apenas para esta partida${currentSeriesId?"; a formação fixa da série não muda":""}. Só é possível ajustar antes de registrar gols.</div>
+      ${free.length?`<div class="form-grid" style="margin-top:8px"><select id="addPlayerSel">${free.map(p=>`<option value="${p.id}">${escapeHTML(p.name)}</option>`).join("")}</select></div>
+      <div class="actions"><button class="btn secondary small" onclick="addToTeam('A')">+ Time Rosa</button><button class="btn secondary small" onclick="addToTeam('B')">+ Time Laranja</button></div>`:'<div class="notice">Todos os jogadores ativos já estão nos times.</div>'}</div>`;
+  }
+
   el.innerHTML=`
     <div class="panel">
-      <h3>Times sorteados</h3>
+      <h3>${title}</h3>
       <div class="team-grid">
         ${box("TIME ROSA",teams.A,ta,"team-a")}
         ${box("TIME LARANJA",teams.B,tb,"team-b")}
       </div>
-      <div class="actions">
-        <button class="btn" onclick="drawTeams()">↻ Sortear novamente</button>
-        <button class="btn secondary" onclick="goToResult()">Registrar resultado</button>
-      </div>
+      ${adjust}
+      <div class="actions">${buttons}</div>
     </div>
   `;
+}
+
+function movePlayer(id){
+  if(!isAdmin())return;
+  if(currentGoals.length)return alert("Limpe os gols registrados antes de ajustar os times.");
+  let from=teams.A.find(p=>p.id===id)?"A":teams.B.find(p=>p.id===id)?"B":null;
+  if(!from)return;
+  const to=from==="A"?"B":"A";
+  const p=teams[from].find(x=>x.id===id);
+  teams[from]=teams[from].filter(x=>x.id!==id);
+  teams[to].push(p);
+  if(!teams[from].length){teams[to]=teams[to].filter(x=>x.id!==id);teams[from].push(p);return alert("Cada time precisa ter pelo menos um jogador.");}
+  renderTeams();updateScorerOptions();
+}
+
+function addToTeam(side){
+  if(!isAdmin())return;
+  if(currentGoals.length)return alert("Limpe os gols registrados antes de ajustar os times.");
+  const id=$("addPlayerSel")?.value,p=playerById(id);
+  if(!p)return;
+  teams[side].push(p);
+  renderTeams();updateScorerOptions();
 }
 
 function goToResult(){
@@ -733,6 +1042,12 @@ function renderGoals(){
   $("scoreA").textContent=a;
   $("scoreB").textContent=b;
 
+  const si=$("matchSeriesInfo");
+  if(si){
+    const s=currentSeriesId?seriesById(currentSeriesId):null;
+    si.textContent=s?`Esta partida será registrada na série "${s.name}".`:"";
+  }
+
   const el=$("goalEvents");
 
   if(!currentGoals.length){
@@ -761,8 +1076,16 @@ function clearGoals(){
 
 async function saveMatch(){
   if(!teams.A.length||!teams.B.length)return alert("Sorteie os times antes de salvar a partida.");
+  if(seriesDraft)return alert("Confirme ou cancele o sorteio da série antes de registrar a partida.");
   if(!currentGoals.length)return alert("Registre pelo menos um gol antes de salvar.");
   if(!currentUser)return alert("Entre na sua conta antes de registrar partidas.");
+
+  let seriesId=null;
+  if(currentSeriesId){
+    const s=seriesById(currentSeriesId);
+    if(!s||s.status!=="active")return alert("Esta série não está mais ativa. Sorteie os times ou use outra formação.");
+    seriesId=s.id;
+  }
 
   const id=uuid();
   const date=new Date().toISOString();
@@ -774,6 +1097,7 @@ async function saveMatch(){
     id,
     date,
     note,
+    seriesId,
     teams:{
       A:teams.A.map(p=>p.id),
       B:teams.B.map(p=>p.id)
@@ -798,6 +1122,8 @@ async function saveMatch(){
     score_orange:scoreB,
     created_by:currentUser.id
   };
+  // series_id só é enviado em partidas de série (partidas avulsas seguem exatamente como antes)
+  if(seriesId)matchRow.series_id=seriesId;
 
   const roster=[
     ...teams.A.map(p=>({
@@ -834,6 +1160,8 @@ async function saveMatch(){
 
   currentGoals=[];
   teams={A:[],B:[]};
+  currentSeriesId=null;
+  teamsEditable=false;
   selected.clear();
   $("matchNote").value="";
 
@@ -851,6 +1179,213 @@ async function saveMatch(){
   }
 }
 
+/* ================= REPETIR ÚLTIMO TIME ================= */
+function loadFormation(idsA,idsB,label){
+  const all=[...idsA,...idsB];
+  const missing=[];
+  const mapIds=ids=>ids.map(id=>{
+    const p=playerById(id);
+    if(!p){missing.push("Jogador removido");return null;}
+    if(p.active===false){missing.push(p.name+" (inativo)");return null;}
+    return p;
+  }).filter(Boolean);
+  const A=mapIds(idsA),B=mapIds(idsB);
+  if(missing.length&&!confirm("Alguns jogadores da formação anterior estão indisponíveis:\n\n• "+missing.join("\n• ")+"\n\nManter a formação sem eles?"))return false;
+  if(!A.length||!B.length){alert("Não sobraram jogadores suficientes em um dos times. Faça um novo sorteio.");return false;}
+  if(all.length&&Math.abs(A.length-B.length)>1)alert("Atenção: os times ficaram com quantidades diferentes de jogadores. "+(isAdmin()?"Você pode ajustar abaixo.":"Peça a um administrador para ajustar."));
+  teams={A,B};
+  teamsEditable=true;
+  currentGoals=[];
+  seriesDraft=null;
+  return true;
+}
+
+function repeatLastTeams(){
+  if(!db.matches.length)return alert("Ainda não existe uma partida salva para repetir.");
+  const last=db.matches.slice().sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+  if(!loadFormation(last.teams?.A||[],last.teams?.B||[]))return;
+  currentSeriesId=null;
+  renderTeams();updateScorerOptions();renderGoals();renderSeriesPanel();
+  alert("Formação da última partida (" + formatDate(last.date) + ") carregada. A próxima partida será registrada como avulsa. Para registrar na série, use \"Usar times da série\".");
+}
+
+/* ================= MODO SÉRIE ================= */
+function seriesById(id){return (db.series||[]).find(s=>s.id===id);}
+function activeSeries(){return (db.series||[]).find(s=>s.status==="active");}
+function toLocalISO(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function formatDay(s){return s?new Date(s+"T00:00:00").toLocaleDateString("pt-BR"):"—";}
+
+function applySeriesDuration(){
+  const startEl=$("seriesStart");
+  if(!startEl.value)startEl.value=toLocalISO(new Date());
+  const mode=$("seriesDuration").value;
+  if(mode==="custom")return;
+  const d=new Date(startEl.value+"T00:00:00");
+  if(mode==="14")d.setDate(d.getDate()+14);
+  else d.setMonth(d.getMonth()+Number(mode.replace("m","")));
+  $("seriesEnd").value=toLocalISO(d);
+}
+
+function setDrawMode(m){
+  drawMode=m;
+  $("modeNormalBtn").classList.toggle("secondary",m!=="normal");
+  $("modeSerieBtn").classList.toggle("secondary",m!=="serie");
+  $("drawNormalBtn").classList.toggle("hidden",m==="serie");
+  renderSeriesPanel();
+}
+
+function renderSeriesPanel(){
+  $("seriesPanel").classList.toggle("hidden",drawMode!=="serie");
+  if(drawMode!=="serie")return;
+  const s=activeSeries();
+  $("seriesCreateBox").classList.toggle("hidden",!!s||!isAdmin());
+  const box=$("seriesActiveBox");
+  if(!s){
+    box.innerHTML=isAdmin()?"":'<div class="empty">Não há série ativa. Somente administradores podem criar uma série.</div>';
+    return;
+  }
+  const names=ids=>ids.map(id=>escapeHTML(playerName(id))).join(", ")||"—";
+  const n=db.matches.filter(m=>m.seriesId===s.id).length;
+  const expired=s.end&&toLocalISO(new Date())>s.end;
+  box.innerHTML=`<div class="series-box">
+    <strong>${escapeHTML(s.name)}</strong> <span class="badge">Ativa</span>${expired?' <span class="badge" style="color:#ffd166">Prazo vencido</span>':""}<br>
+    ${formatDay(s.start)} até ${formatDay(s.end)} · ${n} partida(s) realizada(s)<br>
+    <span style="color:var(--pink)">Rosa:</span> ${names(s.teamA)}<br>
+    <span style="color:var(--orange)">Laranja:</span> ${names(s.teamB)}
+    <div class="actions">
+      <button class="btn" onclick="useSeriesTeams()">Usar times da série</button>
+      ${isAdmin()?`<button class="btn secondary" onclick="startSeriesDraw('replace')">Novo sorteio da série</button><button class="btn danger" onclick="closeSeries('${s.id}')">Encerrar série</button>`:""}
+    </div></div>`;
+}
+
+function startSeriesDraw(mode){
+  if(!isAdmin())return alert("Somente administradores podem criar ou alterar séries.");
+  if(mode==="create"){
+    if(activeSeries())return alert("Já existe uma série ativa. Encerre-a antes de criar outra.");
+    const name=$("seriesName").value.trim(),start=$("seriesStart").value,end=$("seriesEnd").value;
+    if(!name)return alert("Dê um nome para a série.");
+    if(!start||!end||end<start)return alert("Confira as datas: o término não pode ser anterior ao início.");
+    if(db.series.some(x=>x.name.toLowerCase()===name.toLowerCase()))return alert("Já existe uma série com esse nome.");
+    seriesDraft={mode:"create",name,start,end};
+  }else{
+    const s=activeSeries();
+    if(!s)return;
+    if(!confirm('Um novo sorteio vai SUBSTITUIR os times fixos da série "'+s.name+'" depois que você confirmar o resultado. As partidas já registradas não serão alteradas. Continuar?'))return;
+    seriesDraft={mode:"replace",seriesId:s.id};
+  }
+  if(!drawTeams({series:true})){seriesDraft=null;renderTeams();}
+}
+
+function cancelSeriesDraft(){
+  seriesDraft=null;
+  teams={A:[],B:[]};
+  currentGoals=[];
+  renderTeams();updateScorerOptions();renderGoals();
+}
+
+async function confirmSeriesDraft(){
+  if(!isAdmin())return alert("Somente administradores podem criar ou alterar séries.");
+  if(!seriesDraft||!teams.A.length||!teams.B.length)return;
+  const A=teams.A.map(p=>p.id),B=teams.B.map(p=>p.id);
+  const rows=sid=>[...A.map(pid=>({series_id:sid,player_id:pid,team:"pink"})),...B.map(pid=>({series_id:sid,player_id:pid,team:"orange"}))];
+
+  if(seriesDraft.mode==="create"){
+    if(activeSeries())return alert("Já existe uma série ativa.");
+    const s={id:uuid(),name:seriesDraft.name,start:seriesDraft.start,end:seriesDraft.end,status:"active",closedAt:null,createdAt:new Date().toISOString(),teamA:A,teamB:B,players:[...A,...B]};
+    db.series.push(s);
+    await saveLocalDB();
+    await queueOperation({type:"series",series:{id:s.id,name:s.name,start_date:s.start,end_date:s.end,status:"active",created_by:currentUser.id},players:rows(s.id)});
+    currentSeriesId=s.id;
+    $("seriesName").value="";
+  }else{
+    const s=seriesById(seriesDraft.seriesId);
+    if(!s||s.status!=="active"){seriesDraft=null;return alert("A série não está mais ativa.");}
+    s.teamA=A;s.teamB=B;s.players=[...A,...B];
+    await saveLocalDB();
+    await queueOperation({type:"series",series:{id:s.id,name:s.name,start_date:s.start,end_date:s.end,status:s.status},players:rows(s.id),replace:true});
+    currentSeriesId=s.id;
+  }
+  seriesDraft=null;
+  teamsEditable=false;
+  renderAll();renderTeams();
+  if(navigator.onLine)syncNow();
+  else alert("Série salva neste aparelho. Será enviada quando a internet voltar.");
+}
+
+function useSeriesTeams(){
+  const s=activeSeries();
+  if(!s)return alert("Não há série ativa.");
+  if(!loadFormation(s.teamA||[],s.teamB||[]))return;
+  currentSeriesId=s.id;
+  teamsEditable=true;
+  renderTeams();updateScorerOptions();renderGoals();renderSeriesPanel();
+}
+
+async function closeSeries(id){
+  if(!isAdmin())return alert("Somente administradores podem encerrar séries.");
+  const s=seriesById(id);
+  if(!s||s.status!=="active")return;
+  if(!confirm('Encerrar a série "'+s.name+'"? As partidas e estatísticas continuam consultáveis.'))return;
+  s.status="closed";
+  s.closedAt=new Date().toISOString();
+  await saveLocalDB();
+  await queueOperation({type:"seriesUpdate",id,payload:{status:"closed",closed_at:s.closedAt}});
+  if(currentSeriesId===id){currentSeriesId=null;teams={A:[],B:[]};currentGoals=[];renderTeams();}
+  renderAll();
+  if(navigator.onLine)syncNow();
+}
+
+/* ====== Estatísticas de série ====== */
+function seriesSummary(s){
+  const ms=db.matches.filter(m=>m.seriesId===s.id).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  let wA=0,wB=0,d=0,gA=0,gB=0;
+  ms.forEach(m=>{
+    gA+=Number(m.scoreA)||0;gB+=Number(m.scoreB)||0;
+    if(m.scoreA>m.scoreB)wA++;else if(m.scoreB>m.scoreA)wB++;else d++;
+  });
+  const n=ms.length;
+  return{ms,n,wA,wB,d,gA,gB,apA:n?(3*wA+d)/(3*n)*100:0,apB:n?(3*wB+d)/(3*n)*100:0};
+}
+
+function renderSeriesTab(){
+  const list=$("seriesList"),det=$("seriesDetail");
+  const all=(db.series||[]).slice().sort((a,b)=>(a.status===b.status?0:a.status==="active"?-1:1)||String(b.start).localeCompare(String(a.start)));
+  if(!all.length){list.innerHTML='<div class="empty">Nenhuma série criada ainda. No menu Sorteio, escolha “Modo SÉRIE”.</div>';det.innerHTML="";return;}
+  list.innerHTML=all.map(s=>{
+    const n=db.matches.filter(m=>m.seriesId===s.id).length;
+    return `<div class="player"><div><div class="player-name">${escapeHTML(s.name)} <span class="badge">${s.status==="active"?"Ativa":"Encerrada"}</span></div><div class="player-info">${formatDay(s.start)} até ${formatDay(s.end)} · ${n} partida(s)</div></div><button class="btn secondary small" onclick="openSeries('${s.id}')">${openSeriesId===s.id?"Ocultar":"Ver detalhes"}</button></div>`;
+  }).join("");
+
+  const s=seriesById(openSeriesId);
+  if(!s){det.innerHTML="";return;}
+  const sm=seriesSummary(s);
+  const ids=[...new Set([...(s.players||[]),...sm.ms.flatMap(m=>[...(m.teams?.A||[]),...(m.teams?.B||[])])])];
+  const rows=ids.map(id=>({id,name:playerName(id),st:playerStats(id,sm.ms)})).sort((a,b)=>b.st.part-a.st.part||b.st.goals-a.st.goals||a.name.localeCompare(b.name));
+  const names=x=>x.map(id=>escapeHTML(playerName(id))).join(", ")||"—";
+  det.innerHTML=`
+  <div class="panel"><h3>${escapeHTML(s.name)}</h3>
+    <div class="notice" style="margin-top:0">${formatDay(s.start)} até ${formatDay(s.end)} · ${s.status==="active"?"Ativa":"Encerrada"}${s.closedAt?" em "+new Date(s.closedAt).toLocaleDateString("pt-BR"):""}</div>
+    <div class="notice"><span style="color:var(--pink)">Time Rosa:</span> ${names(s.teamA||[])}<br><span style="color:var(--orange)">Time Laranja:</span> ${names(s.teamB||[])}</div>
+    ${isAdmin()&&s.status==="active"?`<div class="actions"><button class="btn danger small" onclick="closeSeries('${s.id}')">Encerrar série</button></div>`:""}
+  </div>
+  <div class="mini-grid">
+    <div class="mini"><span>Partidas</span><b>${sm.n}</b></div>
+    <div class="mini"><span>Vitórias Rosa</span><b style="color:var(--pink)">${sm.wA}</b></div>
+    <div class="mini"><span>Vitórias Laranja</span><b style="color:var(--orange)">${sm.wB}</b></div>
+    <div class="mini"><span>Empates</span><b>${sm.d}</b></div>
+    <div class="mini"><span>Placar acumulado</span><b><span style="color:var(--pink)">${sm.gA}</span> × <span style="color:var(--orange)">${sm.gB}</span></b></div>
+    <div class="mini"><span>Aproveit. Rosa</span><b style="color:var(--pink)">${Math.round(sm.apA)}%</b></div>
+    <div class="mini"><span>Aproveit. Laranja</span><b style="color:var(--orange)">${Math.round(sm.apB)}%</b></div>
+  </div>
+  <div class="panel"><h3>Desempenho individual na série</h3>
+    ${rows.some(r=>r.st.games)?`<div class="table-wrap"><table class="simple"><tr><th>Jogador</th><th>J</th><th>V</th><th>E</th><th>D</th><th>Gols</th><th>Ass.</th><th>Aprov.</th></tr>${rows.filter(r=>r.st.games).map(r=>`<tr><td><span class="link" onclick="openProfile('${r.id}')">${escapeHTML(r.name)}</span></td><td>${r.st.games}</td><td>${r.st.w}</td><td>${r.st.d}</td><td>${r.st.l}</td><td>${r.st.goals}</td><td>${r.st.assists}</td><td>${Math.round(r.st.pct)}%</td></tr>`).join("")}</table></div>`:'<div class="empty">Nenhuma partida registrada nesta série.</div>'}
+  </div>
+  <div class="panel"><h3>Partidas da série</h3>${sm.ms.length?sm.ms.map(historyItemHTML).join(""):'<div class="empty">Nenhuma partida registrada nesta série.</div>'}</div>`;
+}
+
+function openSeries(id){openSeriesId=openSeriesId===id?null:id;renderSeriesTab();}
+
+/* ================= PERÍODOS / HISTÓRICO / ESTATÍSTICAS ================= */
 function formatDate(d){
   return new Date(d).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"});
 }
@@ -929,15 +1464,38 @@ function onStatsPeriodChange(){
   renderStats();
 }
 
+function onProfilePeriodChange(){
+  updatePeriodControls("profile");
+  renderProfile();
+}
+
 function fillYearSelects(){
   const years=new Set([
     new Date().getFullYear(),
     ...db.matches.map(m=>new Date(m.date).getFullYear()).filter(Number.isFinite)
   ]);
 
-  ["historyYear","statsYear"].forEach(id=>{
+  ["historyYear","statsYear","profileYear"].forEach(id=>{
+    const cur=$(id).value;
     $(id).innerHTML=[...years].sort((a,b)=>b-a).map(y=>`<option value="${y}">${y}</option>`).join("");
+    if(cur&&[...years].map(String).includes(cur))$(id).value=cur;
   });
+}
+
+function historyItemHTML(m){
+  const s=m.seriesId?seriesById(m.seriesId):null;
+  return `
+    <div class="history-item">
+      <div class="muted">${formatDate(m.date)}${m.seriesId?` · <span class="badge">Série: ${escapeHTML(s?.name||"série")}</span>`:""}</div>
+      <div class="score">
+        <span class="score-rosa">TIME ROSA ${m.scoreA}</span> ×
+        <span class="score-laranja">${m.scoreB} TIME LARANJA</span>
+      </div>
+      ${m.note?`<div class="muted">${escapeHTML(m.note)}</div>`:""}
+      <div class="notice">
+        ${(m.goals||[]).map(g=>`${teamName(g.team)}: ${escapeHTML(playerName(g.scorerId))}`+(g.assistId?` (assistência: ${escapeHTML(playerName(g.assistId))})`:" (gol solo)")).join("<br>")}
+      </div>
+    </div>`;
 }
 
 function renderHistory(){
@@ -949,39 +1507,31 @@ function renderHistory(){
     return;
   }
 
-  el.innerHTML=matches.map(m=>`
-    <div class="history-item">
-      <div class="muted">${formatDate(m.date)}</div>
-      <div class="score">
-        <span class="score-rosa">TIME ROSA ${m.scoreA}</span> ×
-        <span class="score-laranja">${m.scoreB} TIME LARANJA</span>
-      </div>
-      ${m.note?`<div class="muted">${escapeHTML(m.note)}</div>`:""}
-      <div class="notice">
-        ${(m.goals||[]).map(g=>`${teamName(g.team)}: ${escapeHTML(playerName(g.scorerId))}`+(g.assistId?` (assistência: ${escapeHTML(playerName(g.assistId))})`:" (gol solo)")).join("<br>")}
-      </div>
-    </div>
-  `).join("");
+  el.innerHTML=matches.map(historyItemHTML).join("");
 }
 
 function getStats(matches){
   const s={};
 
   db.players.forEach(p=>{
-    s[p.id]={name:p.name,goals:0,assists:0};
+    s[p.id]={id:p.id,name:p.name,goals:0,assists:0};
   });
 
   matches.forEach(m=>(m.goals||[]).forEach(g=>{
-    if(!s[g.scorerId])s[g.scorerId]={name:playerName(g.scorerId),goals:0,assists:0};
+    if(!s[g.scorerId])s[g.scorerId]={id:g.scorerId,name:playerName(g.scorerId),goals:0,assists:0};
     s[g.scorerId].goals++;
 
     if(g.assistId){
-      if(!s[g.assistId])s[g.assistId]={name:playerName(g.assistId),goals:0,assists:0};
+      if(!s[g.assistId])s[g.assistId]={id:g.assistId,name:playerName(g.assistId),goals:0,assists:0};
       s[g.assistId].assists++;
     }
   }));
 
   return Object.values(s);
+}
+
+function rankName(p){
+  return playerById(p.id)?`<span class="link" onclick="openProfile('${p.id}')">${escapeHTML(p.name)}</span>`:escapeHTML(p.name);
 }
 
 function renderStats(){
@@ -999,12 +1549,164 @@ function renderStats(){
   const b=stats.slice().sort((x,y)=>y.assists-x.assists||x.name.localeCompare(y.name));
 
   $("scorerRanking").innerHTML=a.some(p=>p.goals)
-    ?a.filter(p=>p.goals).map((p,i)=>`<div class="stat-row"><span>${i+1}º ${escapeHTML(p.name)}</span><strong>${p.goals} gols</strong></div>`).join("")
+    ?a.filter(p=>p.goals).map((p,i)=>`<div class="stat-row"><span>${i+1}º ${rankName(p)}</span><strong>${p.goals} gols</strong></div>`).join("")
     :'<div class="empty">Sem gols neste período.</div>';
 
   $("assistRanking").innerHTML=b.some(p=>p.assists)
-    ?b.filter(p=>p.assists).map((p,i)=>`<div class="stat-row"><span>${i+1}º ${escapeHTML(p.name)}</span><strong>${p.assists} assistências</strong></div>`).join("")
+    ?b.filter(p=>p.assists).map((p,i)=>`<div class="stat-row"><span>${i+1}º ${rankName(p)}</span><strong>${p.assists} assistências</strong></div>`).join("")
     :'<div class="empty">Sem assistências neste período.</div>';
+
+  renderStarRecommendations();
+}
+
+/* ================= DESEMPENHO INDIVIDUAL ================= */
+const fmt2=n=>Number(n).toFixed(2).replace(".",",");
+function playerStats(id,matches){
+  const r={games:0,w:0,d:0,l:0,goals:0,assists:0,history:[]};
+  matches.forEach(m=>{
+    const inA=(m.teams?.A||[]).includes(id),inB=(m.teams?.B||[]).includes(id);
+    if(!inA&&!inB)return;
+    const team=inA?"A":"B";
+    const my=Number(team==="A"?m.scoreA:m.scoreB)||0,op=Number(team==="A"?m.scoreB:m.scoreA)||0;
+    const res=my>op?"V":my<op?"D":"E";
+    const g=(m.goals||[]).filter(x=>x.scorerId===id).length;
+    const a=(m.goals||[]).filter(x=>x.assistId===id).length;
+    r.games++;r.goals+=g;r.assists+=a;
+    if(res==="V")r.w++;else if(res==="D")r.l++;else r.d++;
+    r.history.push({date:m.date,team,scoreA:m.scoreA,scoreB:m.scoreB,res,goals:g,assists:a,seriesId:m.seriesId||null});
+  });
+  r.history.sort((x,y)=>new Date(y.date)-new Date(x.date));
+  r.part=r.goals+r.assists;
+  r.pct=r.games?(3*r.w+r.d)/(3*r.games)*100:0;
+  r.winPct=r.games?r.w/r.games*100:0;
+  r.avgG=r.games?r.goals/r.games:0;
+  r.avgA=r.games?r.assists/r.games:0;
+  r.avgP=r.games?r.part/r.games:0;
+  return r;
+}
+
+function openProfile(id){
+  if(!playerById(id))return;
+  profileId=id;
+  $("profileModal").classList.remove("hidden");
+  document.body.style.overflow="hidden";
+  updatePeriodControls("profile");
+  fillYearSelects();
+  renderProfile();
+}
+function closeProfile(){
+  profileId=null;
+  $("profileModal").classList.add("hidden");
+  document.body.style.overflow="";
+}
+function renderProfile(){
+  if(!profileId)return;
+  const p=playerById(profileId);
+  if(!p){closeProfile();return;}
+  const {range,matches}=filteredMatches("profile");
+  const st=playerStats(p.id,matches);
+
+  $("profileHead").innerHTML=`${avatarHTML(p,true)}<div style="min-width:0"><div class="player-name" style="font-size:20px">${escapeHTML(p.name)}</div><div class="player-info"><span class="stars">${starsText(p.stars)}</span> · ${p.active===false?"Inativo":"Ativo"}</div></div>`;
+  $("profilePeriodLabel").textContent=`${st.games} partida(s) do jogador · ${range.label}`;
+
+  const cards=[
+    ["Partidas",st.games],["Vitórias",st.w],["Empates",st.d],["Derrotas",st.l],
+    ["Aproveitamento",Math.round(st.pct)+"%"],["% de vitórias",Math.round(st.winPct)+"%"],
+    ["Gols",st.goals],["Assistências",st.assists],["Participações",st.part],
+    ["Gols/partida",fmt2(st.avgG)],["Assist./partida",fmt2(st.avgA)],["Particip./partida",fmt2(st.avgP)]
+  ];
+  $("profileStats").innerHTML=`<div class="mini-grid" style="margin-top:14px">${cards.map(c=>`<div class="mini"><span>${c[0]}</span><b>${c[1]}</b></div>`).join("")}</div><div class="notice" style="margin-top:-6px;margin-bottom:12px">Aproveitamento = pontos conquistados (vitória 3, empate 1) sobre o total possível. Participações = gols + assistências.</div>`;
+
+  if(isAdmin()){
+    const rec=computeRecommendations()[p.id];
+    $("profileRec").innerHTML=`<div class="panel"><h3>Recomendação de estrelas</h3>${rec?recHTML(p,rec,true):""}<div class="notice">Calculada com todo o histórico, independentemente do período escolhido acima.</div></div>`;
+  }else $("profileRec").innerHTML="";
+
+  $("profileHistory").innerHTML=st.history.length?st.history.map(h=>{
+    const sr=h.seriesId?seriesById(h.seriesId):null;
+    return `<div class="history-item"><div class="muted">${formatDate(h.date)}${h.seriesId?` · <span class="badge">Série: ${escapeHTML(sr?.name||"série")}</span>`:""}</div>
+    <div class="score" style="font-size:19px"><span class="score-rosa">Rosa ${h.scoreA}</span> × <span class="score-laranja">${h.scoreB} Laranja</span></div>
+    <div class="notice" style="margin-top:0">Jogou no <strong style="color:var(${h.team==="A"?"--pink":"--orange"})">${teamName(h.team)}</strong> · <strong class="res-${h.res}">${h.res==="V"?"Vitória":h.res==="E"?"Empate":"Derrota"}</strong> · ${h.goals} gol(s) · ${h.assists} assistência(s)</div></div>`;
+  }).join(""):'<div class="empty">Este jogador não participou de partidas neste período.</div>';
+}
+
+/* ================= RECOMENDAÇÃO DE ESTRELAS ================= */
+function pctRank(vals,v){
+  const n=vals.length;
+  if(n<2)return .5;
+  let lt=0,eq=0;
+  vals.forEach(x=>{if(x<v)lt++;else if(x===v)eq++;});
+  return (lt+(eq-1)/2)/(n-1);
+}
+function computeRecommendations(){
+  const out={},rows=[];
+  db.players.forEach(p=>{
+    const st=playerStats(p.id,db.matches);
+    if(st.games<MIN_GAMES_REC)out[p.id]={eligible:false,games:st.games};
+    else rows.push({p,st});
+  });
+  const n=rows.length;
+  if(!n)return out;
+  const col=f=>rows.map(r=>f(r.st));
+  const V={g:col(s=>s.avgG),a:col(s=>s.avgA),pa:col(s=>s.avgP),w:col(s=>s.winPct),f:col(s=>s.pct)};
+  const labels={g:"gols por jogo",a:"assistências por jogo",pa:"participações em gols por jogo",w:"percentual de vitórias",f:"aproveitamento geral"};
+  const W={g:.10,a:.10,pa:.25,w:.30,f:.25};
+  rows.forEach(r=>{
+    const s=r.st;
+    r.parts={g:pctRank(V.g,s.avgG),a:pctRank(V.a,s.avgA),pa:pctRank(V.pa,s.avgP),w:pctRank(V.w,s.winPct),f:pctRank(V.f,s.pct)};
+    const raw=Object.keys(W).reduce((t,k)=>t+W[k]*r.parts[k],0);
+    r.score=.5+(raw-.5)*s.games/(s.games+MIN_GAMES_REC); // poucos jogos = nota puxada para o meio
+  });
+  const scores=rows.map(r=>r.score);
+  rows.forEach(r=>{
+    const q=pctRank(scores,r.score);
+    let stars;
+    if(n===1)stars=3;
+    else if(n<5)stars=2+Math.round(q*2);
+    else stars=q<.10?1:q<.30?2:q<.70?3:q<.90?4:5;
+    const keys=Object.keys(r.parts).sort((x,y)=>r.parts[y]-r.parts[x]);
+    const best=keys[0],worst=keys[keys.length-1];
+    let reason=`${r.st.games} jogos · ${fmt2(r.st.avgG)} gols/jogo · ${fmt2(r.st.avgA)} assist./jogo · ${Math.round(r.st.winPct)}% de vitórias · aproveitamento ${Math.round(r.st.pct)}%. `;
+    reason+=r.parts[best]>=.6?`Ponto forte: ${labels[best]}. `:"Sem destaque claro em relação ao grupo. ";
+    if(r.parts[worst]<=.4&&worst!==best)reason+=`Ponto a melhorar: ${labels[worst]}. `;
+    reason+=`Nota composta ${Math.round(r.score*100)}/100`;
+    if(n===1)reason+=" (só há 1 jogador elegível; sem comparação possível)";
+    else if(n<5)reason+=` (apenas ${n} jogadores elegíveis: recomendação limitada a 2–4 estrelas)`;
+    reason+=".";
+    out[r.p.id]={eligible:true,games:r.st.games,stars,reason,score:r.score};
+  });
+  return out;
+}
+function recHTML(p,r,withButton){
+  if(!r.eligible)return `<div class="rec-box"><strong>Dados insuficientes</strong><br><span class="muted">${r.games} de ${MIN_GAMES_REC} partidas mínimas para gerar recomendação.</span></div>`;
+  const same=r.stars===Number(p.stars);
+  return `<div class="rec-box"><strong>Recomendação: <span class="stars">${starsText(r.stars)}</span></strong> · atual: <span class="stars">${starsText(p.stars)}</span><br><span class="muted">${escapeHTML(r.reason)}</span>${same?'<div class="notice">Igual à avaliação atual.</div>':(withButton&&isAdmin()?`<div class="actions"><button class="btn small" onclick="applyRecommendedStars('${p.id}')">Aplicar ${r.stars} estrela(s)</button></div>`:"")}</div>`;
+}
+function renderStarRecommendations(){
+  const el=$("starRecList");
+  if(!el||!isAdmin())return;
+  if(!db.players.length){el.innerHTML='<div class="empty">Nenhum jogador cadastrado.</div>';return;}
+  const recs=computeRecommendations();
+  const list=db.players.slice().sort((a,b)=>{
+    const ra=recs[a.id],rb=recs[b.id];
+    if(ra.eligible!==rb.eligible)return ra.eligible?-1:1;
+    return (rb.stars||0)-(ra.stars||0)||a.name.localeCompare(b.name);
+  });
+  el.innerHTML=list.map(p=>`<div class="rec-row"><div class="player-main"><span class="link" onclick="openProfile('${p.id}')">${avatarHTML(p)}</span><div class="player-name link" onclick="openProfile('${p.id}')">${escapeHTML(p.name)}</div></div>${recHTML(p,recs[p.id],true)}</div>`).join("");
+}
+async function applyRecommendedStars(id){
+  if(!isAdmin())return alert("Somente administradores podem alterar as estrelas.");
+  const p=playerById(id);
+  const rec=computeRecommendations()[id];
+  if(!p||!rec||!rec.eligible)return alert("Este jogador ainda não tem dados suficientes.");
+  if(rec.stars===Number(p.stars))return;
+  if(!confirm(`Alterar ${p.name} de ${p.stars} para ${rec.stars} estrela(s)? Isso afeta os próximos sorteios.`))return;
+  p.stars=rec.stars;
+  await saveLocalDB();
+  await queueOperation({type:"playerUpdate",id,payload:{stars:rec.stars}});
+  renderAll();
+  if(navigator.onLine)syncNow();
+  else alert("Alteração salva neste aparelho. Será enviada quando a internet voltar.");
 }
 
 function renderHome(){
@@ -1030,9 +1732,13 @@ function renderAll(){
   renderAttendance();
   renderHistory();
   renderStats();
+  renderSeriesPanel();
+  renderSeriesTab();
+  renderPhotoPreview();
   updateScorerOptions();
   renderGoals();
   updatePendingLabel();
+  if(profileId)renderProfile();
 }
 
 async function init(){
@@ -1047,6 +1753,9 @@ async function init(){
 
   updatePeriodControls("history");
   updatePeriodControls("stats");
+  updatePeriodControls("profile");
+  applySeriesDuration();
+  setDrawMode("normal");
 
   let session=null;
 
