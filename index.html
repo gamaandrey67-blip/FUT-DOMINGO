@@ -93,7 +93,7 @@ table.simple{width:100%;border-collapse:collapse;font-size:12px}table.simple th,
 <section class="section" id="jogadores">
 <h2>Jogadores</h2><p class="description">Gerencie o elenco e a avaliação de cada jogador. Toque no nome ou na foto para abrir o perfil.</p>
 <div class="panel" id="playerEditor"><h3 id="playerFormTitle">Cadastrar jogador</h3><input type="hidden" id="editPlayerId">
-<div class="form-grid"><div><label>Nome do jogador</label><input id="playerName" placeholder="Digite o nome"></div><div><label>Nível do jogador</label><select id="playerStars"><option value="1">1 estrela</option><option value="2">2 estrelas</option><option value="3" selected>3 estrelas</option><option value="4">4 estrelas</option><option value="5">5 estrelas</option></select></div><div><label>Posição</label><select id="playerPosition"><option value="Zagueiro">Zagueiro</option><option value="Meio">Meio</option><option value="Atacante">Atacante</option></select></div></div>
+<div class="form-grid"><div><label>Nome do jogador</label><input id="playerName" placeholder="Digite o nome"></div><div><label>Nível do jogador</label><select id="playerStars"><option value="1">1 estrela</option><option value="2">2 estrelas</option><option value="3" selected>3 estrelas</option><option value="4">4 estrelas</option><option value="5">5 estrelas</option></select></div></div>
 <div class="photo-tools">
   <div id="photoPreview"></div>
   <div>
@@ -113,14 +113,14 @@ table.simple{width:100%;border-collapse:collapse;font-size:12px}table.simple th,
 <p class="notice">Sorteio normal: nova divisão a cada partida. Modo SÉRIE: os mesmos times durante um período. Repetir último time: reaproveita a formação da última partida salva.</p></div>
 <div class="panel hidden" id="seriesPanel"><h3>Série</h3>
 <div id="seriesCreateBox">
-<label>Nome da série</label><input id="seriesName" placeholder="Ex.: Série de novembro" oninput="this.dataset.autoName='0'">
-<div class="form-grid"><div><label>Mês da série</label><input type="month" id="seriesMonth" onchange="applySeriesDuration()"></div><div style="display:none"><input type="date" id="seriesStart"><input type="date" id="seriesEnd"></div></div>
+<label>Nome da série</label><input id="seriesName" placeholder="Ex.: Série de novembro">
+<div class="form-grid"><div><label>Duração</label><select id="seriesDuration" onchange="applySeriesDuration()"><option value="14">2 semanas</option><option value="1m" selected>1 mês</option><option value="2m">2 meses</option><option value="3m">3 meses</option><option value="custom">Personalizada</option></select></div><div><label>Data de início</label><input type="date" id="seriesStart" lang="pt-BR" aria-label="Escolher data de início da série" onclick="if(this.showPicker)this.showPicker()" onfocus="if(this.showPicker)this.showPicker()" onchange="applySeriesDuration()"><small class="notice" style="display:block;margin-top:4px">Toque para abrir o calendário.</small></div><div><label>Data de término</label><input type="date" id="seriesEnd" lang="pt-BR" aria-label="Escolher data de término da série" onclick="if(this.showPicker)this.showPicker()" onfocus="if(this.showPicker)this.showPicker()"><small class="notice" style="display:block;margin-top:4px">Ajuste pelo calendário se precisar.</small></div></div>
 <div class="actions"><button class="btn" onclick="startSeriesDraw('create')">⚽ Sortear times da série</button></div>
-<p class="notice">A série corresponde a um mês. Cada domingo do calendário gera um jogo numerado (JOGO 1, JOGO 2...). Os times ficam fixos durante os jogos daquele mês.</p>
+<p class="notice">Selecione os jogadores da série na lista abaixo, sorteie e confirme. Os times ficarão fixos até o administrador decidir sortear de novo.</p>
 </div>
 <div id="seriesActiveBox"></div>
 </div>
-<div class="panel"><h3>Quem vai jogar?</h3><div id="attendanceList"></div><div class="actions"><button class="btn secondary" onclick="selectAll()">Selecionar todos</button><button class="btn secondary" onclick="clearSelection()">Limpar seleção</button><button class="btn" id="drawNormalBtn" onclick="drawTeams()">⚽ Sortear times</button><button class="btn secondary" id="manualDrawBtn" onclick="startManualTeams()">✋ Montar times manualmente</button></div><p class="notice">O sorteio procura dividir os jogadores de forma equilibrada pelas estrelas. Com quantidade ímpar, um time ficará com um jogador a mais.</p></div><div id="teamsResult"></div>
+<div class="panel"><h3>Quem vai jogar?</h3><div id="attendanceList"></div><div class="actions"><button class="btn secondary" onclick="selectAll()">Selecionar todos</button><button class="btn secondary" onclick="clearSelection()">Limpar seleção</button><button class="btn" id="drawNormalBtn" onclick="drawTeams()">⚽ Sortear times</button></div><p class="notice">O sorteio procura dividir os jogadores de forma equilibrada pelas estrelas. Com quantidade ímpar, um time ficará com um jogador a mais.</p></div><div id="teamsResult"></div>
 </section>
 <section class="section" id="resultado">
 <h2>Registrar resultado</h2><p class="description">Cada gol precisa ter um autor. A assistência é opcional.</p>
@@ -154,7 +154,7 @@ table.simple{width:100%;border-collapse:collapse;font-size:12px}table.simple th,
 <p class="notice" style="margin-top:0">Sugestão calculada com todo o histórico, comparando os jogadores com 3 partidas ou mais. Nada muda sozinho: as estrelas só são alteradas quando você toca em “Aplicar”.</p>
 <div id="starRecList"></div></div>
 </section>
-<section class="section" id="series"><h2>Séries</h2><p class="description">Cada série corresponde a um mês. O calendário considera todos os domingos daquele mês: cada domingo é um jogo, com número e data próprios.</p>
+<section class="section" id="series"><h2>Séries</h2><p class="description">Períodos em que os mesmos times se enfrentam. Cada partida continua registrada individualmente.</p>
 <div class="panel"><h3>Séries cadastradas</h3><div id="seriesList"></div></div>
 <div id="seriesDetail"></div>
 </section>
@@ -188,7 +188,7 @@ let db={players:[],matches:[],series:[]},selected=new Set(),teams={A:[],B:[]},cu
 let currentUser=null,currentProfile=null,isSyncing=false,idb=null;
 // Novos estados
 let localPhotos={},photoCache={},pendingPhoto=null,profileId=null,openSeriesId=null;
-let drawMode="normal",currentSeriesId=null,seriesDraft=null,teamsEditable=false,seriesCloudOk=true,seriesAbsentees=new Set(),manualDraft=null;
+let drawMode="normal",currentSeriesId=null,seriesDraft=null,teamsEditable=false,seriesCloudOk=true;
 try{db=JSON.parse(localStorage.getItem(DB_KEY)||'{"players":[],"matches":[],"series":[]}')}catch(e){}
 if(!Array.isArray(db.players))db.players=[];if(!Array.isArray(db.matches))db.matches=[];if(!Array.isArray(db.series))db.series=[];
 const $=id=>document.getElementById(id);
@@ -220,7 +220,6 @@ async function loadLocal(){
     const pc=await idbGet("photoCache");if(pc&&typeof pc==="object")photoCache=pc;
   }catch(e){console.warn("IndexedDB indisponível",e);}
   if(!Array.isArray(db.players))db.players=[];if(!Array.isArray(db.matches))db.matches=[];if(!Array.isArray(db.series))db.series=[];
-  db.players.forEach(p=>{if(!p.position)p.position="Meio";});
   persist();
 }
 
@@ -457,7 +456,6 @@ async function syncNow(){
               name:p.name,
               stars:Number(p.stars)||3,
               active:p.active!==false,
-              position:p.position||"Meio",
               created_by:currentUser.id
             },
             queuedAt:new Date().toISOString()
@@ -493,13 +491,6 @@ async function syncNow(){
         }else if(op.type==="playerDelete"){
           const {error}=await sb.from("players").delete().eq("id",op.id);
           if(error)throw error;
-        }else if(op.type==="matchDelete"){
-          const {error:gError}=await sb.from("goals").delete().eq("match_id",op.id);
-          if(gError)throw gError;
-          const {error:rError}=await sb.from("match_players").delete().eq("match_id",op.id);
-          if(rError)throw rError;
-          const {error:mError}=await sb.from("matches").delete().eq("id",op.id);
-          if(mError)throw mError;
         }else if(op.type==="playerPhoto"){
           const entry=localPhotos[op.id];
           // Foto já enviada, ou substituída por outra mais nova (que tem a própria operação).
@@ -537,6 +528,14 @@ async function syncNow(){
         }else if(op.type==="seriesUpdate"){
           const {error}=await sb.from("series").update(op.payload).eq("id",op.id);
           if(error)throw error;
+        }else if(op.type==="seriesDelete"){
+          // Desvincula as partidas antes de excluir a série; placares e gols são preservados.
+          const detached=await sb.from("matches").update({series_id:null}).eq("series_id",op.id);
+          if(detached.error&&!/series_id|column.*does not exist/i.test(detached.error.message||""))throw detached.error;
+          const {error:spError}=await sb.from("series_players").delete().eq("series_id",op.id);
+          if(spError)throw spError;
+          const {error:sError}=await sb.from("series").delete().eq("id",op.id);
+          if(sError)throw sError;
         }
       }catch(err){
         op.lastError=err.message;
@@ -548,7 +547,7 @@ async function syncNow(){
 
     const localPlayers=db.players.slice(),localMatches=db.matches.slice(),localSeries=(db.series||[]).slice();
 
-    const {data:players,error:pe}=await sb.from("players").select("id,name,stars,active,photo_url,position").order("name");
+    const {data:players,error:pe}=await sb.from("players").select("id,name,stars,active,photo_url").order("name");
     if(pe)throw pe;
 
     const matchCols="id,played_at,note,score_pink,score_orange,created_at";
@@ -621,8 +620,8 @@ async function syncNow(){
     const cloudM=new Set(cloudMatches.map(x=>x.id));
 
     db.players=[
-      ...(players||[]).map(p=>({...p,position:p.position||"Meio"})),
-      ...localPlayers.filter(x=>!cloudP.has(x.id)).map(p=>({...p,position:p.position||"Meio"}))
+      ...(players||[]),
+      ...localPlayers.filter(x=>!cloudP.has(x.id))
     ];
 
     db.matches=[
@@ -631,11 +630,12 @@ async function syncNow(){
     ].sort((a,b)=>new Date(b.date)-new Date(a.date));
 
     if(cloudSeries){
-      const pend=new Set(remaining.filter(o=>o.type==="series"||o.type==="seriesUpdate").map(o=>o.series?.id||o.id));
+      const pend=new Set(remaining.filter(o=>o.type==="series"||o.type==="seriesUpdate"||o.type==="seriesDelete").map(o=>o.series?.id||o.id));
+      const deleted=new Set(remaining.filter(o=>o.type==="seriesDelete").map(o=>o.id));
       const cloudIds=new Set(cloudSeries.map(x=>x.id));
       db.series=[
-        ...cloudSeries.map(cs=>pend.has(cs.id)?(localSeries.find(x=>x.id===cs.id)||cs):cs),
-        ...localSeries.filter(x=>!cloudIds.has(x.id))
+        ...cloudSeries.filter(cs=>!deleted.has(cs.id)).map(cs=>pend.has(cs.id)?(localSeries.find(x=>x.id===cs.id)||cs):cs),
+        ...localSeries.filter(x=>!cloudIds.has(x.id)&&!deleted.has(x.id))
       ];
     }else{
       db.series=localSeries;
@@ -679,7 +679,6 @@ async function savePlayer(){
 
   const name=$("playerName").value.trim();
   const stars=Number($("playerStars").value);
-  const position=$("playerPosition").value;
   const editId=$("editPlayerId").value;
 
   if(!name)return alert("Digite o nome do jogador.");
@@ -687,7 +686,7 @@ async function savePlayer(){
 
   const id=editId||uuid();
   const active=editId?(playerById(id)?.active!==false):true;
-  const payload={id,name,stars,active,position,created_by:currentUser.id};
+  const payload={id,name,stars,active,created_by:currentUser.id};
 
   if(editId){
     const p=playerById(id);
@@ -695,10 +694,9 @@ async function savePlayer(){
       p.name=name;
       p.stars=stars;
       p.active=active;
-      p.position=position;
     }
   }else{
-    db.players.push({id,name,stars,active,position});
+    db.players.push({id,name,stars,active});
   }
 
   await saveLocalDB();
@@ -725,7 +723,6 @@ function editPlayer(id){
   if(!p)return;
   $("playerName").value=p.name;
   $("playerStars").value=p.stars;
-  $("playerPosition").value=p.position||"Meio";
   $("editPlayerId").value=p.id;
   $("playerFormTitle").textContent="Editar jogador";
   pendingPhoto=null;
@@ -736,7 +733,6 @@ function editPlayer(id){
 function cancelEdit(){
   $("playerName").value="";
   $("playerStars").value="3";
-  $("playerPosition").value="Meio";
   $("editPlayerId").value="";
   $("playerFormTitle").textContent="Cadastrar jogador";
   pendingPhoto=null;
@@ -779,7 +775,7 @@ function renderPlayers(){
         <span class="link" onclick="openProfile('${p.id}')">${avatarHTML(p)}</span>
         <div>
           <div class="player-name link" onclick="openProfile('${p.id}')">${escapeHTML(p.name)}</div>
-          <div class="player-info"><span class="stars">${starsText(p.stars)}</span> · ${escapeHTML(p.position||"Meio")} · ${p.active===false?"Inativo":"Ativo"}${localPhotos[p.id]?" · foto aguardando envio":""}</div>
+          <div class="player-info"><span class="stars">${starsText(p.stars)}</span> · ${p.active===false?"Inativo":"Ativo"}${localPhotos[p.id]?" · foto aguardando envio":""}</div>
         </div>
       </div>
       <div class="actions" style="margin:0">
@@ -794,8 +790,6 @@ function renderPlayers(){
 }
 
 function renderAttendance(){
-  const manualBtn=$("manualDrawBtn");
-  if(manualBtn)manualBtn.classList.toggle("hidden",!isAdmin());
   const list=$("attendanceList"),ps=activePlayers();
 
   if(!ps.length){
@@ -806,7 +800,7 @@ function renderAttendance(){
   list.innerHTML=ps.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(p=>`
     <div class="checkbox-row">
       <input type="checkbox" id="att_${p.id}" ${selected.has(p.id)?"checked":""} onchange="setAttendance('${p.id}',this.checked)">
-      <label for="att_${p.id}">${escapeHTML(p.name)} <span class="stars">${starsText(p.stars)}</span> <span class="muted">· ${escapeHTML(p.position||"Meio")}</span></label>
+      <label for="att_${p.id}">${escapeHTML(p.name)} <span class="stars">${starsText(p.stars)}</span></label>
     </div>
   `).join("");
 }
@@ -888,7 +882,6 @@ function drawTeams(opts){
   }
 
   teams=best||{A:[],B:[]};
-  manualDraft=null;
   teamsEditable=false;
   currentSeriesId=null;
   if(!opts.series)seriesDraft=null;
@@ -899,64 +892,8 @@ function drawTeams(opts){
   return true;
 }
 
-function startManualTeams(){
-  if(!isAdmin())return alert("Somente administradores podem montar os times manualmente.");
-  if(currentSeriesId)return alert("A série mantém os times fixos. Para ela, use a formação já definida.");
-  const ps=activePlayers().filter(p=>selected.has(p.id)).sort((a,b)=>a.name.localeCompare(b.name));
-  if(ps.length<2)return alert("Selecione pelo menos dois jogadores.");
-  manualDraft=ps.map(p=>({id:p.id,team:""}));
-  seriesDraft=null;
-  renderManualTeams();
-}
-
-function renderManualTeams(){
-  const el=$("teamsResult");
-  if(!manualDraft)return;
-  el.innerHTML=`<div class="panel">
-    <h3>Montar times manualmente</h3>
-    <p class="notice">Escolha o time de cada jogador. A divisão manual não altera as estrelas cadastradas.</p>
-    ${manualDraft.map(item=>{
-      const p=playerById(item.id);
-      if(!p)return "";
-      return `<div class="form-grid" style="align-items:center;margin:9px 0">
-        <div><strong>${escapeHTML(p.name)}</strong><small class="muted"> · ${escapeHTML(p.position||"Meio")} · ${starsText(p.stars)}</small></div>
-        <div><select id="manualTeam_${item.id}" aria-label="Time de ${escapeHTML(p.name)}"><option value="">Escolher time</option><option value="A">Time Rosa</option><option value="B">Time Laranja</option></select></div>
-      </div>`;
-    }).join("")}
-    <div class="actions"><button class="btn" onclick="saveManualTeams()">✔ Confirmar times</button><button class="btn secondary" onclick="cancelManualTeams()">Cancelar</button></div>
-  </div>`;
-  manualDraft.forEach(item=>{const sel=$("manualTeam_"+item.id);if(sel)sel.value=item.team||"";});
-}
-
-function saveManualTeams(){
-  if(!isAdmin())return alert("Somente administradores podem montar os times manualmente.");
-  if(!manualDraft)return;
-  const A=[],B=[];
-  for(const item of manualDraft){
-    const side=$("manualTeam_"+item.id)?.value;
-    const p=playerById(item.id);
-    if(!p)continue;
-    if(side==="A")A.push(p);else if(side==="B")B.push(p);else return alert("Escolha Time Rosa ou Time Laranja para todos os jogadores.");
-  }
-  if(!A.length||!B.length)return alert("Cada time precisa ter pelo menos um jogador.");
-  teams={A,B};
-  manualDraft=null;
-  currentSeriesId=null;
-  seriesAbsentees.clear();
-  seriesDraft=null;
-  teamsEditable=true;
-  currentGoals=[];
-  renderTeams();updateScorerOptions();renderGoals();
-}
-
-function cancelManualTeams(){
-  manualDraft=null;
-  renderTeams();
-}
-
 function renderTeams(){
   const el=$("teamsResult");
-  if(manualDraft){renderManualTeams();return;}
 
   if(!teams.A.length||!teams.B.length){
     el.innerHTML="";
@@ -965,7 +902,7 @@ function renderTeams(){
 
   const ta=teams.A.reduce((s,p)=>s+p.stars,0);
   const tb=teams.B.reduce((s,p)=>s+p.stars,0);
-  const canAdjust=teamsEditable&&isAdmin()&&!currentSeriesId;
+  const canAdjust=teamsEditable&&isAdmin();
 
   function box(n,ps,total,cls){
     return `
@@ -973,7 +910,7 @@ function renderTeams(){
         <h3>${n}</h3>
         ${ps.map(p=>`
           <div class="team-player">
-            <span>${escapeHTML(p.name)} <small class="muted">· ${escapeHTML(p.position||"Meio")}</small>${seriesAbsentees.has(p.id)?' <small style="color:#ff8b8b;font-weight:700">· FALTOU</small>':""}</span>
+            <span>${escapeHTML(p.name)}</span>
             <span><span class="stars">${starsText(p.stars)}</span>${canAdjust?` <button class="btn secondary small" title="Mover para o outro time" onclick="movePlayer('${p.id}')">⇄</button>`:""}</span>
           </div>
         `).join("")}
@@ -1047,7 +984,7 @@ function goToResult(){
 
 function updateScorerOptions(){
   const t=$("goalTeam").value;
-  const ps=(teams[t]||[]).filter(p=>!seriesAbsentees.has(p.id));
+  const ps=teams[t]||[];
   const sel=$("goalScorer");
   const cur=sel.value;
 
@@ -1064,7 +1001,7 @@ function updateAssistOptions(){
   const sid=$("goalScorer").value;
   const el=$("goalAssist");
   const solo=$("soloGoal").checked;
-  const ps=(teams[t]||[]).filter(p=>p.id!==sid&&!seriesAbsentees.has(p.id));
+  const ps=(teams[t]||[]).filter(p=>p.id!==sid);
 
   el.disabled=solo;
   el.innerHTML=ps.length
@@ -1159,14 +1096,6 @@ async function saveMatch(){
     seriesId=s.id;
   }
 
-  const playingTeams={
-    A:teams.A.filter(p=>!seriesAbsentees.has(p.id)),
-    B:teams.B.filter(p=>!seriesAbsentees.has(p.id))
-  };
-  if(!playingTeams.A.length||!playingTeams.B.length)return alert("Cada time precisa ter pelo menos um jogador presente.");
-  const absentGoal=currentGoals.some(g=>seriesAbsentees.has(g.scorerId)||seriesAbsentees.has(g.assistId));
-  if(absentGoal)return alert("Um jogador marcado como faltou não pode constar nos gols ou assistências.");
-
   const id=uuid();
   const date=new Date().toISOString();
   const note=$("matchNote").value.trim()||null;
@@ -1179,12 +1108,12 @@ async function saveMatch(){
     note,
     seriesId,
     teams:{
-      A:playingTeams.A.map(p=>p.id),
-      B:playingTeams.B.map(p=>p.id)
+      A:teams.A.map(p=>p.id),
+      B:teams.B.map(p=>p.id)
     },
     teamStars:{
-      ...playingTeams.A.reduce((o,p)=>(o[p.id]=p.stars,o),{}),
-      ...playingTeams.B.reduce((o,p)=>(o[p.id]=p.stars,o),{})
+      ...teams.A.reduce((o,p)=>(o[p.id]=p.stars,o),{}),
+      ...teams.B.reduce((o,p)=>(o[p.id]=p.stars,o),{})
     },
     goals:currentGoals.map(g=>({...g})),
     scoreA,
@@ -1206,14 +1135,14 @@ async function saveMatch(){
   if(seriesId)matchRow.series_id=seriesId;
 
   const roster=[
-    ...playingTeams.A.map(p=>({
+    ...teams.A.map(p=>({
       id:uuid(),
       match_id:id,
       player_id:p.id,
       team:"pink",
       stars:p.stars
     })),
-    ...playingTeams.B.map(p=>({
+    ...teams.B.map(p=>({
       id:uuid(),
       match_id:id,
       player_id:p.id,
@@ -1241,7 +1170,6 @@ async function saveMatch(){
   currentGoals=[];
   teams={A:[],B:[]};
   currentSeriesId=null;
-  seriesAbsentees.clear();
   teamsEditable=false;
   selected.clear();
   $("matchNote").value="";
@@ -1275,7 +1203,6 @@ function loadFormation(idsA,idsB,label){
   if(!A.length||!B.length){alert("Não sobraram jogadores suficientes em um dos times. Faça um novo sorteio.");return false;}
   if(all.length&&Math.abs(A.length-B.length)>1)alert("Atenção: os times ficaram com quantidades diferentes de jogadores. "+(isAdmin()?"Você pode ajustar abaixo.":"Peça a um administrador para ajustar."));
   teams={A,B};
-  seriesAbsentees.clear();
   teamsEditable=true;
   currentGoals=[];
   seriesDraft=null;
@@ -1298,49 +1225,14 @@ function toLocalISO(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStar
 function formatDay(s){return s?new Date(s+"T00:00:00").toLocaleDateString("pt-BR"):"—";}
 
 function applySeriesDuration(){
-  const monthEl=$("seriesMonth");
-  if(!monthEl)return;
-  if(!monthEl.value){
-    const now=new Date();
-    monthEl.value=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0");
-  }
-  const [year,month]=monthEl.value.split("-").map(Number);
-  if(!year||!month)return;
-  const first=new Date(year,month-1,1);
-  const last=new Date(year,month,0);
-  $("seriesStart").value=toLocalISO(first);
-  $("seriesEnd").value=toLocalISO(last);
-  const generated="Série de "+first.toLocaleDateString("pt-BR",{month:"long",year:"numeric"});
-  const nameEl=$("seriesName");
-  if(nameEl&&(!nameEl.value||nameEl.dataset.autoName==="1")){
-    nameEl.value=generated;
-    nameEl.dataset.autoName="1";
-  }
-}
-
-function getSeriesGameSlots(s){
-  if(!s?.start||!s?.end)return [];
-  const start=new Date(s.start+"T00:00:00"),end=new Date(s.end+"T00:00:00"),slots=[];
-  for(const d=new Date(start);d<=end;d.setDate(d.getDate()+1)){
-    if(d.getDay()===0)slots.push(toLocalISO(d));
-  }
-  return slots;
-}
-
-function formatLongDate(value){
-  const d=value instanceof Date?new Date(value):new Date(value+"T00:00:00");
-  return d.toLocaleDateString("pt-BR",{day:"2-digit",month:"long",year:"numeric"});
-}
-
-function sundayOfDate(value){
-  const d=new Date(value);
-  d.setHours(0,0,0,0);
-  d.setDate(d.getDate()-d.getDay());
-  return toLocalISO(d);
-}
-
-function matchForSeriesSlot(matches,slot){
-  return matches.find(m=>sundayOfDate(m.date)===slot)||null;
+  const startEl=$("seriesStart");
+  if(!startEl.value)startEl.value=toLocalISO(new Date());
+  const mode=$("seriesDuration").value;
+  if(mode==="custom")return;
+  const d=new Date(startEl.value+"T00:00:00");
+  if(mode==="14")d.setDate(d.getDate()+14);
+  else d.setMonth(d.getMonth()+Number(mode.replace("m","")));
+  $("seriesEnd").value=toLocalISO(d);
 }
 
 function setDrawMode(m){
@@ -1363,19 +1255,16 @@ function renderSeriesPanel(){
   }
   const names=ids=>ids.map(id=>escapeHTML(playerName(id))).join(", ")||"—";
   const n=db.matches.filter(m=>m.seriesId===s.id).length;
-  const planned=getSeriesGameSlots(s).length;
   const expired=s.end&&toLocalISO(new Date())>s.end;
-  const seriesIds=[...(s.teamA||[]),...(s.teamB||[])];
-  const attendance=currentSeriesId===s.id?`<div class="series-box"><strong>Presença deste jogo</strong><div class="notice" style="margin:4px 0 8px">Marque quem faltou neste domingo. A formação fixa da série não será alterada e o jogador não contará como participante nesta partida.</div>${isAdmin()?seriesIds.map(id=>`<div class="checkbox-row"><input type="checkbox" id="abs_${id}" ${seriesAbsentees.has(id)?"checked":""} onchange="toggleSeriesAbsence('${id}',this.checked)"><label for="abs_${id}">${escapeHTML(playerName(id))} <span class="muted">· marcar se faltou</span></label></div>`).join(""):'<div class="notice">Somente o administrador pode registrar faltas.</div>'}</div>`:"";
   box.innerHTML=`<div class="series-box">
     <strong>${escapeHTML(s.name)}</strong> <span class="badge">Ativa</span>${expired?' <span class="badge" style="color:#ffd166">Prazo vencido</span>':""}<br>
-    ${formatDay(s.start)} até ${formatDay(s.end)} · ${n} de ${planned} jogo(s) registrado(s)<br>
+    ${formatDay(s.start)} até ${formatDay(s.end)} · ${n} partida(s) realizada(s)<br>
     <span style="color:var(--pink)">Rosa:</span> ${names(s.teamA)}<br>
     <span style="color:var(--orange)">Laranja:</span> ${names(s.teamB)}
     <div class="actions">
-      <button class="btn" onclick="useSeriesTeams()">${currentSeriesId===s.id?"Recarregar times fixos":"Usar times da série"}</button>
-      ${isAdmin()?`<button class="btn secondary" onclick="startSeriesDraw('replace')">Novo sorteio da série</button><button class="btn danger" onclick="closeSeries('${s.id}')">Encerrar série</button>`:""}
-    </div>${attendance}</div>`;
+      <button class="btn" onclick="useSeriesTeams()">Usar times da série</button>
+      ${isAdmin()?`<button class="btn secondary" onclick="startSeriesDraw('replace')">Novo sorteio da série</button><button class="btn danger" onclick="closeSeries('${s.id}')">Encerrar série</button><button class="btn danger" onclick="deleteSeries('${s.id}')">Excluir série</button>`:""}
+    </div></div>`;
 }
 
 function startSeriesDraw(mode){
@@ -1384,8 +1273,7 @@ function startSeriesDraw(mode){
     if(activeSeries())return alert("Já existe uma série ativa. Encerre-a antes de criar outra.");
     const name=$("seriesName").value.trim(),start=$("seriesStart").value,end=$("seriesEnd").value;
     if(!name)return alert("Dê um nome para a série.");
-    if(!start||!end||end<start)return alert("Selecione o mês da série.");
-    if(start.slice(0,7)!==end.slice(0,7))return alert("Uma série deve corresponder a um único mês do calendário.");
+    if(!start||!end||end<start)return alert("Confira as datas: o término não pode ser anterior ao início.");
     if(db.series.some(x=>x.name.toLowerCase()===name.toLowerCase()))return alert("Já existe uma série com esse nome.");
     seriesDraft={mode:"create",name,start,end};
   }else{
@@ -1438,18 +1326,8 @@ function useSeriesTeams(){
   if(!s)return alert("Não há série ativa.");
   if(!loadFormation(s.teamA||[],s.teamB||[]))return;
   currentSeriesId=s.id;
-  seriesAbsentees=new Set();
   teamsEditable=true;
   renderTeams();updateScorerOptions();renderGoals();renderSeriesPanel();
-}
-
-function toggleSeriesAbsence(id,absent){
-  if(!isAdmin())return;
-  if(currentGoals.length)return alert("Não altere as faltas depois de registrar gols. Limpe os gols primeiro.");
-  if(absent)seriesAbsentees.add(id);else seriesAbsentees.delete(id);
-  updateScorerOptions();
-  renderTeams();
-  renderSeriesPanel();
 }
 
 async function closeSeries(id){
@@ -1464,6 +1342,29 @@ async function closeSeries(id){
   if(currentSeriesId===id){currentSeriesId=null;teams={A:[],B:[]};currentGoals=[];renderTeams();}
   renderAll();
   if(navigator.onLine)syncNow();
+}
+
+async function deleteSeries(id){
+  if(!isAdmin())return alert("Somente administradores podem excluir séries.");
+  const s=seriesById(id);
+  if(!s)return;
+  const count=db.matches.filter(m=>m.seriesId===id).length;
+  const detail=count
+    ?`\n\nAs ${count} partida(s) já registradas serão preservadas no histórico, sem vínculo com a série.`
+    :`\n\nNenhuma partida será afetada.`;
+  if(!confirm(`Excluir definitivamente a série "${s.name}"?${detail}`))return;
+
+  db.series=db.series.filter(x=>x.id!==id);
+  db.matches.forEach(m=>{if(m.seriesId===id)m.seriesId=null;});
+  if(currentSeriesId===id)currentSeriesId=null;
+  if(openSeriesId===id)openSeriesId=null;
+  if(seriesDraft?.seriesId===id)seriesDraft=null;
+
+  await saveLocalDB();
+  await queueOperation({type:"seriesDelete",id});
+  renderAll();
+  if(navigator.onLine)syncNow();
+  else alert("Série excluída deste aparelho. A exclusão será sincronizada quando a internet voltar.");
 }
 
 /* ====== Estatísticas de série ====== */
@@ -1484,7 +1385,7 @@ function renderSeriesTab(){
   if(!all.length){list.innerHTML='<div class="empty">Nenhuma série criada ainda. No menu Sorteio, escolha “Modo SÉRIE”.</div>';det.innerHTML="";return;}
   list.innerHTML=all.map(s=>{
     const n=db.matches.filter(m=>m.seriesId===s.id).length;
-    return `<div class="player"><div><div class="player-name">${escapeHTML(s.name)} <span class="badge">${s.status==="active"?"Ativa":"Encerrada"}</span></div><div class="player-info">${formatDay(s.start)} até ${formatDay(s.end)} · ${n} partida(s)</div></div><button class="btn secondary small" onclick="openSeries('${s.id}')">${openSeriesId===s.id?"Ocultar":"Ver detalhes"}</button></div>`;
+    return `<div class="player"><div><div class="player-name">${escapeHTML(s.name)} <span class="badge">${s.status==="active"?"Ativa":"Encerrada"}</span></div><div class="player-info">${formatDay(s.start)} até ${formatDay(s.end)} · ${n} partida(s)</div></div><div class="actions" style="margin:0"><button class="btn secondary small" onclick="openSeries('${s.id}')">${openSeriesId===s.id?"Ocultar":"Ver detalhes"}</button>${isAdmin()?`<button class="btn danger small" onclick="deleteSeries('${s.id}')">Excluir</button>`:""}</div></div>`;
   }).join("");
 
   const s=seriesById(openSeriesId);
@@ -1497,7 +1398,7 @@ function renderSeriesTab(){
   <div class="panel"><h3>${escapeHTML(s.name)}</h3>
     <div class="notice" style="margin-top:0">${formatDay(s.start)} até ${formatDay(s.end)} · ${s.status==="active"?"Ativa":"Encerrada"}${s.closedAt?" em "+new Date(s.closedAt).toLocaleDateString("pt-BR"):""}</div>
     <div class="notice"><span style="color:var(--pink)">Time Rosa:</span> ${names(s.teamA||[])}<br><span style="color:var(--orange)">Time Laranja:</span> ${names(s.teamB||[])}</div>
-    ${isAdmin()&&s.status==="active"?`<div class="actions"><button class="btn danger small" onclick="closeSeries('${s.id}')">Encerrar série</button></div>`:""}
+    ${isAdmin()?`<div class="actions">${s.status==="active"?`<button class="btn danger small" onclick="closeSeries('${s.id}')">Encerrar série</button>`:""}<button class="btn danger small" onclick="deleteSeries('${s.id}')">Excluir série</button></div>`:""}
   </div>
   <div class="mini-grid">
     <div class="mini"><span>Partidas</span><b>${sm.n}</b></div>
@@ -1511,12 +1412,7 @@ function renderSeriesTab(){
   <div class="panel"><h3>Desempenho individual na série</h3>
     ${rows.some(r=>r.st.games)?`<div class="table-wrap"><table class="simple"><tr><th>Jogador</th><th>J</th><th>V</th><th>E</th><th>D</th><th>Gols</th><th>Ass.</th><th>Aprov.</th></tr>${rows.filter(r=>r.st.games).map(r=>`<tr><td><span class="link" onclick="openProfile('${r.id}')">${escapeHTML(r.name)}</span></td><td>${r.st.games}</td><td>${r.st.w}</td><td>${r.st.d}</td><td>${r.st.l}</td><td>${r.st.goals}</td><td>${r.st.assists}</td><td>${Math.round(r.st.pct)}%</td></tr>`).join("")}</table></div>`:'<div class="empty">Nenhuma partida registrada nesta série.</div>'}
   </div>
-  <div class="panel"><h3>Calendário de jogos</h3>
-    ${getSeriesGameSlots(s).length?getSeriesGameSlots(s).map((slot,i)=>{
-      const match=matchForSeriesSlot(sm.ms,slot);
-      return match?historyItemHTML(match,i+1,slot):`<div class="history-item"><div class="player-name">JOGO ${i+1}</div><div class="muted">${formatLongDate(slot)}</div><div class="notice">Aguardando partida</div></div>`;
-    }).join(""):'<div class="empty">Este período não contém domingos.</div>'}
-  </div>`;
+  <div class="panel"><h3>Partidas da série</h3>${sm.ms.length?sm.ms.map(historyItemHTML).join(""):'<div class="empty">Nenhuma partida registrada nesta série.</div>'}</div>`;
 }
 
 function openSeries(id){openSeriesId=openSeriesId===id?null:id;renderSeriesTab();}
@@ -1618,50 +1514,20 @@ function fillYearSelects(){
   });
 }
 
-function historyItemHTML(m,gameNumber=null,gameDate=null){
+function historyItemHTML(m){
   const s=m.seriesId?seriesById(m.seriesId):null;
-  const heading=gameNumber!==null
-    ? `<div class="player-name">JOGO ${gameNumber}</div><div class="muted">${formatLongDate(gameDate)}</div>`
-    : `<div class="muted">${formatDate(m.date)}${m.seriesId?` · <span class="badge">Série: ${escapeHTML(s?.name||"série")}</span>`:""}</div>`;
-  const absents=s?.players?.filter(id=>!(m.teams?.A||[]).includes(id)&&!(m.teams?.B||[]).includes(id))||[];
   return `
     <div class="history-item">
-      ${heading}
+      <div class="muted">${formatDate(m.date)}${m.seriesId?` · <span class="badge">Série: ${escapeHTML(s?.name||"série")}</span>`:""}</div>
       <div class="score">
         <span class="score-rosa">TIME ROSA ${m.scoreA}</span> ×
         <span class="score-laranja">${m.scoreB} TIME LARANJA</span>
       </div>
-      ${absents.length?`<div class="notice">Faltaram: ${absents.map(id=>escapeHTML(playerName(id))).join(", ")}</div>`:""}
       ${m.note?`<div class="muted">${escapeHTML(m.note)}</div>`:""}
       <div class="notice">
         ${(m.goals||[]).map(g=>`${teamName(g.team)}: ${escapeHTML(playerName(g.scorerId))}`+(g.assistId?` (assistência: ${escapeHTML(playerName(g.assistId))})`:" (gol solo)")).join("<br>")}
       </div>
-      ${isAdmin()?`<div class="actions" style="margin-top:10px"><button class="btn danger small" onclick="deleteMatch('${m.id}')">Excluir partida</button></div>`:""}
     </div>`;
-}
-
-
-async function deleteMatch(id){
-  if(!isAdmin())return alert("Somente administradores podem excluir partidas.");
-  const match=db.matches.find(m=>m.id===id);
-  if(!match)return alert("Esta partida não foi encontrada neste aparelho.");
-  if(!confirm(`Excluir definitivamente a partida de ${formatDate(match.date)}? O resultado, gols e assistências também serão removidos do histórico e das estatísticas.`))return;
-
-  db.matches=db.matches.filter(m=>m.id!==id);
-  await saveLocalDB();
-
-  // Se a partida ainda não foi enviada, cancela o envio pendente antes de agendar a exclusão na nuvem.
-  const q=getOutbox().filter(op=>!(op.type==="match"&&op.match?.id===id));
-  q.push({type:"matchDelete",id,queuedAt:new Date().toISOString()});
-  await saveOutbox(q);
-  renderAll();
-
-  if(navigator.onLine){
-    await syncNow();
-    alert("Partida removida do histórico deste aparelho. A exclusão na nuvem foi enviada para sincronização.");
-  }else{
-    alert("Partida removida deste aparelho. A exclusão será sincronizada quando a internet voltar.");
-  }
 }
 
 function renderHistory(){
