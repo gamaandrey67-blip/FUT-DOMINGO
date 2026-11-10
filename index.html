@@ -120,7 +120,7 @@ table.simple{width:100%;border-collapse:collapse;font-size:12px}table.simple th,
 </div>
 <div id="seriesActiveBox"></div>
 </div>
-<div class="panel"><h3>Quem vai jogar?</h3><div id="attendanceList"></div><div class="actions"><button class="btn secondary" onclick="selectAll()">Selecionar todos</button><button class="btn secondary" onclick="clearSelection()">Limpar seleção</button><button class="btn" id="drawNormalBtn" onclick="drawTeams()">⚽ Sortear times</button></div><p class="notice">O sorteio procura dividir os jogadores de forma equilibrada pelas estrelas. Com quantidade ímpar, um time ficará com um jogador a mais.</p></div><div id="teamsResult"></div>
+<div class="panel"><h3>Quem vai jogar?</h3><div id="attendanceList"></div><div class="actions"><button class="btn secondary" onclick="selectAll()">Selecionar todos</button><button class="btn secondary" onclick="clearSelection()">Limpar seleção</button><button class="btn" id="drawNormalBtn" onclick="drawTeams()">⚽ Sortear times</button><button class="btn secondary" id="manualDrawBtn" onclick="startManualTeams()">✋ Montar times manualmente</button></div><p class="notice">O sorteio procura dividir os jogadores de forma equilibrada pelas estrelas. Com quantidade ímpar, um time ficará com um jogador a mais.</p></div><div id="teamsResult"></div>
 </section>
 <section class="section" id="resultado">
 <h2>Registrar resultado</h2><p class="description">Cada gol precisa ter um autor. A assistência é opcional.</p>
@@ -188,7 +188,7 @@ let db={players:[],matches:[],series:[]},selected=new Set(),teams={A:[],B:[]},cu
 let currentUser=null,currentProfile=null,isSyncing=false,idb=null;
 // Novos estados
 let localPhotos={},photoCache={},pendingPhoto=null,profileId=null,openSeriesId=null;
-let drawMode="normal",currentSeriesId=null,seriesDraft=null,teamsEditable=false,seriesCloudOk=true,seriesAbsentees=new Set();
+let drawMode="normal",currentSeriesId=null,seriesDraft=null,teamsEditable=false,seriesCloudOk=true,seriesAbsentees=new Set(),manualDraft=null;
 try{db=JSON.parse(localStorage.getItem(DB_KEY)||'{"players":[],"matches":[],"series":[]}')}catch(e){}
 if(!Array.isArray(db.players))db.players=[];if(!Array.isArray(db.matches))db.matches=[];if(!Array.isArray(db.series))db.series=[];
 const $=id=>document.getElementById(id);
@@ -794,6 +794,8 @@ function renderPlayers(){
 }
 
 function renderAttendance(){
+  const manualBtn=$("manualDrawBtn");
+  if(manualBtn)manualBtn.classList.toggle("hidden",!isAdmin());
   const list=$("attendanceList"),ps=activePlayers();
 
   if(!ps.length){
@@ -886,6 +888,7 @@ function drawTeams(opts){
   }
 
   teams=best||{A:[],B:[]};
+  manualDraft=null;
   teamsEditable=false;
   currentSeriesId=null;
   if(!opts.series)seriesDraft=null;
@@ -896,8 +899,64 @@ function drawTeams(opts){
   return true;
 }
 
+function startManualTeams(){
+  if(!isAdmin())return alert("Somente administradores podem montar os times manualmente.");
+  if(currentSeriesId)return alert("A série mantém os times fixos. Para ela, use a formação já definida.");
+  const ps=activePlayers().filter(p=>selected.has(p.id)).sort((a,b)=>a.name.localeCompare(b.name));
+  if(ps.length<2)return alert("Selecione pelo menos dois jogadores.");
+  manualDraft=ps.map(p=>({id:p.id,team:""}));
+  seriesDraft=null;
+  renderManualTeams();
+}
+
+function renderManualTeams(){
+  const el=$("teamsResult");
+  if(!manualDraft)return;
+  el.innerHTML=`<div class="panel">
+    <h3>Montar times manualmente</h3>
+    <p class="notice">Escolha o time de cada jogador. A divisão manual não altera as estrelas cadastradas.</p>
+    ${manualDraft.map(item=>{
+      const p=playerById(item.id);
+      if(!p)return "";
+      return `<div class="form-grid" style="align-items:center;margin:9px 0">
+        <div><strong>${escapeHTML(p.name)}</strong><small class="muted"> · ${escapeHTML(p.position||"Meio")} · ${starsText(p.stars)}</small></div>
+        <div><select id="manualTeam_${item.id}" aria-label="Time de ${escapeHTML(p.name)}"><option value="">Escolher time</option><option value="A">Time Rosa</option><option value="B">Time Laranja</option></select></div>
+      </div>`;
+    }).join("")}
+    <div class="actions"><button class="btn" onclick="saveManualTeams()">✔ Confirmar times</button><button class="btn secondary" onclick="cancelManualTeams()">Cancelar</button></div>
+  </div>`;
+  manualDraft.forEach(item=>{const sel=$("manualTeam_"+item.id);if(sel)sel.value=item.team||"";});
+}
+
+function saveManualTeams(){
+  if(!isAdmin())return alert("Somente administradores podem montar os times manualmente.");
+  if(!manualDraft)return;
+  const A=[],B=[];
+  for(const item of manualDraft){
+    const side=$("manualTeam_"+item.id)?.value;
+    const p=playerById(item.id);
+    if(!p)continue;
+    if(side==="A")A.push(p);else if(side==="B")B.push(p);else return alert("Escolha Time Rosa ou Time Laranja para todos os jogadores.");
+  }
+  if(!A.length||!B.length)return alert("Cada time precisa ter pelo menos um jogador.");
+  teams={A,B};
+  manualDraft=null;
+  currentSeriesId=null;
+  seriesAbsentees.clear();
+  seriesDraft=null;
+  teamsEditable=true;
+  currentGoals=[];
+  renderTeams();updateScorerOptions();renderGoals();
+}
+
+function cancelManualTeams(){
+  manualDraft=null;
+  renderTeams();
+}
+
 function renderTeams(){
   const el=$("teamsResult");
+  if(manualDraft){renderManualTeams();return;}
 
   if(!teams.A.length||!teams.B.length){
     el.innerHTML="";
