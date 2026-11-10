@@ -493,6 +493,13 @@ async function syncNow(){
         }else if(op.type==="playerDelete"){
           const {error}=await sb.from("players").delete().eq("id",op.id);
           if(error)throw error;
+        }else if(op.type==="matchDelete"){
+          const {error:gError}=await sb.from("goals").delete().eq("match_id",op.id);
+          if(gError)throw gError;
+          const {error:rError}=await sb.from("match_players").delete().eq("match_id",op.id);
+          if(rError)throw rError;
+          const {error:mError}=await sb.from("matches").delete().eq("id",op.id);
+          if(mError)throw mError;
         }else if(op.type==="playerPhoto"){
           const entry=localPhotos[op.id];
           // Foto já enviada, ou substituída por outra mais nova (que tem a própria operação).
@@ -1501,7 +1508,32 @@ function historyItemHTML(m){
       <div class="notice">
         ${(m.goals||[]).map(g=>`${teamName(g.team)}: ${escapeHTML(playerName(g.scorerId))}`+(g.assistId?` (assistência: ${escapeHTML(playerName(g.assistId))})`:" (gol solo)")).join("<br>")}
       </div>
+      ${isAdmin()?`<div class="actions" style="margin-top:10px"><button class="btn danger small" onclick="deleteMatch('${m.id}')">Excluir partida</button></div>`:""}
     </div>`;
+}
+
+
+async function deleteMatch(id){
+  if(!isAdmin())return alert("Somente administradores podem excluir partidas.");
+  const match=db.matches.find(m=>m.id===id);
+  if(!match)return alert("Esta partida não foi encontrada neste aparelho.");
+  if(!confirm(`Excluir definitivamente a partida de ${formatDate(match.date)}? O resultado, gols e assistências também serão removidos do histórico e das estatísticas.`))return;
+
+  db.matches=db.matches.filter(m=>m.id!==id);
+  await saveLocalDB();
+
+  // Se a partida ainda não foi enviada, cancela o envio pendente antes de agendar a exclusão na nuvem.
+  const q=getOutbox().filter(op=>!(op.type==="match"&&op.match?.id===id));
+  q.push({type:"matchDelete",id,queuedAt:new Date().toISOString()});
+  await saveOutbox(q);
+  renderAll();
+
+  if(navigator.onLine){
+    await syncNow();
+    alert("Partida removida do histórico deste aparelho. A exclusão na nuvem foi enviada para sincronização.");
+  }else{
+    alert("Partida removida deste aparelho. A exclusão será sincronizada quando a internet voltar.");
+  }
 }
 
 function renderHistory(){
