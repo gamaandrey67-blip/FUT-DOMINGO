@@ -120,7 +120,7 @@ table.simple{width:100%;border-collapse:collapse;font-size:12px}table.simple th,
 </div>
 <div id="seriesActiveBox"></div>
 </div>
-<div class="panel"><h3>Quem vai jogar?</h3><div id="attendanceList"></div><div class="actions"><button class="btn secondary" onclick="selectAll()">Selecionar todos</button><button class="btn secondary" onclick="clearSelection()">Limpar seleção</button><button class="btn" id="drawNormalBtn" onclick="drawTeams()">⚽ Sortear times</button></div><p class="notice">O sorteio procura dividir os jogadores de forma equilibrada pelas estrelas. Com quantidade ímpar, um time ficará com um jogador a mais.</p></div><div id="teamsResult"></div>
+<div class="panel"><h3>Quem vai jogar?</h3><div id="attendanceList"></div><div class="actions"><button class="btn secondary" onclick="selectAll()">Selecionar todos</button><button class="btn secondary" onclick="clearSelection()">Limpar seleção</button><button class="btn" id="drawNormalBtn" onclick="drawTeams()">⚽ Sortear times</button><button class="btn secondary" onclick="openManualTeams()">✍ Criar time manual</button></div><p class="notice">O sorteio procura dividir os jogadores de forma equilibrada pelas estrelas. Com quantidade ímpar, um time ficará com um jogador a mais.</p></div><div id="manualTeamsPanel"></div><div id="teamsResult"></div>
 </section>
 <section class="section" id="resultado">
 <h2>Registrar resultado</h2><p class="description">Cada gol precisa ter um autor. A assistência é opcional.</p>
@@ -905,6 +905,31 @@ function drawTeams(opts){
   updateScorerOptions();
   renderGoals();
   return true;
+}
+
+function openManualTeams(){
+  if(!isAdmin())return alert("Entre como administrador para montar os times manualmente.");
+  const ps=activePlayers().filter(p=>selected.has(p.id));
+  if(ps.length<2)return alert("Selecione pelo menos dois jogadores em Quem vai jogar.");
+  const el=$("manualTeamsPanel");
+  el.innerHTML=`<div class="panel"><h3>✍ Criar time manual</h3><p class="notice">Escolha o time de cada jogador e confirme a formação.</p>
+    ${ps.map((p,i)=>`<div class="team-player"><span>${escapeHTML(p.name)} · ${starsText(p.stars)}</span><select class="manual-side" data-player="${p.id}"><option value="A" ${i%2===0?'selected':''}>Time Rosa</option><option value="B" ${i%2===1?'selected':''}>Time Laranja</option></select></div>`).join("")}
+    <div class="actions"><button class="btn" onclick="confirmManualTeams()">✔ Confirmar times</button><button class="btn secondary" onclick="closeManualTeams()">Cancelar</button></div></div>`;
+  el.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function closeManualTeams(){ $("manualTeamsPanel").innerHTML=""; }
+function confirmManualTeams(){
+  if(!isAdmin())return;
+  const a=[],b=[];
+  document.querySelectorAll("#manualTeamsPanel .manual-side").forEach(sel=>{
+    const p=playerById(sel.dataset.player);
+    if(p)(sel.value==="A"?a:b).push(p);
+  });
+  if(!a.length||!b.length)return alert("Cada time precisa ter pelo menos um jogador.");
+  if(currentGoals.length&&!confirm("Substituir os times e limpar os gols ainda não salvos?"))return;
+  if(currentSeriesId&&!confirm("Criar partida avulsa fora da série atual?"))return;
+  teams={A:a,B:b};teamsEditable=true;currentSeriesId=null;seriesDraft=null;currentGoals=[];
+  closeManualTeams();renderTeams();updateScorerOptions();renderGoals();
 }
 
 function renderTeams(){
