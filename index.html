@@ -482,6 +482,14 @@ async function syncNow(){
             const {error:e3}=await sb.from("goals").upsert(op.goals,{onConflict:"id"});
             if(e3)throw e3;
           }
+        }else if(op.type==="matchDelete"){
+          // Exclui primeiro os registros dependentes e depois a partida.
+          const {error:goalsError}=await sb.from("goals").delete().eq("match_id",op.id);
+          if(goalsError)throw goalsError;
+          const {error:playersError}=await sb.from("match_players").delete().eq("match_id",op.id);
+          if(playersError)throw playersError;
+          const {error:matchError}=await sb.from("matches").delete().eq("id",op.id);
+          if(matchError)throw matchError;
         }else if(op.type==="player"){
           const {error}=await sb.from("players").upsert(op.payload,{onConflict:"id"});
           if(error)throw error;
@@ -616,8 +624,15 @@ async function syncNow(){
       };
     });
 
+    // Uma exclusão que falhou na nuvem continua escondida localmente
+    // até a próxima tentativa de sincronização.
+    const pendingDeletedMatchIds=new Set(
+      remaining.filter(o=>o.type==="matchDelete").map(o=>o.id)
+    );
+    const visibleCloudMatches=cloudMatches.filter(m=>!pendingDeletedMatchIds.has(m.id));
+
     const cloudP=new Set((players||[]).map(x=>x.id));
-    const cloudM=new Set(cloudMatches.map(x=>x.id));
+    const cloudM=new Set(visibleCloudMatches.map(x=>x.id));
 
     db.players=[
       ...(players||[]),
@@ -625,8 +640,8 @@ async function syncNow(){
     ];
 
     db.matches=[
-      ...cloudMatches,
-      ...localMatches.filter(x=>!cloudM.has(x.id))
+      ...visibleCloudMatches,
+      ...localMatches.filter(x=>!cloudM.has(x.id)&&!pendingDeletedMatchIds.has(x.id))
     ].sort((a,b)=>new Date(b.date)-new Date(a.date));
 
     if(cloudSeries){
@@ -1518,7 +1533,10 @@ function historyItemHTML(m){
   const s=m.seriesId?seriesById(m.seriesId):null;
   return `
     <div class="history-item">
-      <div class="muted">${formatDate(m.date)}${m.seriesId?` · <span class="badge">Série: ${escapeHTML(s?.name||"série")}</span>`:""}</div>
+      <div class="topline">
+        <div class="muted">${formatDate(m.date)}${m.seriesId?` · <span class="badge">Série: ${escapeHTML(s?.name||"série")}</span>`:""}</div>
+        ${isAdmin()?`<button class="btn danger small" onclick="deleteMatch('${m.id}')">Excluir partida</button>`:""}
+      </div>
       <div class="score">
         <span class="score-rosa">TIME ROSA ${m.scoreA}</span> ×
         <span class="score-laranja">${m.scoreB} TIME LARANJA</span>
@@ -1528,6 +1546,35 @@ function historyItemHTML(m){
         ${(m.goals||[]).map(g=>`${teamName(g.team)}: ${escapeHTML(playerName(g.scorerId))}`+(g.assistId?` (assistência: ${escapeHTML(playerName(g.assistId))})`:" (gol solo)")).join("<br>")}
       </div>
     </div>`;
+}
+
+async function deleteMatch(id){
+  if(!isAdmin())return alert("Somente administradores podem excluir partidas.");
+  const match=db.matches.find(m=>m.id===id);
+  if(!match)return alert("Partida não encontrada neste aparelho.");
+
+  const resumo=`${formatDate(match.date)} · ${match.scoreA} × ${match.scoreB}`;
+  if(!confirm(`Excluir a partida de ${resumo}?\n\nOs gols, participações e o registro do placar também serão excluídos. Esta ação não pode ser desfeita.`))return;
+
+  // Remove do aparelho imediatamente e cancela eventual envio ainda pendente.
+  db.matches=db.matches.filter(m=>m.id!==id);
+  const queue=getOutbox().filter(op=>!(op.type==="match"&&op.match?.id===id)&&!(op.type==="matchDelete"&&op.id===id));
+  await saveOutbox(queue);
+  await saveLocalDB();
+  await queueOperation({type:"matchDelete",id});
+
+  renderAll();
+
+  if(navigator.onLine){
+    await syncNow();
+    if(getOutbox().some(op=>op.type==="matchDelete"&&op.id===id)){
+      alert("A partida foi removida da tela, mas a exclusão ainda está aguardando autorização/sincronização. Verifique a mensagem de sincronização.");
+    }else{
+      alert("Partida excluída com sucesso.");
+    }
+  }else{
+    alert("Partida removida deste aparelho. A exclusão será sincronizada quando a internet voltar.");
+  }
 }
 
 function renderHistory(){
